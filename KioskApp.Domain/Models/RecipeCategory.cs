@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+
+#nullable disable
+
+namespace KioskApi.Domain.Models
+{
+    public partial class RecipeCategory
+    {
+        public RecipeCategory()
+        {
+            Recipes = new HashSet<Recipe>();
+        }
+
+        public int CatId { get; set; }
+        public string Category { get; set; }
+        public int? Total { get; set; }
+
+        public virtual ICollection<Recipe> Recipes { get; set; }
+    }
+}
