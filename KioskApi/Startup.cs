@@ -100,6 +100,7 @@ namespace KioskApi
             // Make config dependency injectable
             services.AddSingleton(Configuration);
 
+            services.AddScoped<IAspNetUserRepository, AspNetUserRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IIngredientRepository, IngredientRepository>();
             services.AddScoped<IRecipeRepository, RecipeRepository>();

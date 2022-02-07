@@ -31,22 +31,29 @@ namespace Kiosk.Data.Repository
         #region Fields
         private IIngredientRepository _ingredientRepository;
         private ICategoryRepository _categoryRepository;
+        private IAspNetUserRepository _userRepository;
         #endregion
 
         #region Constructors
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="connectionstring"></param>
+        /// <param name="logger"></param>
+        /// <param name="ingredientRepository"></param>
+        /// <param name="categoryRepository"></param>
+        /// <param name="userRepository"></param>
+        /// <param name="dbContext"></param>        
         public RecipeRepository(
-            ILogger<IRecipeRepository> logger, 
+            ILogger<IRecipeRepository> logger,
             IIngredientRepository ingredientRepository,
             ICategoryRepository categoryRepository,
+            IAspNetUserRepository userRepository,
             KIOSKContext dbContext)
         {
             _logger = logger;
             _ingredientRepository = ingredientRepository;
             _categoryRepository = categoryRepository;
+            _userRepository = userRepository;
             _context = dbContext;
         }
         #endregion
@@ -56,17 +63,16 @@ namespace Kiosk.Data.Repository
         /// <summary>
         /// Fetch recipes.
         /// </summary>
-        /// <param name="options">Options when fetching recipes.</param>
-        /// <param name="includeIngredients">Results should include ingredients</param>
+        /// <param name="options">Options when fetching recipes.</param>        
         /// <returns></returns>
-        public Task<List<Recipe>> Get(RepositoryOptions options, bool includeIngredients = false)
+        public Task<List<Recipe>> Get(RepositoryOptionsRecipe options)
         {
             var recipes = (from r in _context.Recipes select r);
 
-            if (!string.IsNullOrEmpty(options.SearchString))            
+            if (!string.IsNullOrEmpty(options.SearchString))
                 recipes = recipes.Where(s => s.Title.Contains(options.SearchString));
-            
-            switch(options.SortOrder)
+
+            switch (options.SortOrder)
             {
                 case SortOrder.Ascending:
                     recipes = recipes.OrderBy(s => s.Title);
@@ -81,13 +87,44 @@ namespace Kiosk.Data.Repository
             var pagedList = PaginatedList<Recipe>.CreateAsync(recipes.AsNoTracking(), options.PageNumber, options.PageSize);
             var pagedResult = Task.Run(() => pagedList.Result.ToList());
 
-            if (includeIngredients)
+            if (options.IncludeIngredients)
+                foreach (var r in pagedResult.Result)
+                    if (r.Ingredients == null)
+                        r.Ingredients = _ingredientRepository.GetByRecipe(r).Result;
+
+            if (options.IncludePrimaryCategory)
+                foreach (var r in pagedResult.Result)
+                    if (r.PrimaryCategory == null)
+                        r.PrimaryCategory = _categoryRepository.GetById(r.CatId).Result;
+
+            if (options.IncludeCategories)
+                foreach (var r in pagedResult.Result)
+                    if (r.Categories == null)
+                        r.Categories = _categoryRepository.GetByRecipe(r).Result;
+
+            if (options.IncludeOwner)
             {
                 foreach (var r in pagedResult.Result)
-                    r.Ingredients = _ingredientRepository.GetByRecipe(r).Result;
+                {
+                    if (r.Owner == null)
+                    {
+                        var owner = _userRepository.GetById(r.Useruid).Result;
+                        r.Owner = new AspNetUser() { Id = owner.Id, UserName = owner.UserName };
+                    }
+                }
             }
 
             return pagedResult;
+        }
+
+        /// <summary>
+        /// Fetch a specific recipe from the database.
+        /// </summary>
+        /// <param name="recipe"></param>
+        /// <returns></returns>
+        public Task<Recipe> GetOne(Recipe recipe)
+        {
+            return (GetOne(recipe, new RepositoryOptionsRecipe()));
         }
 
         /// <summary>
@@ -95,13 +132,26 @@ namespace Kiosk.Data.Repository
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
-        public Task<Recipe> GetOne(Recipe recipe)
+        public Task<Recipe> GetOne(Recipe recipe, RepositoryOptionsRecipe options)
         {
             var e = _context.Recipes.Where(p => p.RecId.Equals(recipe.RecId)).SingleOrDefaultAsync();
             Recipe dbrecipe = e.Result;
-            dbrecipe.Ingredients = _ingredientRepository.GetByRecipe(dbrecipe).Result;
-            dbrecipe.PrimaryCategory = _categoryRepository.GetById(dbrecipe.CatId).Result;
-            dbrecipe.Categories = _categoryRepository.GetByRecipe(recipe).Result;
+
+            if (options.IncludeIngredients)
+                dbrecipe.Ingredients = _ingredientRepository.GetByRecipe(dbrecipe).Result;
+
+            if (options.IncludePrimaryCategory)
+                dbrecipe.PrimaryCategory = _categoryRepository.GetById(dbrecipe.CatId).Result;
+
+            if (options.IncludeCategories)
+                dbrecipe.Categories = _categoryRepository.GetByRecipe(recipe).Result;
+
+            if (options.IncludeOwner)
+            {
+                var owner = _userRepository.GetById(dbrecipe.Useruid).Result;
+                dbrecipe.Owner = new AspNetUser() { Id = owner.Id, UserName = owner.UserName };
+            }
+
             return Task.Run(() => dbrecipe);
         }
 

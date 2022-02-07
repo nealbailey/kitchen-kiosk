@@ -44,7 +44,7 @@ namespace UnitTests.Api
             var searchstring = "chicken";
 
             // Act
-            var requestTask = _httpClient.GetAsync($"api/recipe/GetRecipes?searchstring={searchstring}");
+            var requestTask = _httpClient.GetAsync($"api/recipes?searchstring={searchstring}");
             var response = requestTask.Result;
 
             //Assert
@@ -56,18 +56,34 @@ namespace UnitTests.Api
         [TestMethod]
         public void Recipes_GetOne()
         {
-            // Arrange
-            var id = 8;
-
-            // Act
-            var requestTask = _httpClient.GetAsync($"api/recipe/{id}");
+            //
+            // Test #1: Fully expanded Recipe object
+            //
+            var id = 1058;
+            var requestTask = _httpClient.GetAsync($"api/recipe/{id}?expand=true");
             var response = requestTask.Result;
 
-            //Assert
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             var recipe = response.DeserializeContent<Recipe>();
             Assert.IsNotNull(recipe);
             Assert.IsNotNull(recipe.PrimaryCategory);
+            Assert.IsTrue(recipe.Categories.Count > 0);
+            Assert.IsTrue(recipe.Ingredients.Count > 0);
+            Assert.AreEqual("abc4bbf1-5bb4-43df-8c1b-ca5b1c85883d", recipe.Owner.Id);
+            Assert.AreEqual("nealbailey", recipe.Owner.UserName);
+
+            //
+            // Test #2: Shallow Recipe object
+            //
+            requestTask = _httpClient.GetAsync($"api/recipe/{id}");
+            response = requestTask.Result;
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            recipe = response.DeserializeContent<Recipe>();
+            Assert.IsNotNull(recipe);
+            Assert.IsNull(recipe.PrimaryCategory);
+            Assert.IsNull(recipe.Owner);
+            Assert.IsNull(recipe.Categories);
+            Assert.IsNull(recipe.Ingredients);
         }
     }
 }

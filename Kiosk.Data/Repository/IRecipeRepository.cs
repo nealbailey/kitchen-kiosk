@@ -31,15 +31,22 @@ namespace Kiosk.Data.Repository
         /// Fetch recipes.
         /// </summary>
         /// <param name="options">Options when fetching recipes.</param>
-        /// <param name="includeIngredients">Results should include ingredients</param>
         /// <returns></returns>
-        public Task<List<Recipe>> Get(RepositoryOptions options, bool includeIngredients = false);
-
+        public Task<List<Recipe>> Get(RepositoryOptionsRecipe options);
+        
         /// <summary>
         /// Fetch a specific category from the database.
         /// </summary>
         /// <param name="recipe"></param>
         /// <returns></returns>
-        public Task<Recipe> GetOne(Recipe recipe);        
+        public Task<Recipe> GetOne(Recipe recipe);
+
+        /// <summary>
+        /// Fetch a specific category from the database.
+        /// </summary>
+        /// <param name="recipe"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public Task<Recipe> GetOne(Recipe recipe, RepositoryOptionsRecipe options);
     }
 }

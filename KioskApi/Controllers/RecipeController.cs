@@ -18,7 +18,6 @@
 //-----------------------------------------------------------------------
 namespace KioskApi.Controllers
 {
-    using Kiosk.Data;
     using Kiosk.Data.Repository;
     using KioskApi.Domain.Models;
     using Microsoft.AspNetCore.Mvc;
@@ -28,7 +27,7 @@ namespace KioskApi.Controllers
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Endpoints for working with recipes
+    /// Endpoints for working a recipe
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
@@ -59,64 +58,27 @@ namespace KioskApi.Controllers
         #region Http Action Endpoints
 
         /// <summary>
-        /// 
+        /// Fetch a single <see cref="Recipe"/> by its id.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">Recipe id</param>
+        /// <param name="expand">Return a shallow or fully populated instance.</param>
         /// <returns></returns>
         [HttpGet("{id}", Name = "GetRecipe")]
-        public async Task<IActionResult> GetRecipe(int id)
+        public async Task<IActionResult> GetRecipe(int id, bool expand = false)
         {
+            var options = new RepositoryOptionsRecipe() {
+            IncludeCategories = true,
+            IncludeIngredients = true,
+            IncludeOwner = true,
+            IncludePrimaryCategory = true 
+            };
+
             var httpRecipe = new Recipe() { RecId = id };
-            var dbRecipe = await _recipeRepository.GetOne(httpRecipe);
+            var dbRecipe = (expand)
+                ? await _recipeRepository.GetOne(httpRecipe, options)
+                : await _recipeRepository.GetOne(httpRecipe);
+
             return Ok(dbRecipe);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="order"></param>
-        /// <param name="searchstring"></param>
-        /// <param name="pageNumber"></param>
-        /// <param name="pageSize"></param>
-        /// <param name="includeIngredients"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("GetRecipes")]
-        public async Task<IActionResult> GetRecipes(
-            string order = "Asc", 
-            string searchstring = "",
-            int pageNumber = 1,
-            int pageSize = 50,
-            bool includeIngredients = false)
-        {
-            try
-            {                
-                var options = new RepositoryOptions
-                {
-                    PageSize = pageSize,
-                    PageNumber = pageNumber,
-                    SearchString = searchstring,
-                    SortOrder = SortOrder.None
-                };
-
-                switch (order.ToLower())
-                {
-                    case "asc":
-                        options.SortOrder = SortOrder.Ascending;
-                        break;
-                    case "desc":
-                        options.SortOrder = SortOrder.Descending;
-                        break;
-                }
-
-                var recipes = await _recipeRepository.Get(options, includeIngredients);
-
-                return Ok(recipes);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new Response { Status = "Failed", Message = $"Unable to retrieve the recipes due to an error: '{ex.Message}'" });
-            }
         }
 
         #endregion

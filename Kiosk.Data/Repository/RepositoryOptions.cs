@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
-namespace Kiosk.Data
+namespace Kiosk.Data.Repository
 {
     /// <summary>
     /// The repository sorting order
