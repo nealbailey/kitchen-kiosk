@@ -52,5 +52,22 @@ namespace UnitTests.Api
             var recipes = response.DeserializeContent<List<Recipe>>();
             Assert.IsTrue(recipes.Count > 0);
         }
+
+        [TestMethod]
+        public void Recipes_GetOne()
+        {
+            // Arrange
+            var id = 8;
+
+            // Act
+            var requestTask = _httpClient.GetAsync($"api/recipe/{id}");
+            var response = requestTask.Result;
+
+            //Assert
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            var recipe = response.DeserializeContent<Recipe>();
+            Assert.IsNotNull(recipe);
+            Assert.IsNotNull(recipe.PrimaryCategory);
+        }
     }
 }

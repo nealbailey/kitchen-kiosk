@@ -61,13 +61,12 @@ namespace KioskApi.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="recId"></param>
-         /// <returns></returns>
-        [HttpGet]
-        [Route("GetRecipe")]
-        public async Task<IActionResult> GetRecipe(int recId)
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("{id}", Name = "GetRecipe")]
+        public async Task<IActionResult> GetRecipe(int id)
         {
-            var httpRecipe = new Recipe() { RecId = recId };
+            var httpRecipe = new Recipe() { RecId = id };
             var dbRecipe = await _recipeRepository.GetOne(httpRecipe);
             return Ok(dbRecipe);
         }

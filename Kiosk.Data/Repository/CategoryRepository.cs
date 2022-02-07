@@ -94,6 +94,17 @@ namespace Kiosk.Data.Repository
         }
 
         /// <summary>
+        /// Get category by id.
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <returns></returns>
+        public Task<RecipeCategory> GetById(int categoryId)
+        {
+            var task_category = _context.RecipeCategories.Where(p => p.CatId.Equals(categoryId)).SingleOrDefaultAsync().Result;            
+            return Task.Run(() => (RecipeCategory)task_category.Clone());
+        }
+
+        /// <summary>
         /// Get all categories.
         /// </summary>
         /// <returns></returns>
@@ -110,15 +121,16 @@ namespace Kiosk.Data.Repository
         /// <returns></returns>
         public Task<List<RecipeCategory>> GetByRecipe(Recipe recipe)
         {
-            var recipes = (from r in _context.Recipes select r);
-
+            
             var categories = 
                        (from x in _context.RecipeCategories
                         join c in _context.RecipeCategoryMaps
-                        on x.CatId equals recipe.CatId
+                        on x.CatId equals c.CatId 
+                        where c.RecId == recipe.RecId 
                         select x).Distinct().ToListAsync();
 
-            return Task.Run(() => categories);
+            var result = categories.Result;
+            return Task.Run(() => result);
         }
 
         #endregion

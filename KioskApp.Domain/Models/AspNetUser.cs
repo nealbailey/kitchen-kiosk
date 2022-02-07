@@ -13,6 +13,7 @@ namespace KioskApi.Domain.Models
             AspNetUserLogins = new HashSet<AspNetUserLogin>();
             AspNetUserRoles = new HashSet<AspNetUserRole>();
             AspNetUserTokens = new HashSet<AspNetUserToken>();
+            Recipes = new HashSet<Recipe>();
         }
 
         public string Id { get; set; }
@@ -35,5 +36,6 @@ namespace KioskApi.Domain.Models
         public virtual ICollection<AspNetUserLogin> AspNetUserLogins { get; set; }
         public virtual ICollection<AspNetUserRole> AspNetUserRoles { get; set; }
         public virtual ICollection<AspNetUserToken> AspNetUserTokens { get; set; }
+        public virtual ICollection<Recipe> Recipes { get; set; }
     }
 }

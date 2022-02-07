@@ -30,6 +30,7 @@ namespace Kiosk.Data.Repository
     {
         #region Fields
         private IIngredientRepository _ingredientRepository;
+        private ICategoryRepository _categoryRepository;
         #endregion
 
         #region Constructors
@@ -40,10 +41,12 @@ namespace Kiosk.Data.Repository
         public RecipeRepository(
             ILogger<IRecipeRepository> logger, 
             IIngredientRepository ingredientRepository,
+            ICategoryRepository categoryRepository,
             KIOSKContext dbContext)
         {
             _logger = logger;
             _ingredientRepository = ingredientRepository;
+            _categoryRepository = categoryRepository;
             _context = dbContext;
         }
         #endregion
@@ -92,12 +95,13 @@ namespace Kiosk.Data.Repository
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
-
         public Task<Recipe> GetOne(Recipe recipe)
         {
             var e = _context.Recipes.Where(p => p.RecId.Equals(recipe.RecId)).SingleOrDefaultAsync();
             Recipe dbrecipe = e.Result;
             dbrecipe.Ingredients = _ingredientRepository.GetByRecipe(dbrecipe).Result;
+            dbrecipe.PrimaryCategory = _categoryRepository.GetById(dbrecipe.CatId).Result;
+            dbrecipe.Categories = _categoryRepository.GetByRecipe(recipe).Result;
             return Task.Run(() => dbrecipe);
         }
 

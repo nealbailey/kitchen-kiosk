@@ -39,6 +39,13 @@ namespace Kiosk.Data.Repository
         public Task<RecipeCategory> Get(RecipeCategory category);
 
         /// <summary>
+        /// Get category by id.
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <returns></returns>
+        public Task<RecipeCategory> GetById(int categoryId);
+
+        /// <summary>
         /// Get all categories.
         /// </summary>
         /// <returns></returns>

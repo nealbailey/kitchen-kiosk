@@ -63,6 +63,10 @@ namespace UnitTests
             services.AddScoped<IRecipeRepository, RecipeRepository>();
             services.AddScoped<IIngredientRepository, IngredientRepository>();
 
+            // Newtonsoft JSON
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                );
             services.AddControllers(options => options.EnableEndpointRouting = false);
             services.AddOptions();
             services.AddMvc().AddApplicationPart(typeof(KioskApi.Controllers.AuthenticateController).Assembly);

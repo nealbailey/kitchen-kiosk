@@ -1,5 +1,7 @@
-﻿using KioskApi.Domain.Models;
+﻿using System;
+using KioskApi.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
@@ -7,9 +9,14 @@ namespace KioskApi.Data
 {
     public partial class KIOSKContext : DbContext
     {
-        public KIOSKContext() { }
+        public KIOSKContext()
+        {
+        }
 
-        public KIOSKContext(DbContextOptions<KIOSKContext> options) : base(options) { }
+        public KIOSKContext(DbContextOptions<KIOSKContext> options)
+            : base(options)
+        {
+        }
 
         public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
         public virtual DbSet<AspNetRoleClaim> AspNetRoleClaims { get; set; }
@@ -140,13 +147,22 @@ namespace KioskApi.Data
                     .HasMaxLength(255)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Useruid).HasColumnName("useruid");
+                entity.Property(e => e.Useruid)
+                    .IsRequired()
+                    .HasMaxLength(450)
+                    .HasColumnName("useruid");
 
                 entity.HasOne(d => d.PrimaryCategory)
                     .WithMany(p => p.Recipes)
                     .HasForeignKey(d => d.CatId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_recipe_recipeCategory");
+
+                entity.HasOne(d => d.Owner)
+                    .WithMany(p => p.Recipes)
+                    .HasForeignKey(d => d.Useruid)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_AspNetUsers_Recipe");
             });
 
             modelBuilder.Entity<RecipeCategory>(entity =>
