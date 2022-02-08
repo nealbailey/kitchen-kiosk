@@ -38,6 +38,28 @@ namespace UnitTests.Api
         #endregion
 
         [TestMethod]
+        public void Recipes_ByCategory()
+        {
+            var categoryId = 1;
+            var requestTask = _httpClient.GetAsync($"api/recipes?categoryId={categoryId}");
+            var response = requestTask.Result;
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            var recipes = response.DeserializeContent<List<Recipe>>();
+            Assert.IsTrue(recipes.Count > 0);
+        }
+
+        [TestMethod]
+        public void Recipes_ByUser()
+        {
+            var userUid = "abc4bbf1-5bb4-43df-8c1b-ca5b1c85883d";
+            var requestTask = _httpClient.GetAsync($"api/recipes?userId={userUid}");
+            var response = requestTask.Result;
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            var recipes = response.DeserializeContent<List<Recipe>>();
+            Assert.IsTrue(recipes.Count > 0);
+        }
+
+        [TestMethod]
         public void Recipes_Search()
         {
             // Arrange
@@ -51,6 +73,28 @@ namespace UnitTests.Api
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             var recipes = response.DeserializeContent<List<Recipe>>();
             Assert.IsTrue(recipes.Count > 0);
+        }
+
+        [TestMethod]
+        public void Recipes_Sorting()
+        {
+            var sortfield = "date";
+            var sortOrder = "desc";
+            var requestTask = _httpClient.GetAsync($"api/recipes?sortcolumn={sortfield}&sortorder={sortOrder}");
+            var response = requestTask.Result;
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            var recipes = response.DeserializeContent<List<Recipe>>();
+            Assert.IsTrue(recipes.Count > 0);
+            var recipe = recipes[0];
+
+            sortfield = "date";
+            sortOrder = "asc";
+            requestTask = _httpClient.GetAsync($"api/recipes?sortcolumn={sortfield}&sortorder={sortOrder}");
+            response = requestTask.Result;
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            recipes = response.DeserializeContent<List<Recipe>>();
+            Assert.IsTrue(recipes.Count > 0);
+            Assert.AreNotEqual(recipe.Title, recipes[0].Title);
         }
 
         [TestMethod]

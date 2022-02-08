@@ -61,18 +61,24 @@ namespace KioskApi.Controllers
         /// <summary>
         /// Fetch a collection of <see cref="Recipe"/> instances.
         /// </summary>
-        /// <param name="order">Order Direction (Asc or Desc)</param>
+        /// <param name="sortOrder">Order Direction (Asc or Desc)</param>
+        /// <param name="sortColumn">The column to sort results.</param>
         /// <param name="searchstring">Search string</param>
         /// <param name="pageNumber">Current page</param>
         /// <param name="pageSize">Page size</param>
+        /// <param name="categoryId">The category</param>
+        /// <param name="userId">The user Guid</param>
         /// <param name="expand">Return a shallow or fully populated instance.</param>
         /// <returns></returns>
         [HttpGet(Name = "GetRecipes")]
         public async Task<IActionResult> GetRecipes(
-            string order = "Asc",
+            string sortOrder = "Asc",
+            string sortColumn = "Title",
             string searchstring = "",
             int pageNumber = 1,
             int pageSize = 25,
+            int categoryId = 0,
+            string userId = "",
             bool expand = false)
         {
             try
@@ -82,6 +88,9 @@ namespace KioskApi.Controllers
                     PageSize = pageSize,
                     PageNumber = pageNumber,
                     SearchString = searchstring,
+                    CategoryId = categoryId,
+                    UserUid = userId,
+                    SortColumn = RecipeSortColumn.Title,
                     SortOrder = SortOrder.None,
                     IncludeCategories = (expand),
                     IncludeIngredients = (expand),
@@ -89,14 +98,16 @@ namespace KioskApi.Controllers
                     IncludePrimaryCategory = (expand)
                 };
 
-                switch (order.ToLower())
+                switch (sortOrder.ToLower())
                 {
-                    case "asc":
-                        options.SortOrder = SortOrder.Ascending;
-                        break;
-                    case "desc":
-                        options.SortOrder = SortOrder.Descending;
-                        break;
+                    case "asc": options.SortOrder = SortOrder.Ascending; break;
+                    case "desc": options.SortOrder = SortOrder.Descending; break;
+                }
+
+                switch (sortColumn.ToLower())
+                {
+                    case "title": options.SortColumn = RecipeSortColumn.Title; break;
+                    case "date": options.SortColumn = RecipeSortColumn.Date; break;
                 }
 
                 var recipes = await _recipeRepository.Get(options);

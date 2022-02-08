@@ -24,5 +24,10 @@ namespace KioskApi.Domain.Models
 
         [NotMapped]
         public virtual List<RecipeIngredient> Ingredients { get; set; }
+
+        public override string ToString()
+        {
+            return Title ?? base.ToString();
+        }
     }
 }

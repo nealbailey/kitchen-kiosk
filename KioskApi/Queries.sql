@@ -52,3 +52,10 @@ WHERE r.recId =
 	(SELECT recId FROM recipeCategoryMap 
 	 WHERE recId = r.recId and catId = c.catId)
 ORDER BY [Date] DESC;
+
+--Get Recipes by Category
+SELECT r.recId, r.useruid, r.[Date], r.Title, r.[Description], r.Instructions, c.catId, c.category 
+FROM recipe r, recipeCategory c
+WHERE r.recId = 
+ (SELECT recId FROM recipeCategoryMap
+  WHERE recId = r.recId and catId = c.catId and category = 'crockpot')

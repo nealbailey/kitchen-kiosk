@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "RecipeRepository.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 02/02/2022 12:33:00 PM
+// Last Updated: 02/08/2022 06:08:00 AM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -69,24 +69,49 @@ namespace Kiosk.Data.Repository
         {
             var recipes = (from r in _context.Recipes select r);
 
+            // Search filter
             if (!string.IsNullOrEmpty(options.SearchString))
                 recipes = recipes.Where(s => s.Title.Contains(options.SearchString));
 
+            // Sort column + order
             switch (options.SortOrder)
             {
                 case SortOrder.Ascending:
-                    recipes = recipes.OrderBy(s => s.Title);
+                    recipes = (options.SortColumn == RecipeSortColumn.Date) 
+                        ? recipes.OrderBy(s => s.Date) 
+                        : recipes.OrderBy(s => s.Title);
                     break;
                 case SortOrder.Descending:
-                    recipes = recipes.OrderByDescending(s => s.Title);
+                    recipes = (options.SortColumn == RecipeSortColumn.Date) 
+                        ? recipes.OrderByDescending(s => s.Date) 
+                        : recipes.OrderByDescending(s => s.Title);
                     break;
                 case SortOrder.None:
                     break;
             }
 
+            // By user
+            if(!string.IsNullOrEmpty(options.UserUid))
+                recipes = recipes.Where(s => s.Useruid.Equals(options.UserUid));
+
+            // By category
+            if(options.CategoryId > 0)
+            {
+                // SELECT * FROM recipe r
+                // WHERE r.recId = 
+                // (SELECT recId FROM recipeCategoryMap
+                //  WHERE recId = r.recId and catId = 1)
+                recipes = from r in recipes
+                          where (from m in _context.RecipeCategoryMaps
+                                 where m.CatId == options.CategoryId
+                                 select m.RecId).Contains(r.RecId)
+                          select r;
+            }
+
             var pagedList = PaginatedList<Recipe>.CreateAsync(recipes.AsNoTracking(), options.PageNumber, options.PageSize);
             var pagedResult = Task.Run(() => pagedList.Result.ToList());
 
+            // Nested references
             if (options.IncludeIngredients)
                 foreach (var r in pagedResult.Result)
                     if (r.Ingredients == null)
