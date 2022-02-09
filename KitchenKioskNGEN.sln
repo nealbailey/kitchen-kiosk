@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32106.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KioskApi", "KioskApi\KioskApi.csproj", "{77F98784-50E4-4133-AA25-E88DAE787582}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kiosk.Api", "Kiosk.Api\Kiosk.Api.csproj", "{77F98784-50E4-4133-AA25-E88DAE787582}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\UnitTests.csproj", "{F533E7AF-970D-4D79-96B2-004EA9832954}"
 EndProject

@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KioskApi\KioskApi.csproj" />
+    <ProjectReference Include="..\Kiosk.Api\Kiosk.Api.csproj" />
   </ItemGroup>
 
 </Project>
