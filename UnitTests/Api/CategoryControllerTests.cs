@@ -39,7 +39,7 @@ namespace UnitTests.Api
         #endregion
 
         [TestMethod]
-        public void GetCategory_Valid_Id()
+        public void CategoryController_GetCategory()
         {
             // Arrange
             var id = 1;
@@ -56,7 +56,7 @@ namespace UnitTests.Api
         }
 
         [TestMethod]
-        public void CreateCategory()
+        public void CategoryController_Create()
         {
             // Arrange
             var category = new RecipeCategory() { Category = "Testing" };

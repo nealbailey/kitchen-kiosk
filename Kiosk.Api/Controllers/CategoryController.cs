@@ -20,6 +20,8 @@ namespace KioskApi.Controllers
 {
     using Kiosk.Data.Repository;
     using KioskApi.Domain.Models;
+    using KioskApi.Domain.Models.Auth;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
@@ -62,6 +64,7 @@ namespace KioskApi.Controllers
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
+        [Authorize(Roles = UserRoles.Admin)]
         [HttpPost( Name = "AddCategory")]
         public async Task<IActionResult> AddCategory([FromBody] RecipeCategory category)
         {            
