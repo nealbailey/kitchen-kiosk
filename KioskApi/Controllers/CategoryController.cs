@@ -62,29 +62,11 @@ namespace KioskApi.Controllers
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
-        [HttpPost]
-        [Route("AddCategory")]
+        [HttpPost( Name = "AddCategory")]
         public async Task<IActionResult> AddCategory([FromBody] RecipeCategory category)
         {            
-            var id = await _categoryRepository.Create(category);
-            return Ok(new Response { Status = "Success", Message = $"CategoryId = {id}" });
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="catId"></param>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("GetCategory")]
-        public async Task<IActionResult> GetCategory(int catId, string name)
-        {
-            _logger.LogDebug($"Received get request for /category/GetCategory?catId={catId}&name={name}");
-            
-            var httpCategory = new RecipeCategory() { CatId = catId, Category = name };            
-            var dbCategory = await _categoryRepository.Get(httpCategory);
-            return Ok(dbCategory);
+            var new_category = await _categoryRepository.Create(category);
+            return Ok(new_category);
         }
 
         /// <summary>
@@ -98,6 +80,23 @@ namespace KioskApi.Controllers
             _logger.LogDebug($"Received get request for /category/{id}");
 
             var httpCategory = new RecipeCategory() { CatId = int.Parse(id) };
+            var dbCategory = await _categoryRepository.Get(httpCategory);
+            return Ok(dbCategory);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="catId"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetCategory")]
+        public async Task<IActionResult> GetCategory(int catId, string name)
+        {
+            _logger.LogDebug($"Received get request for /category/GetCategory?catId={catId}&name={name}");
+
+            var httpCategory = new RecipeCategory() { CatId = catId, Category = name };
             var dbCategory = await _categoryRepository.Get(httpCategory);
             return Ok(dbCategory);
         }

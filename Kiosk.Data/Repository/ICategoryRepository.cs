@@ -29,7 +29,7 @@ namespace Kiosk.Data.Repository
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
-        public Task<int> Create(RecipeCategory category);
+        public Task<RecipeCategory> Create(RecipeCategory category);
 
         /// <summary>
         /// Fetch a specific category from the database.

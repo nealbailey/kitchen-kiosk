@@ -54,17 +54,17 @@ namespace Kiosk.Data.Repository
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
-        public Task<int> Create(RecipeCategory category)
+        public Task<RecipeCategory> Create(RecipeCategory category)
         {
             // Get existing record, if exists
             var dbcategory = Get(category).Result;
             if (dbcategory != null)
-                return Task.Run(() => dbcategory.CatId);
+                return Task.Run(() => dbcategory);
 
             _context.Add(category);
             _context.SaveChanges();
             _context.Entry(category).GetDatabaseValues();
-            return Task.Run(() => category.CatId);
+            return Task.Run(() => category);
         }
 
         /// <summary>

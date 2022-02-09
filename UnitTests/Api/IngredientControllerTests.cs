@@ -44,7 +44,7 @@ namespace UnitTests.Api
             var id = 1058;
             
             // Act
-            var requestTask = _httpClient.GetAsync($"api/ingredient/GetByRecipe?recId={id}");
+            var requestTask = _httpClient.GetAsync($"api/ingredient/{id}");
             var response = requestTask.Result;
 
             //Assert

@@ -57,15 +57,14 @@ namespace KioskApi.Controllers
         #region Http Action Endpoints
 
         /// <summary>
-        /// 
+        /// Get <see cref="Recipe"/> ingredients.
         /// </summary>
-        /// <param name="recId"></param>
+        /// <param name="recipeId">The recipe id.</param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("GetByRecipe")]
-        public async Task<IActionResult> GetByRecipe(int recId)
+        [HttpGet("{recipeId}", Name = "GetByRecipe")]        
+        public async Task<IActionResult> GetByRecipe(int recipeId)
         {   
-            var dbingredient = await _ingredientRepository.GetByRecipe(new Recipe() { RecId = recId });
+            var dbingredient = await _ingredientRepository.GetByRecipe(new Recipe() { RecId = recipeId });
             return Ok(dbingredient);
         }
 

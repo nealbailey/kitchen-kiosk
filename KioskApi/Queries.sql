@@ -59,3 +59,8 @@ FROM recipe r, recipeCategory c
 WHERE r.recId = 
  (SELECT recId FROM recipeCategoryMap
   WHERE recId = r.recId and catId = c.catId and category = 'crockpot')
+
+--Get number of recipes in each category
+SELECT CatId as CategoryId, count(CatId) AS Recipes 
+FROM Recipe 
+GROUP By catId
