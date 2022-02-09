@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Kiosk.Data\Kiosk.Data.csproj" />
-    <ProjectReference Include="..\KioskApp.Domain\KioskApi.Domain.csproj" />
+    <ProjectReference Include="..\Kiosk.Domain\Kiosk.Domain.csproj" />
   </ItemGroup>
 
 </Project>
