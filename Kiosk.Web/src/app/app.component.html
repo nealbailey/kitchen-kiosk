@@ -17,6 +17,8 @@
           <a href="#" class="nav-link w-nav-link">Contact</a>
 
           <div class="divider"></div>
+          <input #txtSearch id="txtSearch" type="text" pInputText maxlength="50" [(ngModel)]="this.homePageState.pagingData.searchString" (input)="searchEntered($event.target)">
+          <div class="divider"></div>
 
           <!-- Social button bar -->
           <div class="social-link-group">
@@ -48,29 +50,5 @@
   </div>
 
   <div class="content">
-    <div class="blog-list w-dyn-list">
-      <div role="list" class="w-dyn-items">
-        <!-- Start Posts Area -->
-        <div role="listitem" class="w-dyn-item">
-          <div class="post-wrapper">
-            <a href="#" class="blog-title-link w-inline-block">
-              <h1 class="blog-title">Chicken Fricassee</h1>
-            </a>
-            <div class="post-info-wrapper">
-              <div class="post-info">February 08, 2022</div>
-              <div class="post-info">|</div>
-              <a href="#" class="post-info when-link">Main Dish</a>
-            </div>
-            <p class="post-summary">
-              Chicken Fricassée is a traditional French chicken stew made with browned chicken pieces braised in a creamy white mushroom sauce.
-            </p><a href="#" class="button-round w-button">Full Recipe →</a>
-          </div>
-        </div>
-        <!-- End Posts -->
-
-      </div>
-    </div>
-    <div class="button-wrapper">
-      <a href="#" class="button w-button">More Recipes&nbsp;→</a>
-    </div>
+    <home-root [homePageState]="homePageState"></home-root>
   </div>

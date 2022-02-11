@@ -73,6 +73,9 @@ namespace UnitTests.Api
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             var recipes = response.DeserializeContent<List<Recipe>>();
             Assert.IsTrue(recipes.Count > 0);
+
+            foreach (var recipe in recipes)
+                Assert.IsTrue(recipe.Title.Contains("chicken", System.StringComparison.OrdinalIgnoreCase));
         }
 
         [TestMethod]
