@@ -21,21 +21,29 @@ import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AppSettings } from 'src/appSettings';
-import { HomePageState } from '../components/home/home.state';
 import { Recipe } from '../models/recipe.model';
+import { HomePageState } from './home.state';
 
 @Injectable()
 export class RecipesService {
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient) { }
 
-  /**
-  * Gets a collection of Recipe records.  
-  */
+  /** Gets a collection of Recipe records.  */
   async GetRecipes(homePageState: HomePageState) {
-    console.info("Call GET in the webapi recipes Controller");
+    console.info("Call GET in the api recipes Controller");
     let url: string = AppSettings.API_GET_RECIPES + homePageState.pagingData.CreateQueryString();
     console.info(url);
     return await this.http.get<Recipe[]>(url)
+      .pipe(catchError(this.handleError)).toPromise();
+  }
+
+  /** Gets a single recipe by id.  */
+  async GetRecipe(id: number) {
+    console.info("Call GET in the api recipe Controller");
+    let url: string = AppSettings.API_GET_RECIPE + id;
+    console.info(url);
+    return await this.http.get<Recipe>(url)
       .pipe(catchError(this.handleError)).toPromise();
   }
  

@@ -4,8 +4,8 @@
     <div role="list" class="w-dyn-items">
       <!-- Start Posts Area -->
       <div role="listitem" class="w-dyn-item">
-        <div class="post-wrapper" *ngFor="let recipe of homePageState.recipes">
-          <a href="#" class="blog-title-link w-inline-block">
+        <div class="post-wrapper" *ngFor="let recipe of this.homePageState.recipes">
+          <a routerLink="/recipe/{{recipe.recId}}" class="blog-title-link w-inline-block">
             <h1 class="blog-title">{{recipe.title}}</h1>
           </a>
           <div class="post-info-wrapper">

@@ -1,17 +1,7 @@
 import { Component, OnInit, Input, ViewChild, Output, EventEmitter, AfterViewInit, ViewEncapsulation } from '@angular/core'; 
 import { HttpClient } from '@angular/common/http'; 
 import { RecipesService } from 'src/services/recipes.service';
-import { HomePageState } from './home.state';
-//import { ConfirmationService, MessageService } from 'primeng/api'; 
-//import { Table } from 'primeng/table'; 
-//import { ToastService } from 'src/services/toast.service'; 
-//import { PermissionGroupService } from 'src/services/permissionGroup.service'; 
-//import { UserSessionService } from 'src/services/userSession.service'; 
-//import { RequestResponse } from 'src/models/RequestResponse'; 
-//import { PagingData } from 'src/models/PagingData'; 
-//import { WhereClauseCriteria, WhereClauseCriteriaCollection } from 'src/models/WhereClauseCriteria'; 
-//import { AndOr, DbType, Group, SqlComparison } from 'src/models/enumerations'; 
-//import { ComponentSpecificService } from 'src/services/componentSpecific.service'; 
+import { HomePageState } from 'src/services/home.state';
  
 @Component({    
     selector: 'home-root', 
@@ -19,17 +9,6 @@ import { HomePageState } from './home.state';
     styleUrls: ['./home.component.scss'] 
 }) 
 export class homeComponent implements OnInit, AfterViewInit { 
-
-  // Shared page state
-  @Input() homePageState: HomePageState; 
- 
-  // true delivers the event asynchronously, false delivers synchronously. 
-  // @Output() eventName: EventEmitter<CommandEvent> = new EventEmitter<CommandEvent>(true); 
- 
-  // property for the control with #dataTableId to be accessed with propertyName dataTable
-  // Uncomment the following line if you are using a p-table control identified by #dataTableId to render data that includes a paginator.
-  // @ViewChild('dataTableId', { static: false }) dataTable: Table;
-
   // #region Properties
 
   // used for showing/hiding spinner, progress bar or skeleton.
@@ -41,24 +20,12 @@ export class homeComponent implements OnInit, AfterViewInit {
 
   /** 
    * Constructor 
-   *  
-   * @param http HTTPClient required to call actions in any .ts file in the services folder. 
-   * @param confirmationService ConfirmationService required for <p-confirmDialog>.
-   * @param messageService MessageService required for <p-toast>.
-   * @param toastService Common <p-toast> display methods.
-   * @param permissionGroupService Service for working with permission groups.
-   * @param userSessionService Service for user session information.
+   * @param homePageState the shared application state service.
+   * @param recipeService the recipe Http service.
    */ 
   constructor(
-    private http: HttpClient,
-    private recipeService: RecipesService
-    //private confirmationService: ConfirmationService, 
-    //private messageService: MessageService,
-    //private toastService: ToastService,
-    //private permissionGroupService: PermissionGroupService,
-    //private userSessionService: UserSessionService
-    //,private componentSpecificService: ComponentSpecificService
-    ) { 
+    public homePageState: HomePageState,
+    private recipeService: RecipesService) { 
   }
 
   // #endregion
