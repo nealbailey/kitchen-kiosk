@@ -11,6 +11,27 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kiosk.Data", "Kiosk.Data\Ki
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kiosk.Domain", "Kiosk.Domain\Kiosk.Domain.csproj", "{549A64A0-ADF0-409E-B625-BF6D4F660CAF}"
 EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Kiosk.Web", "Kiosk.Web\", "{D3027FDC-E4E0-4D88-8151-3F28890E7A3A}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_60815"
+		Debug.AspNetCompiler.PhysicalPath = "Kiosk.Web\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_60815\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_60815"
+		Release.AspNetCompiler.PhysicalPath = "Kiosk.Web\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_60815\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "60815"
+		SlnRelativePath = "Kiosk.Web\"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +54,10 @@ Global
 		{549A64A0-ADF0-409E-B625-BF6D4F660CAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{549A64A0-ADF0-409E-B625-BF6D4F660CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{549A64A0-ADF0-409E-B625-BF6D4F660CAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3027FDC-E4E0-4D88-8151-3F28890E7A3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3027FDC-E4E0-4D88-8151-3F28890E7A3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3027FDC-E4E0-4D88-8151-3F28890E7A3A}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3027FDC-E4E0-4D88-8151-3F28890E7A3A}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

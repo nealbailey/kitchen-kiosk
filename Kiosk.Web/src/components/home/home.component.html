@@ -1,0 +1,28 @@
+<!--<p-toast position="center" sticky="true"></p-toast>-->
+<div id="homeDiv" class="content" role="main">
+  <div class="blog-list w-dyn-list">
+    <div role="list" class="w-dyn-items">
+      <!-- Start Posts Area -->
+      <div role="listitem" class="w-dyn-item">
+        <div class="post-wrapper" *ngFor="let recipe of this.homePageState.recipes">
+          <a routerLink="/recipe/{{recipe.recId}}" class="blog-title-link w-inline-block">
+            <h1 class="blog-title">{{recipe.title}}</h1>
+          </a>
+          <div class="post-info-wrapper">
+            <div class="post-info">{{recipe.date}}</div>
+            <div class="post-info">|</div>
+            <a href="#" class="post-info when-link">Main Dish</a>
+          </div>
+          <p class="post-summary">
+            {{recipe.description}}
+          </p><a href="#" class="button-round w-button">Full Recipe →</a>
+        </div>
+      </div>
+      <!-- End Posts -->
+
+    </div>
+  </div>
+  <div class="button-wrapper">
+    <a href="#" class="button w-button">More Recipes&nbsp;→</a>
+  </div>
+</div>
