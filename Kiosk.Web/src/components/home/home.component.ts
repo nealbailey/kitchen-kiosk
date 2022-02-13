@@ -1,23 +1,20 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter, AfterViewInit, ViewEncapsulation } from '@angular/core'; 
-import { HttpClient } from '@angular/common/http'; 
-import { RecipesService } from 'src/services/recipes.service';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { HomePageState } from 'src/services/home.state';
+import { RecipesService } from 'src/services/recipes.service';
  
 @Component({    
     selector: 'home-root', 
     templateUrl: './home.component.html', 
     styleUrls: ['./home.component.scss'] 
 }) 
-export class homeComponent implements OnInit, AfterViewInit { 
-  // #region Properties
+export class homeComponent implements OnInit, AfterViewInit {
 
+  // #region Properties
   // used for showing/hiding spinner, progress bar or skeleton.
-  loadingPage: boolean = false;
-  
+  loadingPage: boolean = false;  
   // #endregion
 
   // #region Constructor
-
   /** 
    * Constructor 
    * @param homePageState the shared application state service.
@@ -27,33 +24,29 @@ export class homeComponent implements OnInit, AfterViewInit {
     public homePageState: HomePageState,
     private recipeService: RecipesService) { 
   }
-
   // #endregion
  
   // #region Component Initialization 
 
-  /**
-   * Occurs upon component initialization
-   */
+  /** Occurs upon component initialization */
   async ngOnInit(): Promise<void> { 
     // obtain data for the page 
     this.getData();
+
+    console.log('homeComponent:ngOnInit()');
   } 
  
-  /**
-  * Occurs after view initialization
-  */ 
+  /** Occurs after view initialization */ 
   ngAfterViewInit(): void { 
     // allow ngAfterViewInit() to complete before setting control states
     // otherwise a non-fatal exception is thrown
     setTimeout(() => {
       this.setControlStates();
     }, 10);
+    console.log('homeComponent:ngAfterViewInit()');
   } 
  
-  /**
-   * Sets control states based upon permissions/current data values.
-   */
+  /** Sets control states based upon permissions/current data values. */
   setControlStates() {
     // Remove this in the future
     //this.toastService.showWarning('Page is under construction. No data will be returned.');
@@ -63,16 +56,14 @@ export class homeComponent implements OnInit, AfterViewInit {
 
   // #region Data Acquisition 
 
-  /** 
-   * Retrieves all necessary data for this component. 
-   */ 
+  /** Retrieves all necessary data for this component. */ 
   async getData() { 
     // start the progress bar/spinner or display a skeleton.
     this.loadingPage = true; 
  
-    try {      
+    try {
+      console.log('categoryId (getData) = ' + this.homePageState.pagingData.categoryId);
       this.homePageState.recipes = await this.recipeService.GetRecipes(this.homePageState);
-      //console.log(this.Recipes);
 
       // when data is retrieved, set this.loadingPage to false.
       this.loadingPage = false;
@@ -111,27 +102,29 @@ export class homeComponent implements OnInit, AfterViewInit {
     //}
   }
 
-  /**
-   * Retrieves data applying any sorting and filtering, and scrolls the
-   * list to its previous horizontal scroll position.
-   */
-  async refreshData() {
-    // Uncomment the following if you are using a p-table control identified by #dataTableId to render data that includes a paginator.
-    //this.currentHScrollPos = this.dataTable.scrollableViewChild.scrollBodyViewChild.nativeElement.scrollLeft;
-    //await this.getData(this.webAPI.paging.currentPage);
-    //setTimeout(() => {
-    //  this.dataTable.scrollableViewChild.scrollBodyViewChild.nativeElement.scrollLeft = this.currentHScrollPos;
-    //}, 10);
-  }
-
   // #endregion
 
   // #region Methods
 
   // #endregion
 
-  // #region Event Handlers 
+  // #region Event Handlers
 
+  /**
+   * User selected a category
+   * @param categoryId the category id (catId)
+   */
+  async onCategoryClicked(categoryId: number) {
+    if (categoryId > 0) {
+      if (this.homePageState.pagingData.categoryId != categoryId) {
+        this.homePageState.pagingData.categoryId = categoryId
+        console.log('categoryId (clicked) = ' + this.homePageState.pagingData.categoryId);
+        await this.getData();
+
+        window.scrollTo(0, 0);
+      }
+    }
+  }
   // #endregion
 } 
  

@@ -11,11 +11,11 @@
           <div class="post-info-wrapper">
             <div class="post-info">{{recipe.date}}</div>
             <div class="post-info">|</div>
-            <a href="#" class="post-info when-link">Main Dish</a>
+            <button type="button" style="cursor:pointer" (click)="onCategoryClicked(recipe.primaryCategory.catId)">{{recipe.primaryCategory.category}}</button>            
           </div>
           <p class="post-summary">
             {{recipe.description}}
-          </p><a href="#" class="button-round w-button">Full Recipe →</a>
+          </p><a routerLink="/recipe/{{recipe.recId}}" class="button-round w-button">See Recipe →</a>
         </div>
       </div>
       <!-- End Posts -->

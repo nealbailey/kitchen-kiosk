@@ -27,5 +27,9 @@ export class HomePageState {
   public searchString: string = '';
 
   /** The recipe fetch criteria */
-  public pagingData: PagingData = new PagingData();
+  public pagingData: PagingData;
+
+  public HomePageState() {
+    this.pagingData = new PagingData();
+  }
 }
