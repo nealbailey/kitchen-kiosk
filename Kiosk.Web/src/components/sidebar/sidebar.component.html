@@ -17,7 +17,7 @@
         <a href="#" class="nav-link w-nav-link">Contact</a>
 
         <div class="divider"></div>
-        <input #txtSearch id="txtSearch" placeholder="search" type="text" pInputText maxlength="50" [(ngModel)]="this.homePageState.pagingData.searchString" (input)="searchEntered($event.target)">
+        <input #txtSearch id="txtSearch" placeholder="search" type="text" pInputText maxlength="50" [(ngModel)]="this.homePageState?.pagingData.searchString" (input)="searchEntered($event.target)">
         <div class="divider"></div>
 
         <!-- Social button bar -->

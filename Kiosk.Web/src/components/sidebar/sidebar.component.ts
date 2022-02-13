@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
+import { PagingData } from 'src/models/PagingData';
+import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
-import { HomePageState } from '../../services/home.state';
 
 @Component({ 
     encapsulation: ViewEncapsulation.None, 
@@ -24,13 +24,17 @@ export class sidebarComponent implements OnInit, AfterViewInit {
 
   /** 
    * Constructor 
-   * 
+   * @param router angular router
+   * @param recipesService service needed to work with recipes
+   * @param homePageState shared application state
    */ 
   constructor(
-    private http: HttpClient,
     private router: Router,
     private recipesService: RecipesService,
     public homePageState: HomePageState) {
+
+    if (!this.homePageState.pagingData)
+      this.homePageState.pagingData = new PagingData();
   }
 
   // #endregion
