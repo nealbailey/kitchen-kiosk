@@ -11,7 +11,7 @@
           <div class="post-info-wrapper">
             <div class="post-info">{{recipe.date}}</div>
             <div class="post-info">|</div>
-            <button pButton type="button" style="cursor:pointer" (click)="onCategoryClicked(recipe.primaryCategory.catId)" label="recipe.primaryCategory.category"></button>            
+            <button pButton pRipple type="button" class="p-button-outlined p-button-rounded" (click)="onCategoryClicked(recipe.primaryCategory.catId)">{{recipe.primaryCategory.category}}</button>            
           </div>
           <p class="post-summary">
             {{recipe.description}}
