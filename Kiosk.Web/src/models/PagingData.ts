@@ -27,6 +27,7 @@ export class PagingData {
   public pageSize: number = 10;
   public pageNumber: number = 1;
   public categoryId: number = 0;
+  public category: string = '';
 
   /**
   * Constructor - all parameters are optional.
@@ -37,7 +38,8 @@ export class PagingData {
   * @param searchString Search filter.
   * @param sortOrder The current order.
   * @param sortColumn The search column.
-  * @param categoryId The filtered category.
+  * @param categoryId The filtered id.
+  * @param category The filtered name.
   */
   constructor(
     pageNumber?: number,
@@ -45,13 +47,15 @@ export class PagingData {
     searchString?: string,
     sortOrder?: string,
     sortColumn?: string,
-    categoryId?: number) {
+    categoryId?: number,
+    category?: string) {
     if ((pageNumber !== undefined) && (pageNumber !== null)) this.pageNumber = pageNumber;
     if ((pageSize !== undefined) && (pageSize !== null)) this.pageSize = pageSize;
     if ((searchString !== undefined) && (searchString !== null)) this.searchString = searchString;    
     if ((sortOrder !== undefined) && (sortOrder !== null)) this.sortOrder = sortOrder;
     if ((sortColumn !== undefined) && (sortColumn !== null)) this.sortColumn = sortColumn;
     if ((categoryId !== undefined) && (categoryId !== null)) this.categoryId = categoryId;
+    if ((category !== undefined) && (category !== null)) this.category = category;
   }
 
   /** Create query-string parameters */

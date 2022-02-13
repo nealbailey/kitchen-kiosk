@@ -2,6 +2,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from "@angular/forms";
+import { ButtonModule } from "primeng/button";
+import { ChipModule } from 'primeng/chip';
 
 // Routes
 import { appRoutes } from '../routes'
@@ -28,7 +30,9 @@ import { RouterModule } from '@angular/router';
     RouterModule.forRoot(appRoutes),
     HttpClientModule,
     BrowserModule,
-    FormsModule
+    FormsModule,
+    ButtonModule,
+    ChipModule,
   ],
   providers: [
     HomePageState,
