@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from "@angular/forms";
 import { ButtonModule } from "primeng/button";
+import { ChipModule } from 'primeng/chip';
 
 // Routes
 import { appRoutes } from '../routes'
@@ -30,7 +31,8 @@ import { RouterModule } from '@angular/router';
     HttpClientModule,
     BrowserModule,
     FormsModule,
-    ButtonModule
+    ButtonModule,
+    ChipModule,
   ],
   providers: [
     HomePageState,

@@ -106,6 +106,21 @@ export class homeComponent implements OnInit, AfterViewInit {
 
   // #region Methods
 
+  /**
+  * Converts date string from the database to friendly date-time
+  * @param the_date the date you need to convert 
+  */
+  public getLocalDateString(the_date: any) {
+    if ((the_date == undefined) || (the_date == null))
+      return the_date;
+
+    // Is this even a date?
+    var regex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d+/;
+    if (!regex.test(the_date)) {
+      return the_date;
+    }
+    return new Date(the_date).toLocaleString();
+  }
   // #endregion
 
   // #region Event Handlers
@@ -114,16 +129,30 @@ export class homeComponent implements OnInit, AfterViewInit {
    * User selected a category
    * @param categoryId the category id (catId)
    */
-  async onCategoryClicked(categoryId: number) {
+  async onCategoryClicked(categoryId: number, categoryName) {
     if (categoryId > 0) {
       if (this.homePageState.pagingData.categoryId != categoryId) {
-        this.homePageState.pagingData.categoryId = categoryId
-        console.log('categoryId (clicked) = ' + this.homePageState.pagingData.categoryId);
+        this.homePageState.pagingData.categoryId = categoryId;
+        this.homePageState.pagingData.category = categoryName;        
         await this.getData();
 
         window.scrollTo(0, 0);
       }
     }
+  }
+
+  async onRemoveChip(id) {
+    console.log(id);
+    switch (id) {
+      case 'chipSearch':
+        this.homePageState.pagingData.searchString = '';
+        break;
+      case 'chipCategory':
+        this.homePageState.pagingData.categoryId = 0;
+        this.homePageState.pagingData.category = '';
+        break;
+    }
+    await this.getData();
   }
   // #endregion
 } 

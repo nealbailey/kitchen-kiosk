@@ -101,6 +101,8 @@ export class sidebarComponent implements OnInit, AfterViewInit {
     if (!input)
       return;
 
+    this.homePageState.pagingData.searchString = input.value;
+
     if (input.value.length == 0)
       await this.getData();
 
