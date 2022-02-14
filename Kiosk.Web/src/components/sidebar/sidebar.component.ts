@@ -119,6 +119,7 @@ export class sidebarComponent implements OnInit, AfterViewInit {
     if (!input)
       return;
 
+    this.homePageState.pagingData.pageNumber = 1;
     this.homePageState.pagingData.searchString = input.value;
 
     if (input.value.length == 0)
@@ -139,6 +140,12 @@ export class sidebarComponent implements OnInit, AfterViewInit {
       }, 500);
     }
 
+    await this.getData();
+  }
+
+  /** User clicked the Home link */
+  async onHomeClicked() {
+    this.homePageState.pagingData.pageNumber = 1;
     await this.getData();
   }
 

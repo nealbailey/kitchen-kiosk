@@ -96,31 +96,6 @@ export class homeComponent implements OnInit, AfterViewInit {
 
   // #endregion
  
-  // #region Paging Support
-
-  /**
-   * Selected page changed in the paginator
-   * @param event
-   */
-  onPageChanged(event) {
-    // Uncomment the following if you are using a p-table control identified by #dataTableId to render data that includes a paginator.
-    //if (PagingData.onPageChanged(this.webAPI.paging, event, this.dataTable)) {
-    //  this.refreshData();
-    //}
-  }
-
-  /**
-   *  Goes to the user entered page.
-   */
-  onGotoPage() {
-    // Uncomment the following if you are using a p-table control identified by #dataTableId to render data that includes a paginator.
-    //if (PagingData.onGotoPage(this.webAPI.paging, this.dataTable)) {
-    //  this.refreshData();
-    //}
-  }
-
-  // #endregion
-
   // #region Methods
 
   /**
@@ -141,6 +116,7 @@ export class homeComponent implements OnInit, AfterViewInit {
   async onCategoryClicked(categoryId: number, categoryName) {
     if (categoryId > 0) {
       if (this.homePageState.pagingData.categoryId != categoryId) {
+        this.homePageState.pagingData.pageNumber = 1;
         this.homePageState.pagingData.categoryId = categoryId;
         this.homePageState.pagingData.category = categoryName;        
         await this.getData();
@@ -148,6 +124,22 @@ export class homeComponent implements OnInit, AfterViewInit {
         window.scrollTo(0, 0);
       }
     }
+  }
+
+  /** User clicked on the Next Page button */
+  async onNextPageClicked() {
+    this.homePageState.pagingData.pageNumber = (this.homePageState.pagingData.pageNumber + 1);
+    await this.getData();
+    window.scrollTo(0, 0);
+  }
+
+  /** User clicked on the Previous Page button */
+  async onPrevPageClicked() {
+    if (this.homePageState.pagingData.pageNumber <= 1)
+      return;
+    this.homePageState.pagingData.pageNumber = (this.homePageState.pagingData.pageNumber -1);
+    await this.getData();
+    window.scrollTo(0, 0);
   }
 
   /**

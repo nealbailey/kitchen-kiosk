@@ -16,13 +16,12 @@
 //-----------------------------------------------------------------------
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
-import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { formatHelper } from 'src/helpers/format.helper';
 import { Recipe } from 'src/models/recipe.model';
-import { RecipesService } from 'src/services/recipes.service';
 import { HomePageState } from 'src/services/home.state';
+import { RecipesService } from 'src/services/recipes.service';
  
 @Component({ 
     encapsulation: ViewEncapsulation.None, 
@@ -40,16 +39,13 @@ export class recipeComponent implements OnInit, AfterViewInit {
 
   // #region Constructor
   /** 
-   * Constructor 
-   * @param http HTTPClient required to call actions in any .ts file in the services folder. 
-   * @param confirmationService ConfirmationService required for <p-confirmDialog>.
-   * @param messageService MessageService required for <p-toast>.
-   * @param toastService Common <p-toast> display methods.
-   * @param permissionGroupService Service for working with permission groups.
-   * @param userSessionService Service for user session information.
+   * Constructor    
+   * @param route details pertaining to the angular router-outlet
+   * @param router angular router
+   * @param recipesService service needed to work with recipes
+   * @param homePageState shared application state
    */ 
   constructor(
-    private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
     private recipeService: RecipesService,
@@ -128,6 +124,7 @@ export class recipeComponent implements OnInit, AfterViewInit {
   async onCategoryClicked(categoryId: number, categoryName) {
     if (categoryId > 0) {
       if (this.homePageState.pagingData.categoryId != categoryId) {
+        this.homePageState.pagingData.pageNumber = 1;
         this.homePageState.pagingData.categoryId = categoryId;
         this.homePageState.pagingData.category = categoryName;
       }
