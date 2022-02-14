@@ -5,7 +5,7 @@
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
-// Intellectual Property Rights Holder: FocusIT, inc
+// Intellectual Property Rights Holder: Neal Bailey
 // Software Rights Holder: Baileysoft Solutions
 //-----------------------------------------------------------------------
 // The licensee's rights to use, modify, reproduce, release, perform,
@@ -48,7 +48,7 @@ namespace KioskApi.Controllers
         /// <param name="recipeRepository"></param>
         public RecipesController(
             IConfiguration configuration,
-            ILogger<RecipeController> logger,
+            ILogger<RecipesController> logger,
             IRecipeRepository recipeRepository) : base(configuration)
         {
             _logger = logger;

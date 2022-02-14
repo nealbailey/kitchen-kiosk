@@ -110,7 +110,7 @@ namespace Kiosk.Data.Repository
         /// <returns></returns>
         public Task<List<RecipeCategory>> GetAll()
         {
-            var categories = _context.RecipeCategories.ToListAsync();
+            var categories = _context.RecipeCategories.OrderBy(c => c.Category).ToListAsync();
             return Task.Run(() => categories);
         }
 

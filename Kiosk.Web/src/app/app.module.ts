@@ -12,8 +12,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { appRoutes } from '../routes'
 
 //Services
-import { RecipesService } from 'src/services/recipes.service';
 import { HomePageState } from 'src/services/home.state';
+import { CategoriesService } from 'src/services/categories.service';
+import { RecipesService } from 'src/services/recipes.service';
 
 //Components
 import { AppComponent } from './app.component';
@@ -42,7 +43,8 @@ import { RouterModule } from '@angular/router';
   ],
   providers: [
     HomePageState,
-    RecipesService
+    RecipesService,
+    CategoriesService,
   ],
   bootstrap: [AppComponent]
 })

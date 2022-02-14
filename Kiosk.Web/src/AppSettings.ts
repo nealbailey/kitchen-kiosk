@@ -35,6 +35,9 @@ export class AppSettings {
     
   /** Controller endpoint for generating a bearer token. */
   public static API_LOGIN_ENDPOINT = AppSettings.API_URL + '/api/authenticate/login';
+
+  /** Controller endpoint for fetching categories. */
+  public static API_GET_CATEGORIES = AppSettings.API_URL + '/api/categories';
     
   /** Controller endpoint for fetching recipes. */
   public static API_GET_RECIPES = AppSettings.API_URL + '/api/recipes';
