@@ -1,4 +1,5 @@
 import { Category } from "./category.model";
+import { Ingredient } from "./ingredient.model";
 
 /** Implementation of the Kiosk.Domain.Recipe [DataContract]. */
 export class Recipe {
@@ -11,6 +12,7 @@ export class Recipe {
   public description: string;
   public instructions: string = '';
   public primaryCategory: Category;
+  public ingredients: Ingredient[] = [];
   
   /**
   * Constructor - all parameters are optional.
@@ -23,6 +25,7 @@ export class Recipe {
   * @param description The recipe description
   * @param instructions The recipe instructions
   * @param primaryCategory The main recipe category
+  * @param ingredients The recipe ingredients
   */
   constructor(
     recId?: number,
@@ -32,7 +35,8 @@ export class Recipe {
     title?: string,
     description?: string,
     instructions?: string,
-    primaryCategory?: Category) {
+    primaryCategory?: Category,
+    ingredients?: Array<Ingredient>) {
     if ((recId !== undefined) && (recId !== null)) this.recId = recId;
     if ((catId !== undefined) && (catId !== null)) this.catId = catId;
     if ((useruid !== undefined) && (useruid !== null)) this.useruid = useruid;
@@ -41,5 +45,6 @@ export class Recipe {
     if ((description !== undefined) && (description !== null)) this.description = description;
     if ((instructions !== undefined) && (instructions !== null)) this.instructions = instructions;
     if ((primaryCategory !== undefined) && (primaryCategory !== null)) this.primaryCategory = primaryCategory;
+    if ((ingredients !== undefined) && (ingredients !== null)) this.ingredients = ingredients;
   }
 }

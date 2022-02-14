@@ -1,4 +1,23 @@
+//-----------------------------------------------------------------------
+// Source File:  "home.component.ts"
+// Create Date:  02/04/2021 10:18:00 PM
+// Last Updated: 02/11/2022 10:35:00 AM
+// Authors(s):   Neal Bailey <nealbailey@hotmail.com>
+//-----------------------------------------------------------------------
+// COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
+// Intellectual Property Rights Holder: Neal Bailey
+// Software Rights Holder: Neal Bailey
+//-----------------------------------------------------------------------
+// The licensee's rights to use, modify, reproduce, release, perform,
+// display, or disclose this technical data/computer software are
+// restricted by US patent copyright protections. any reproduction
+// of this technical data/computer software or portions thereof marked
+// with this legend must also reproduce the all original markings.
+//-----------------------------------------------------------------------
+// Copyright (c) 2012-2022 Baileysoft Solutions.
+//-----------------------------------------------------------------------
 import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { formatHelper } from 'src/helpers/format.helper';
 import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
  
@@ -10,8 +29,6 @@ import { RecipesService } from 'src/services/recipes.service';
 export class homeComponent implements OnInit, AfterViewInit {
 
   // #region Properties
-  // used for showing/hiding spinner, progress bar or skeleton.
-  loadingPage: boolean = false;  
   // #endregion
 
   // #region Constructor
@@ -59,22 +76,22 @@ export class homeComponent implements OnInit, AfterViewInit {
   /** Retrieves all necessary data for this component. */ 
   async getData() { 
     // start the progress bar/spinner or display a skeleton.
-    this.loadingPage = true; 
+    this.homePageState.pageIsLoading = true;
  
     try {
       console.log('categoryId (getData) = ' + this.homePageState.pagingData.categoryId);
       this.homePageState.recipes = await this.recipeService.GetRecipes(this.homePageState);
 
       // when data is retrieved, set this.loadingPage to false.
-      this.loadingPage = false;
+      this.homePageState.pageIsLoading = false;
 
     } catch (message: any) {
       console.log(message);
-      this.loadingPage = false;      
+      this.homePageState.pageIsLoading = false;
     }
 
     // REMOVE this when acquiring data via a Web API call. 
-    this.loadingPage = false; 
+    this.homePageState.pageIsLoading = false;
   }
 
   // #endregion
@@ -111,15 +128,7 @@ export class homeComponent implements OnInit, AfterViewInit {
   * @param the_date the date you need to convert 
   */
   public getLocalDateString(the_date: any) {
-    if ((the_date == undefined) || (the_date == null))
-      return the_date;
-
-    // Is this even a date?
-    var regex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d+/;
-    if (!regex.test(the_date)) {
-      return the_date;
-    }
-    return new Date(the_date).toLocaleString();
+    return new formatHelper().getLocalDateString(the_date);
   }
   // #endregion
 
@@ -141,6 +150,10 @@ export class homeComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+  * User removed a chip
+  * @param id the chip html id 
+  */
   async onRemoveChip(id) {
     console.log(id);
     switch (id) {

@@ -263,7 +263,7 @@ blockquote {
   margin: 0 0 10px 0;
   padding: 10px 20px;
   border-left: 5px solid #E2E2E2;
-  font-size: 18px;
+  font-size: 16px !important;
   line-height: 22px
 }
 
@@ -2060,7 +2060,7 @@ a {
 
 ul {
   margin-top: 0px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding-left: 40px;
 }
 
@@ -2325,12 +2325,12 @@ figcaption {
 }
 
 .body-copy blockquote {
-  margin-left: -23px;
+  /*margin-left: -23px;*/
   padding-left: 18px;
-  border-left-width: 4px;
-  border-left-color: #333;
+  border-left-width: 8px;
+  /*border-left-color: #333;*/
   font-family: 'Open Sans', sans-serif;
-  font-style: italic;
+  /*font-style: italic;*/
 }
 
 .body-copy figure {
@@ -2638,5 +2638,13 @@ figcaption {
     margin-bottom: 15px;
     font-size: 14px;
     line-height: 150%;
+  }
+
+  /******************************************************************************************
+  Spinner dialog while pages are loading data
+ ******************************************************************************************/
+
+  :host ::ng-deep .custom-spinner .p-progress-spinner-circle {
+    animation: custom-progress-spinner-dash 1.5s ease-in-out infinite, custom-progress-spinner-color 6s ease-in-out infinite;
   }
 }

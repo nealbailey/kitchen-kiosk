@@ -1,4 +1,36 @@
 <!--<p-toast position="center" sticky="true"></p-toast>--> 
-<div id="recipeDiv" class="content" role="main">
-  <h2>{{recipe?.title}}</h2>
-</div> 
+<div class="content">
+  <div class="w-container">
+    <div class="post-title-section">
+      <h1>{{recipe?.title}}</h1>
+      <div class="post-info-wrapper">
+        <div class="post-info">{{getLocalDateString(recipe?.date)}}</div>
+        <div class="post-info">|</div>
+        <a routerLink="/home"
+           class="post-info when-link"
+           (click)="onCategoryClicked(recipe?.primaryCategory?.catId, recipe?.primaryCategory?.category)">
+            {{recipe?.primaryCategory?.category}}
+        </a>
+      </div>
+    </div>
+    <div class="body-copy w-richtext">
+      <p>{{recipe?.description}}
+      <h2>Ingredients</h2>
+      <blockquote>
+        <div *ngFor="let i of this.recipe.ingredients">
+          <ul role="list">
+            <li>{{i.ingredient}}</li>
+          </ul>
+        </div>
+      </blockquote>
+      <p>
+      <h2>Instructions</h2>
+      <div>
+        <span [innerHtml]="recipe?.instructions"></span>
+      </div>
+    </div>
+    <div class="button-wrapper">
+      <a routerLink="/home" class="button w-button">←&nbsp;Back</a>
+    </div>
+  </div>
+</div>

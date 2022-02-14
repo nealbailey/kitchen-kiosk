@@ -1,18 +1,28 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter, AfterViewInit, ViewEncapsulation } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { HttpClient } from '@angular/common/http'; 
-import { RecipesService } from 'src/services/recipes.service';
+//-----------------------------------------------------------------------
+// Source File:  "recipe.component.ts"
+// Create Date:  02/04/2021 10:18:00 PM
+// Last Updated: 02/11/2022 10:35:00 AM
+// Authors(s):   Neal Bailey <nealbailey@hotmail.com>
+//-----------------------------------------------------------------------
+// COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
+// Intellectual Property Rights Holder: Neal Bailey
+// Software Rights Holder: Neal Bailey
+//-----------------------------------------------------------------------
+// The licensee's rights to use, modify, reproduce, release, perform,
+// display, or disclose this technical data/computer software are
+// restricted by US patent copyright protections. any reproduction
+// of this technical data/computer software or portions thereof marked
+// with this legend must also reproduce the all original markings.
+//-----------------------------------------------------------------------
+// Copyright (c) 2012-2022 Baileysoft Solutions.
+//-----------------------------------------------------------------------
+import { HttpClient } from '@angular/common/http';
+import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { formatHelper } from 'src/helpers/format.helper';
 import { Recipe } from 'src/models/recipe.model';
-//import { ConfirmationService, MessageService } from 'primeng/api'; 
-//import { Table } from 'primeng/table'; 
-//import { ToastService } from 'src/services/toast.service'; 
-//import { PermissionGroupService } from 'src/services/permissionGroup.service'; 
-//import { UserSessionService } from 'src/services/userSession.service'; 
-//import { RequestResponse } from 'src/models/RequestResponse'; 
-//import { PagingData } from 'src/models/PagingData'; 
-//import { WhereClauseCriteria, WhereClauseCriteriaCollection } from 'src/models/WhereClauseCriteria'; 
-//import { AndOr, DbType, Group, SqlComparison } from 'src/models/enumerations'; 
-
+import { RecipesService } from 'src/services/recipes.service';
+import { HomePageState } from 'src/services/home.state';
  
 @Component({ 
     encapsulation: ViewEncapsulation.None, 
@@ -42,7 +52,8 @@ export class recipeComponent implements OnInit, AfterViewInit {
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
-    private recipeService: RecipesService) {
+    private recipeService: RecipesService,
+    public homePageState: HomePageState) {
     this.recipe = new Recipe();
   }
   // #endregion
@@ -84,8 +95,6 @@ export class recipeComponent implements OnInit, AfterViewInit {
         +this.route.snapshot.params['id']);
 
       console.log(this.router.url);
-      //console.log(this.recipe);
-      //console.log(this.Recipes);
 
       // when data is retrieved, set this.loadingPage to false.
       this.loadingPage = false;
@@ -101,50 +110,29 @@ export class recipeComponent implements OnInit, AfterViewInit {
 
   // #endregion
  
-  // #region Paging Support
-
-  /**
-   * Selected page changed in the paginator
-   * @param event
-   */
-  onPageChanged(event) {
-    // Uncomment the following if you are using a p-table control identified by #dataTableId to render data that includes a paginator.
-    //if (PagingData.onPageChanged(this.webAPI.paging, event, this.dataTable)) {
-    //  this.refreshData();
-    //}
-  }
-
-  /**
-   *  Goes to the user entered page.
-   */
-  onGotoPage() {
-    // Uncomment the following if you are using a p-table control identified by #dataTableId to render data that includes a paginator.
-    //if (PagingData.onGotoPage(this.webAPI.paging, this.dataTable)) {
-    //  this.refreshData();
-    //}
-  }
-
-  /**
-   * Retrieves data applying any sorting and filtering, and scrolls the
-   * list to its previous horizontal scroll position.
-   */
-  async refreshData() {
-    // Uncomment the following if you are using a p-table control identified by #dataTableId to render data that includes a paginator.
-    //this.currentHScrollPos = this.dataTable.scrollableViewChild.scrollBodyViewChild.nativeElement.scrollLeft;
-    //await this.getData(this.webAPI.paging.currentPage);
-    //setTimeout(() => {
-    //  this.dataTable.scrollableViewChild.scrollBodyViewChild.nativeElement.scrollLeft = this.currentHScrollPos;
-    //}, 10);
-  }
-
-  // #endregion
-
   // #region Methods
-
+  /**
+  * Converts date string from the database to friendly date-time
+  * @param the_date the date you need to convert 
+  */
+  public getLocalDateString(the_date: any) {
+    return new formatHelper().getLocalDateString(the_date);
+  }
   // #endregion
 
   // #region Event Handlers 
-
+  /**
+  * User selected a category
+  * @param categoryId the category id (catId)
+  */
+  async onCategoryClicked(categoryId: number, categoryName) {
+    if (categoryId > 0) {
+      if (this.homePageState.pagingData.categoryId != categoryId) {
+        this.homePageState.pagingData.categoryId = categoryId;
+        this.homePageState.pagingData.category = categoryName;
+      }
+    }
+  }
   // #endregion
 } 
  

@@ -1,10 +1,10 @@
 <!--<p-toast position="center" sticky="true"></p-toast>-->
 <div id="homeDiv" class="content" role="main">
-  <div id="divFilters" >
+  <div id="divFilters">
     <p-chip *ngIf="this.homePageState?.pagingData.searchString" icon="pi pi-search" [label]="this.homePageState?.pagingData.searchString" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipSearch')"></p-chip>&nbsp;
     <p-chip *ngIf="this.homePageState?.pagingData.categoryId > 0" icon="pi pi-book" [label]="this.homePageState?.pagingData.category" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipCategory')"></p-chip>
   </div>
-  
+
   <p></p>
   <div class="blog-list w-dyn-list">
     <div role="list" class="w-dyn-items">
@@ -32,3 +32,14 @@
     <a href="#" class="button w-button">More Recipes&nbsp;→</a>
   </div>
 </div>
+
+<!--
+*************************************************************************************
+Spinner while loading the page
+*************************************************************************************
+-->
+<p-dialog [draggable]="false" [resizable]="false" [(visible)]="homePageState.pageIsLoading" [modal]="true"
+          [closeOnEscape]="false" closeable="false" [showHeader]="false"
+          [baseZIndex]="10000">
+  <p-progressSpinner [style]="{width: '50px', height: '50px'}" styleClass="custom-spinner" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+</p-dialog>

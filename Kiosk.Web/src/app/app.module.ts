@@ -4,6 +4,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from "@angular/forms";
 import { ButtonModule } from "primeng/button";
 import { ChipModule } from 'primeng/chip';
+import { DialogModule } from 'primeng/dialog';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 // Routes
 import { appRoutes } from '../routes'
@@ -33,6 +36,9 @@ import { RouterModule } from '@angular/router';
     FormsModule,
     ButtonModule,
     ChipModule,
+    DialogModule,
+    ProgressSpinnerModule,
+    BrowserAnimationsModule,
   ],
   providers: [
     HomePageState,
