@@ -2,11 +2,11 @@
 // Source File:  "recipes.service.ts"
 // Create Date:  02/04/2021 10:18:00 PM
 // Last Updated: 02/11/2022 10:35:00 AM
-// Authors(s):   Neal Bailey <neal.bailey@focusitinc.com>
+// Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
-// Intellectual Property Rights Holder: FocusIT, inc
-// Software Rights Holder: FocusIT, inc
+// Intellectual Property Rights Holder: Neal Bailey
+// Software Rights Holder: Neal Bailey
 //-----------------------------------------------------------------------
 // The licensee's rights to use, modify, reproduce, release, perform,
 // display, or disclose this technical data/computer software are
@@ -41,7 +41,7 @@ export class RecipesService {
   /** Gets a single recipe by id.  */
   async GetRecipe(id: number) {
     console.info("Call GET in the api recipe Controller");
-    let url: string = AppSettings.API_GET_RECIPE + id;
+    let url: string = AppSettings.API_GET_RECIPE + id + '?expand=true';
     console.info(url);
     return await this.http.get<Recipe>(url)
       .pipe(catchError(this.handleError)).toPromise();

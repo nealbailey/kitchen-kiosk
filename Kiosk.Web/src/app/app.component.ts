@@ -20,7 +20,7 @@ export class AppComponent {
    *  @param homePageState the shared application state service
    * */
   constructor(
-    private homePageState: HomePageState) {
+    public homePageState: HomePageState) {
     this.initSharedState();
   }
 

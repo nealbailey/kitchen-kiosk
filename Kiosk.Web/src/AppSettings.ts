@@ -2,11 +2,11 @@
 // Source File:  "AppSettings.ts"
 // Create Date:  02/04/2021 10:18:00 PM
 // Last Updated: 02/11/2022 10:35:00 AM
-// Authors(s):   Neal Bailey <neal.bailey@focusitinc.com>
+// Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
-// Intellectual Property Rights Holder: FocusIT, inc
-// Software Rights Holder: FocusIT, inc
+// Intellectual Property Rights Holder: Neal Bailey
+// Software Rights Holder: Neal Bailey
 //-----------------------------------------------------------------------
 // The licensee's rights to use, modify, reproduce, release, perform,
 // display, or disclose this technical data/computer software are
@@ -35,6 +35,9 @@ export class AppSettings {
     
   /** Controller endpoint for generating a bearer token. */
   public static API_LOGIN_ENDPOINT = AppSettings.API_URL + '/api/authenticate/login';
+
+  /** Controller endpoint for fetching categories. */
+  public static API_GET_CATEGORIES = AppSettings.API_URL + '/api/categories';
     
   /** Controller endpoint for fetching recipes. */
   public static API_GET_RECIPES = AppSettings.API_URL + '/api/recipes';

@@ -4,13 +4,17 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from "@angular/forms";
 import { ButtonModule } from "primeng/button";
 import { ChipModule } from 'primeng/chip';
+import { DialogModule } from 'primeng/dialog';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 // Routes
 import { appRoutes } from '../routes'
 
 //Services
-import { RecipesService } from 'src/services/recipes.service';
 import { HomePageState } from 'src/services/home.state';
+import { CategoriesService } from 'src/services/categories.service';
+import { RecipesService } from 'src/services/recipes.service';
 
 //Components
 import { AppComponent } from './app.component';
@@ -33,10 +37,14 @@ import { RouterModule } from '@angular/router';
     FormsModule,
     ButtonModule,
     ChipModule,
+    DialogModule,
+    ProgressSpinnerModule,
+    BrowserAnimationsModule,
   ],
   providers: [
     HomePageState,
-    RecipesService
+    RecipesService,
+    CategoriesService,
   ],
   bootstrap: [AppComponent]
 })

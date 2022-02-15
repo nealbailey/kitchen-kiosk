@@ -5,7 +5,7 @@
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
-// Intellectual Property Rights Holder: FocusIT, inc
+// Intellectual Property Rights Holder: Neal Bailey
 // Software Rights Holder: Baileysoft Solutions
 //-----------------------------------------------------------------------
 // The licensee's rights to use, modify, reproduce, release, perform,
@@ -67,10 +67,10 @@ namespace KioskApi.Controllers
         public async Task<IActionResult> GetRecipe(int id, bool expand = false)
         {
             var options = new RepositoryOptionsRecipe() {
-            IncludeCategories = true,
-            IncludeIngredients = true,
-            IncludeOwner = true,
-            IncludePrimaryCategory = true 
+            IncludeCategories = (expand),
+            IncludeIngredients = (expand),
+            IncludeOwner = (expand),
+            IncludePrimaryCategory = (expand)
             };
 
             var httpRecipe = new Recipe() { RecId = id };

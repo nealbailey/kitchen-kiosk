@@ -1,3 +1,21 @@
+//-----------------------------------------------------------------------
+// Source File:  "sidebar.component.ts"
+// Create Date:  02/04/2021 10:18:00 PM
+// Last Updated: 02/11/2022 10:35:00 AM
+// Authors(s):   Neal Bailey <nealbailey@hotmail.com>
+//-----------------------------------------------------------------------
+// COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
+// Intellectual Property Rights Holder: Neal Bailey
+// Software Rights Holder: Neal Bailey
+//-----------------------------------------------------------------------
+// The licensee's rights to use, modify, reproduce, release, perform,
+// display, or disclose this technical data/computer software are
+// restricted by US patent copyright protections. any reproduction
+// of this technical data/computer software or portions thereof marked
+// with this legend must also reproduce the all original markings.
+//-----------------------------------------------------------------------
+// Copyright (c) 2012-2022 Baileysoft Solutions.
+//-----------------------------------------------------------------------
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { PagingData } from 'src/models/PagingData';
@@ -101,6 +119,7 @@ export class sidebarComponent implements OnInit, AfterViewInit {
     if (!input)
       return;
 
+    this.homePageState.pagingData.pageNumber = 1;
     this.homePageState.pagingData.searchString = input.value;
 
     if (input.value.length == 0)
@@ -121,6 +140,12 @@ export class sidebarComponent implements OnInit, AfterViewInit {
       }, 500);
     }
 
+    await this.getData();
+  }
+
+  /** User clicked the Home link */
+  async onHomeClicked() {
+    this.homePageState.pagingData.pageNumber = 1;
     await this.getData();
   }
 
