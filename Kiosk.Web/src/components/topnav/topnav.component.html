@@ -1,0 +1,37 @@
+<!--<p-toast position="center" sticky="true"></p-toast>--> 
+<div id="topnavDiv" class="topnav">
+  <div class="topnav">
+    <!--
+      <a class="active" href="#home">Home</a>
+      <a href="#">Popular</a>
+      <a href="#">Submit</a>
+    -->    
+    <div class="topnav-right">
+      <p-button label="Login" icon="pi pi-lock" (click)="op.toggle($event)"></p-button>&nbsp;
+
+      <p-overlayPanel #op [showCloseIcon]="true" [style]="{width: '300px'}">
+        <ng-template pTemplate>
+          <div class="p-field p-grid">
+            <label for="txtUsername" class="p-col-fixed" style="width: 200px;">Username</label>
+            <div class="p-col">
+              <input #txtUsername id="txtUsername" pInputText type="text" maxlength="64" >
+            </div>
+          </div>
+          <div class="p-field p-grid">
+            <label for="txtPassword" class="p-col-fixed" style="width: 200px;">Password</label>
+            <div class="p-col">
+              <input #txtPassword id="txtPassword" pInputText type="password" maxlength="64" >
+            </div>
+          </div>
+          <div class="p-field p-grid">            
+            <div class="p-col" style="margin-top:5px;">
+              <p-button label="Submit" ></p-button>&nbsp;
+            </div>
+          </div>
+        </ng-template>
+      </p-overlayPanel>
+
+      <!--<p-button label="Neal Bailey" icon="pi pi-user"></p-button>-->
+    </div>
+  </div>
+</div> 

@@ -7,6 +7,8 @@ import { ChipModule } from 'primeng/chip';
 import { DialogModule } from 'primeng/dialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { InputTextModule } from 'primeng/inputtext';
 
 // Routes
 import { appRoutes } from '../routes'
@@ -18,6 +20,7 @@ import { RecipesService } from 'src/services/recipes.service';
 
 //Components
 import { AppComponent } from './app.component';
+import { topnavComponent } from 'src/components/topnav/topnav.component';
 import { sidebarComponent } from 'src/components/sidebar/sidebar.component';
 import { homeComponent } from 'src/components/home/home.component';
 import { recipeComponent } from 'src/components/recipe/recipe.component';
@@ -26,6 +29,7 @@ import { RouterModule } from '@angular/router';
 @NgModule({
   declarations: [
     AppComponent,
+    topnavComponent,
     sidebarComponent,
     homeComponent,
     recipeComponent
@@ -40,6 +44,8 @@ import { RouterModule } from '@angular/router';
     DialogModule,
     ProgressSpinnerModule,
     BrowserAnimationsModule,
+    OverlayPanelModule,
+    InputTextModule,
   ],
   providers: [
     HomePageState,
