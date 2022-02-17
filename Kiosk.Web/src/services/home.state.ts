@@ -18,6 +18,7 @@
 //-----------------------------------------------------------------------
 import { PagingData } from "src/models/PagingData";
 import { Recipe } from "src/models/recipe.model";
+import { Category } from "../models/category.model";
 import { UserSession } from "../models/userSession.model";
 
 export class HomePageState {
@@ -30,6 +31,12 @@ export class HomePageState {
   /** All the recipes that the user has access to */
   public recipes: Recipe[] = [];
 
+  /** Recipe being edited/created */
+  public selectedRecipe: Recipe = new Recipe();
+
+  /** All the categories */
+  public categories: Category[] = [];
+
   /** The search criteria */
   public searchString: string = '';
 
@@ -38,6 +45,12 @@ export class HomePageState {
 
   /** The user session */
   public userSession: UserSession;
+
+  /** Indicates if the create wizard is visible on the screen */
+  public createRecipeDialogIsVisible: boolean;
+
+  /** The current position of the wizard */
+  public createRecipeDialogCurrentStep = 1;
 
   //#endregion
 

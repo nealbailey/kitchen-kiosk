@@ -16,17 +16,21 @@
 //-----------------------------------------------------------------------
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { formatHelper } from 'src/helpers/format.helper';
 import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
 import { ToastService } from 'src/services/toast.service';
+import { Category } from '../../models/category.model';
+import { Ingredient } from '../../models/ingredient.model';
+import { CategoriesService } from '../../services/categories.service';
  
-@Component({    
-    selector: 'home-root', 
-    templateUrl: './home.component.html', 
-    styleUrls: ['./home.component.scss'] 
-}) 
+@Component({
+  encapsulation: ViewEncapsulation.None,
+  selector: 'home-root',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss']
+})
 export class homeComponent implements OnInit, AfterViewInit {
 
   // #region Properties
@@ -41,6 +45,7 @@ export class homeComponent implements OnInit, AfterViewInit {
   constructor(
     public homePageState: HomePageState,
     private recipeService: RecipesService,
+    private categoryService: CategoriesService,
     private toastService: ToastService  ) {
   }
   // #endregion
@@ -82,7 +87,7 @@ export class homeComponent implements OnInit, AfterViewInit {
  
     try {
       console.log('categoryId (getData) = ' + this.homePageState.pagingData.categoryId);
-      this.homePageState.recipes = await this.recipeService.GetRecipes(this.homePageState);
+      this.homePageState.recipes = await this.recipeService.GetRecipes(this.homePageState);      
 
       // when data is retrieved, set this.loadingPage to false.
       this.homePageState.pageIsLoading = false;
@@ -161,6 +166,39 @@ export class homeComponent implements OnInit, AfterViewInit {
     }
     await this.getData();
   }
+
+  /** Called when the user clicks the 'Next' button in the create dialog */
+  onCreateRecipeDialogNextClicked() {
+    let stepNum: number = this.homePageState.createRecipeDialogCurrentStep;
+    if (stepNum === 3)
+      return;
+
+    let nextStep = ++this.homePageState.createRecipeDialogCurrentStep;
+    this.homePageState.createRecipeDialogCurrentStep = nextStep;
+  }
+
+  /** Called when the user clicks the 'Previous' button in the create dialog */
+  onCreateRecipeDialogPrevClicked() {
+    let stepNum: number = this.homePageState.createRecipeDialogCurrentStep;
+    if (stepNum === 1)
+      return;
+
+    let nextStep = --this.homePageState.createRecipeDialogCurrentStep;
+    this.homePageState.createRecipeDialogCurrentStep = nextStep;
+  }
+
+  /** User clicked 'Save' button in create dialog */
+  onCreateRecipeSaveClicked() {
+    // Populate ingredient array
+    var i = this.homePageState.selectedRecipe.strIngredients.split("\n");
+    for (var x in i) {
+      this.homePageState.selectedRecipe.ingredients.push(new Ingredient(0, i[x]));      
+    }
+
+    //console.log(this.homePageState.selectedRecipe);
+    console.log(JSON.stringify(this.homePageState.selectedRecipe));
+  }
+
   // #endregion
 } 
  

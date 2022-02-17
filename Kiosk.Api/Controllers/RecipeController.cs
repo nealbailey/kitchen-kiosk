@@ -18,11 +18,13 @@
 //-----------------------------------------------------------------------
 namespace KioskApi.Controllers
 {
+    using Kiosk.Api.Extensions;
     using Kiosk.Data.Repository;
     using KioskApi.Domain.Models;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
+    using Newtonsoft.Json;
     using System;
     using System.Threading.Tasks;
 
@@ -79,6 +81,35 @@ namespace KioskApi.Controllers
                 : await _recipeRepository.GetOne(httpRecipe);
 
             return Ok(dbRecipe);
+        }
+
+        /// <summary>
+        /// Create a new <see cref="Recipe"/>.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost(Name = "InsertRecipe")]
+        public async Task<IActionResult> InsertRecipe()
+        {
+            var HttpBody = Request.GetRawBodyStringAsync().Result;
+            try
+            {
+                dynamic x = JsonConvert.DeserializeObject<dynamic>(HttpBody);
+                var recipe = new Recipe()
+                {
+                    Useruid = x.useruid,                    
+                    Title = x.title,
+                    Date = DateTime.Parse(x.date),
+                    Instructions = x.instructions,
+                    Description = x.description,
+                    CatId = x.primaryCategory.catId
+                };
+            }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }            
+
+            return Ok();
         }
 
         #endregion

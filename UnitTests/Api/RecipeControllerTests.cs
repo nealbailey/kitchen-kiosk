@@ -4,9 +4,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using UnitTests.Extensions;
+using UnitTests.Helpers;
 
 namespace UnitTests.Api
 {
@@ -131,6 +134,27 @@ namespace UnitTests.Api
             Assert.IsNull(recipe.Owner);
             Assert.IsNull(recipe.Categories);
             Assert.IsNull(recipe.Ingredients);
+        }
+
+        [TestMethod]
+        public void Recipe_Create()
+        {
+            var strFileStream = string.Empty;
+            using (FileStream fs = new FileStream("Resources/InsertRecipe.json", FileMode.Open))
+            using (StreamReader sr = new StreamReader(fs))
+                strFileStream = sr.ReadToEnd();
+            
+            // Arrange            
+            var requestContent = strFileStream;
+
+            // Act
+            var postRequestTask = _httpClient.PostAsync(
+                $"api/recipe", new StringContent(requestContent, Encoding.UTF8, "application/json"));
+
+            var response = postRequestTask.Result;
+
+            // Assert
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);            
         }
     }
 }

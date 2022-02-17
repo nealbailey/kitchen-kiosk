@@ -7,12 +7,13 @@ export class Recipe {
   public recId: number
   public catId: number;
   public useruid: string = '00000000-0000-0000-0000-000000000000';
-  public date: Date;
+  public date: Date = new Date();
   public title: string = '';
   public description: string;
   public instructions: string = '';
   public primaryCategory: Category;
   public ingredients: Ingredient[] = [];
+  public strIngredients: string = '';
   
   /**
   * Constructor - all parameters are optional.

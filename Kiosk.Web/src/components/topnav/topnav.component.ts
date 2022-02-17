@@ -22,6 +22,8 @@ import { HomePageState } from 'src/services/home.state';
 import { LoginService } from 'src/services/login.service';
 import { ToastService } from 'src/services/toast.service';
 import { UserSessionService } from 'src/services/userSession.service';
+import { Recipe } from '../../models/recipe.model';
+import { CategoriesService } from '../../services/categories.service';
 
 @Component({ 
     encapsulation: ViewEncapsulation.None, 
@@ -45,7 +47,8 @@ export class topnavComponent implements OnInit, AfterViewInit {
     public homePageState: HomePageState,
     private loginService: LoginService,
     private userSessionService: UserSessionService,
-    private toastService: ToastService) {
+    private toastService: ToastService,
+    private categoriesService: CategoriesService) {
     if (!this.homePageState.userSession)
       this.homePageState.userSession = new UserSession();
   }
@@ -89,6 +92,15 @@ export class topnavComponent implements OnInit, AfterViewInit {
   // #endregion
 
   // #region Event Handlers
+
+  async onCreateRecipeClicked() {
+    this.homePageState.categories = await this.categoriesService.GetCategories();
+    this.homePageState.selectedRecipe = new Recipe();
+    this.homePageState.selectedRecipe.useruid = this.userSessionService.getUserSession().id;
+    console.log(this.homePageState.categories);
+    this.homePageState.createRecipeDialogIsVisible = true;
+  }
+
   /**
    * User clicked the Login button
    * @param event the event args associated with the event

@@ -33,15 +33,52 @@
     <a *ngIf="this.homePageState.pagingData.pageNumber !== 1" class="button w-button" (click)="onPrevPageClicked()">←&nbsp;Prev Page&nbsp;</a>&nbsp;&nbsp;
     <a *ngIf="this.homePageState.recipes.length >= this.homePageState.pagingData.pageSize" class="button w-button" (click)="onNextPageClicked()">Next Page&nbsp;→</a>
   </div>
-</div>
 
-<!--
-*************************************************************************************
-Spinner while loading the page
-*************************************************************************************
--->
-<p-dialog [draggable]="false" [resizable]="false" [(visible)]="homePageState.pageIsLoading" [modal]="true"
-          [closeOnEscape]="false" closeable="false" [showHeader]="false"
-          [baseZIndex]="10000">
-  <p-progressSpinner [style]="{width: '50px', height: '50px'}" styleClass="custom-spinner" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
-</p-dialog>
+  <!--
+  *************************************************************************************
+  Add Recipe Dialog
+  *************************************************************************************
+  -->
+  <p-dialog #createRecipeDialog [(visible)]="homePageState.createRecipeDialogIsVisible"
+            [resizable]="false" [modal]="true"
+            [style]="{'width': '45.5em','font-weight': '700'}">
+    <p-header>
+      <i class="pi pi-send" style="font-size:1.3rem; margin-right:0.5rem;"></i>
+      <span class="dialog-head">Create Recipe</span>
+    </p-header>    
+    <hr class="card-hr" />
+    <createRecipeDialog-root></createRecipeDialog-root>
+    <!--<hr class="card-hr" />-->
+    <ng-template pTemplate="footer">
+      <p-button label="Back" icon="pi pi-angle-left" styleClass="p-button-secondary" (click)="onCreateRecipeDialogPrevClicked()" [hidden]="this.homePageState.createRecipeDialogCurrentStep==1"></p-button>
+      <p-button label="Next" icon="pi pi-angle-right" iconPos="right" (click)="onCreateRecipeDialogNextClicked()" [hidden]="this.homePageState.createRecipeDialogCurrentStep==3"></p-button>
+      <p-button label="Save" icon="pi pi-save" [hidden]="this.homePageState.createRecipeDialogCurrentStep != 3" (click)="onCreateRecipeSaveClicked()"></p-button>
+    </ng-template>
+  </p-dialog>
+
+  <!--<p-dialog #createMessageDialog [(visible)]="marketingMessagesState.createMessageWizardVisible" (onHide)="onCloseCreateMessageDialog()"
+            [resizable]="false" [modal]="true"
+            [style]="{'width': '52.5em','font-weight': '700'}">
+    <p-header>
+      <i class="pi pi-send" style="font-size:1.3rem; margin-right:0.5rem;"></i>
+      <span class="dialog-head">{{marketingMessagesState.createMessageWizardState?.dialogTitleMessage}}</span>
+    </p-header>
+    <div class="card-hr"></div>
+    <createMessageDialog-root [createMessageWizardState]="this.marketingMessagesState.createMessageWizardState"></createMessageDialog-root>
+    <div class="card-hr"></div>
+    <ng-template pTemplate="footer">
+      <p-button label="Back" icon="pi pi-angle-left" styleClass="p-button-secondary" (onClick)="onCreateMessageDialogPrevClicked()" *ngIf="marketingMessagesState.createMessageWizardState.currentStep.step > 1 && !marketingMessagesState.createMessageWizardState.templatePreviewVisible && !marketingMessagesState.createMessageWizardState.templateReportVisible"></p-button>
+      <p-button label="Next" icon="pi pi-angle-right" iconPos="right" (onClick)="onCreateMessageDialogNextClicked()" *ngIf="marketingMessagesState.createMessageWizardState.currentStep.step < 4 && !marketingMessagesState.createMessageWizardState.templatePreviewVisible && !marketingMessagesState.createMessageWizardState.templateReportVisible" [disabled]="!marketingMessagesState.createMessageWizardState.validateSteps()"></p-button>
+      <p-button label="Save" icon="pi pi-save" (onClick)="onCreateMessageDialogSaveClicked()" *ngIf="marketingMessagesState.createMessageWizardState.currentStep.step === 4" [disabled]="!marketingMessagesState.createMessageWizardState.validateSteps()"></p-button>
+    </ng-template>
+  </p-dialog>-->
+  <!--
+  *************************************************************************************
+  Spinner while loading the page
+  *************************************************************************************
+  -->
+  <p-dialog [draggable]="false" [resizable]="false" [(visible)]="homePageState.pageIsLoading" [modal]="true"
+            [closeOnEscape]="false" closeable="false" [showHeader]="false"
+            [baseZIndex]="10000">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" styleClass="custom-spinner" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+  </p-dialog>
