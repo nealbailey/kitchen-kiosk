@@ -20,6 +20,7 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { formatHelper } from 'src/helpers/format.helper';
 import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
+import { ToastService } from 'src/services/toast.service';
  
 @Component({    
     selector: 'home-root', 
@@ -39,7 +40,8 @@ export class homeComponent implements OnInit, AfterViewInit {
    */ 
   constructor(
     public homePageState: HomePageState,
-    private recipeService: RecipesService) { 
+    private recipeService: RecipesService,
+    private toastService: ToastService  ) {
   }
   // #endregion
  

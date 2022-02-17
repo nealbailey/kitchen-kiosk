@@ -18,6 +18,7 @@
 //-----------------------------------------------------------------------
 import { PagingData } from "src/models/PagingData";
 import { Recipe } from "src/models/recipe.model";
+import { UserSession } from "../models/userSession.model";
 
 export class HomePageState {
 
@@ -34,6 +35,9 @@ export class HomePageState {
 
   /** The recipe fetch criteria */
   public pagingData: PagingData;
+
+  /** The user session */
+  public userSession: UserSession;
 
   //#endregion
 
