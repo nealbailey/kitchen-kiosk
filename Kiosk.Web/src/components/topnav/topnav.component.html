@@ -1,4 +1,4 @@
-<!--<p-toast position="center" sticky="true"></p-toast>--> 
+<p-toast position="center" sticky="true"></p-toast> 
 <div id="topnavDiv" class="topnav">
   <div class="topnav">
     <!--
@@ -7,31 +7,35 @@
       <a href="#">Submit</a>
     -->    
     <div class="topnav-right">
-      <p-button label="Login" icon="pi pi-lock" (click)="op.toggle($event)"></p-button>&nbsp;
+      <p-button *ngIf="!homePageState.userSession?.username" label="Login" icon="pi pi-lock" (click)="op.toggle($event)"></p-button>&nbsp;&nbsp;&nbsp;
 
       <p-overlayPanel #op [showCloseIcon]="true" [style]="{width: '300px'}">
         <ng-template pTemplate>
           <div class="p-field p-grid">
             <label for="txtUsername" class="p-col-fixed" style="width: 200px;">Username</label>
             <div class="p-col">
-              <input #txtUsername id="txtUsername" pInputText type="text" maxlength="64" >
+              <input #txtUsername id="txtUsername" pInputText type="text" maxlength="64" [(ngModel)]="username">
             </div>
           </div>
           <div class="p-field p-grid">
             <label for="txtPassword" class="p-col-fixed" style="width: 200px;">Password</label>
             <div class="p-col">
-              <input #txtPassword id="txtPassword" pInputText type="password" maxlength="64" >
+              <input #txtPassword id="txtPassword" pInputText type="password" maxlength="64" [(ngModel)]="password">
             </div>
           </div>
-          <div class="p-field p-grid">            
+          <div class="p-field p-grid">
             <div class="p-col" style="margin-top:5px;">
-              <p-button label="Submit" ></p-button>&nbsp;
+              <p-button label="Submit" (click)="op.hide($event);onLoginClicked($event)"></p-button>&nbsp;
             </div>
           </div>
         </ng-template>
       </p-overlayPanel>
 
-      <!--<p-button label="Neal Bailey" icon="pi pi-user"></p-button>-->
+      <p-button *ngIf="homePageState.userSession?.username" label="{{ homePageState.userSession.username }}" icon="pi pi-user" (click)="opLogout.toggle($event)"></p-button>
+
+      <p-overlayPanel #opLogout [showCloseIcon]="true" [style]="{width: '200px'}">
+        <button pButton pRipple type="button" label="Sign Out" class="p-button-outlined p-button-rounded" (click)="opLogout.hide($event);onLogoutClicked()"></button>
+      </p-overlayPanel>
     </div>
   </div>
 </div> 
