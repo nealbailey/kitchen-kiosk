@@ -65,15 +65,28 @@ namespace Kiosk.Data.Repository
         /// </summary>
         /// <param name="recipe">The recipe to create.</param>
         /// <returns>The id of the newly created record.</returns>
-        public Task<int> Create(Recipe recipe)
+        public Task<Recipe> Create(Recipe recipe)
         {
             if (GetByName(recipe.Title).Result != null)
                 throw new System.InvalidOperationException("Recipe with the same name already exist.");
+
+            // Swap out newlines for Html breaks
+            var instructions = recipe.Instructions.Replace("\n", "<br/>");
+            recipe.Instructions = instructions;
 
             // Create recipe
             _context.Add(recipe);
             _context.SaveChanges();
             _context.Entry(recipe).GetDatabaseValues();
+
+            // Add ingredients
+            foreach(var i in recipe.Ingredients)
+            {
+                i.RecId = recipe.RecId;
+                i.Ingredient = i.Ingredient;
+                _context.Add(i);
+            }            
+            _context.SaveChanges();
 
             // Create category map
             var mmap = new RecipeCategoryMap(){
@@ -84,7 +97,7 @@ namespace Kiosk.Data.Repository
             _context.SaveChanges();
 
             //return recipe.RecId;
-            return Task.Run(() => recipe.RecId);
+            return Task.Run(() => recipe);
         }
 
         /// <summary>

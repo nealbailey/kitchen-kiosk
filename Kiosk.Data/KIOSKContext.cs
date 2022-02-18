@@ -223,14 +223,13 @@ namespace KioskApi.Data
 
             modelBuilder.Entity<RecipeIngredient>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => new { e.Ingredient, e.RecId });
 
                 entity.ToTable("recipeIngredients");
 
                 entity.Property(e => e.Ingredient)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                   .HasMaxLength(100)
+                   .IsUnicode(false);
 
                 entity.Property(e => e.RecId).HasColumnName("recId");
             });

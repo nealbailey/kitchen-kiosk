@@ -32,7 +32,7 @@ namespace Kiosk.Data.Repository
         /// </summary>
         /// <param name="recipe">The recipe to create.</param>
         /// <returns>The id of the newly created record.</returns>
-        public Task<int> Create(Recipe recipe);
+        public Task<Recipe> Create(Recipe recipe);
 
         /// <summary>
         /// Delete a recipe.

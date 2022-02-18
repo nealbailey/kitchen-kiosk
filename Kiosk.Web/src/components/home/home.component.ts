@@ -21,7 +21,6 @@ import { formatHelper } from 'src/helpers/format.helper';
 import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
 import { ToastService } from 'src/services/toast.service';
-import { Category } from '../../models/category.model';
 import { Ingredient } from '../../models/ingredient.model';
 import { CategoriesService } from '../../services/categories.service';
  
@@ -85,8 +84,7 @@ export class homeComponent implements OnInit, AfterViewInit {
     // start the progress bar/spinner or display a skeleton.
     this.homePageState.pageIsLoading = true;
  
-    try {
-      console.log('categoryId (getData) = ' + this.homePageState.pagingData.categoryId);
+    try {      
       this.homePageState.recipes = await this.recipeService.GetRecipes(this.homePageState);      
 
       // when data is retrieved, set this.loadingPage to false.
@@ -96,9 +94,6 @@ export class homeComponent implements OnInit, AfterViewInit {
       console.log(message);
       this.homePageState.pageIsLoading = false;
     }
-
-    // REMOVE this when acquiring data via a Web API call. 
-    this.homePageState.pageIsLoading = false;
   }
 
   // #endregion
@@ -188,15 +183,21 @@ export class homeComponent implements OnInit, AfterViewInit {
   }
 
   /** User clicked 'Save' button in create dialog */
-  onCreateRecipeSaveClicked() {
+  async onCreateRecipeSaveClicked() {
     // Populate ingredient array
     var i = this.homePageState.selectedRecipe.strIngredients.split("\n");
     for (var x in i) {
-      this.homePageState.selectedRecipe.ingredients.push(new Ingredient(0, i[x]));      
+      this.homePageState.selectedRecipe.ingredients.push(new Ingredient(0, i[x]));
     }
 
-    //console.log(this.homePageState.selectedRecipe);
-    console.log(JSON.stringify(this.homePageState.selectedRecipe));
+    try {
+      await this.recipeService.CreateRecipe(this.homePageState.selectedRecipe);
+      this.toastService.showSuccess('Recipe created successfully');
+      this.homePageState.createRecipeDialogIsVisible = false;
+      await this.getData();
+    } catch (message: any) {
+      this.toastService.showError(message);
+    }     
   }
 
   // #endregion

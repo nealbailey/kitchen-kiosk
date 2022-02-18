@@ -29,6 +29,15 @@ export class RecipesService {
   constructor(
     private http: HttpClient) { }
 
+  /** Create a new recipe. */
+  async CreateRecipe(recipe: Recipe) {
+    console.info("Call POST in the api recipe Controller");
+    let url: string = AppSettings.API_GET_RECIPE;
+    console.info(url);
+    return await this.http.post<number>(url, recipe)
+      .pipe(catchError(this.handleError)).toPromise();
+  }
+
   /** Gets a collection of Recipe records.  */
   async GetRecipes(homePageState: HomePageState) {
     console.info("Call GET in the api recipes Controller");

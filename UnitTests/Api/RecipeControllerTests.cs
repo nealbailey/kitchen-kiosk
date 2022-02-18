@@ -157,7 +157,7 @@ namespace UnitTests.Api
         [TestMethod]
         public void Recipe_Delete()
         {
-            //var recipeId = 1066;
+            //var recipeId = 1067;
             //var deleteRequestTask = _httpClient.DeleteAsync($"api/recipe/{recipeId}");
             //var response = deleteRequestTask.Result;
             //Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
