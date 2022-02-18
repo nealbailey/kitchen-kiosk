@@ -9,6 +9,7 @@
   <ItemGroup>
     <None Remove="appsettings.json" />
     <None Remove="Resources\InsertRecipe.json" />
+    <None Remove="Resources\UpdateRecipe.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,6 +17,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Resources\UpdateRecipe.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\InsertRecipe.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

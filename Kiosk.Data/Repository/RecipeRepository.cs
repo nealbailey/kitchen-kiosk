@@ -71,7 +71,7 @@ namespace Kiosk.Data.Repository
                 throw new System.InvalidOperationException("Recipe with the same name already exist.");
 
             // Swap out newlines for Html breaks
-            var instructions = recipe.Instructions.Replace("\n", "<br/>");
+            var instructions = recipe.Instructions.Replace("\n", "<br />");
             recipe.Instructions = instructions;
 
             // Create recipe
@@ -113,6 +113,10 @@ namespace Kiosk.Data.Repository
                 CatId = recipe.CatId,
                 RecId = recipe.RecId
             };
+
+            recipe.Ingredients = _ingredientRepository.GetByRecipe(recipe).Result;
+            foreach(var i in recipe.Ingredients)            
+                _context.Remove(i);            
 
             // delete recipe
             _context.Remove(mmap);
@@ -254,6 +258,38 @@ namespace Kiosk.Data.Repository
             return recipe;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="updatedRecipe"></param>
+        /// <returns></returns>
+        public Task<Recipe> Update(Recipe updatedRecipe)
+        {
+            var ingredients = _ingredientRepository.GetByRecipe(updatedRecipe).Result;            
+            foreach (var i in ingredients)
+                _context.Remove(i);
+
+            _context.SaveChanges();
+
+            var recipe = GetOne(updatedRecipe).Result;
+            recipe.CatId = updatedRecipe.CatId;
+            recipe.Date = System.DateTime.UtcNow;
+            recipe.Description = updatedRecipe.Description;
+            recipe.Instructions = updatedRecipe.Instructions;
+            recipe.Title = updatedRecipe.Title;
+            recipe.Useruid = updatedRecipe.Useruid;
+            _context.Update(recipe);
+            _context.SaveChanges();
+
+            foreach (var i in updatedRecipe.Ingredients)
+            {
+                i.RecId = updatedRecipe.RecId;
+                _context.Add(i);
+                _context.SaveChanges();
+            }
+
+            return Task.Run(() => recipe);
+        }
         #endregion
 
         #region Experimental

@@ -18,11 +18,12 @@
 //-----------------------------------------------------------------------
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { formatHelper } from 'src/helpers/format.helper';
+import { Ingredient } from 'src/models/ingredient.model';
+import { Recipe } from 'src/models/recipe.model';
+import { CategoriesService } from 'src/services/categories.service';
 import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
 import { ToastService } from 'src/services/toast.service';
-import { Ingredient } from '../../models/ingredient.model';
-import { CategoriesService } from '../../services/categories.service';
  
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -44,7 +45,7 @@ export class homeComponent implements OnInit, AfterViewInit {
   constructor(
     public homePageState: HomePageState,
     private recipeService: RecipesService,
-    private categoryService: CategoriesService,
+    private categoriesService: CategoriesService,
     private toastService: ToastService  ) {
   }
   // #endregion
@@ -128,6 +129,31 @@ export class homeComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * User clicked the Edit recipe button
+   * @param recipe the selected recipe
+   */
+  async onEditRecipeClicked(recipe: Recipe) {
+    console.log(recipe);
+
+    if (this.homePageState.categories.length == 0)
+      this.homePageState.categories = await this.categoriesService.GetCategories();
+
+    if (!recipe.ingredients || recipe.ingredients.length == 0) {
+      recipe.ingredients = await this.recipeService.GetRecipeIngredients(recipe.recId);      
+    }      
+
+    this.homePageState.selectedRecipe = recipe;
+    this.homePageState.selectedRecipe.instructions = recipe.instructions.split("<br />").join("\n");
+    this.homePageState.selectedRecipe.strIngredients = recipe.ingredients.map(o => o.ingredient).join("\n");
+    this.homePageState.selectedRecipe.primaryCategory =
+      this.homePageState.categories.find(
+        x => x.catId === this.homePageState.selectedRecipe.primaryCategory.catId);
+
+    this.homePageState.createRecipeDialogCurrentStep = 1;
+    this.homePageState.createRecipeDialogIsVisible = true;
+  }
+
   /** User clicked on the Next Page button */
   async onNextPageClicked() {
     this.homePageState.pagingData.pageNumber = (this.homePageState.pagingData.pageNumber + 1);
@@ -162,6 +188,8 @@ export class homeComponent implements OnInit, AfterViewInit {
     await this.getData();
   }
 
+  //#region Create Dialog
+
   /** Called when the user clicks the 'Next' button in the create dialog */
   onCreateRecipeDialogNextClicked() {
     let stepNum: number = this.homePageState.createRecipeDialogCurrentStep;
@@ -186,19 +214,30 @@ export class homeComponent implements OnInit, AfterViewInit {
   async onCreateRecipeSaveClicked() {
     // Populate ingredient array
     var i = this.homePageState.selectedRecipe.strIngredients.split("\n");
-    for (var x in i) {
-      this.homePageState.selectedRecipe.ingredients.push(new Ingredient(0, i[x]));
-    }
+    if (i.length > 0) {
+      this.homePageState.selectedRecipe.ingredients = [];
+      for (var x in i) {
+        this.homePageState.selectedRecipe.ingredients.push(new Ingredient(0, i[x]));
+      }
+    }    
 
     try {
-      await this.recipeService.CreateRecipe(this.homePageState.selectedRecipe);
-      this.toastService.showSuccess('Recipe created successfully');
+      if (!this.homePageState.selectedRecipe.recId) {
+        await this.recipeService.CreateRecipe(this.homePageState.selectedRecipe);
+        this.toastService.showSuccess('Recipe created successfully');
+      }
+      else {
+        await this.recipeService.UpdateRecipe(this.homePageState.selectedRecipe);
+        this.toastService.showSuccess('Recipe updated successfully');
+      }
+
       this.homePageState.createRecipeDialogIsVisible = false;
       await this.getData();
     } catch (message: any) {
       this.toastService.showError(message);
     }     
   }
+  //#endregion
 
   // #endregion
 } 

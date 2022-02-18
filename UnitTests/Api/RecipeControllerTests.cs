@@ -139,28 +139,46 @@ namespace UnitTests.Api
         [TestMethod]
         public void Recipe_Create()
         {
-            //var strFileStream = string.Empty;
-            //using (FileStream fs = new FileStream("Resources/InsertRecipe.json", FileMode.Open))
-            //using (StreamReader sr = new StreamReader(fs))
-            //    strFileStream = sr.ReadToEnd();
-            //var requestContent = strFileStream;
+            var strFileStream = string.Empty;
+            using (FileStream fs = new FileStream("Resources/InsertRecipe.json", FileMode.Open))
+            using (StreamReader sr = new StreamReader(fs))
+                strFileStream = sr.ReadToEnd();
+            var requestContent = strFileStream;
 
-            //var postRequestTask = _httpClient.PostAsync(
-            //    $"api/recipe", new StringContent(requestContent, Encoding.UTF8, "application/json"));
+            var postRequestTask = _httpClient.PostAsync(
+                $"api/recipe", new StringContent(requestContent, Encoding.UTF8, "application/json"));
 
-            //var response = postRequestTask.Result;
+            var response = postRequestTask.Result;
 
-            //// Assert
-            //Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            // Assert
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [TestMethod]
         public void Recipe_Delete()
         {
-            //var recipeId = 1067;
-            //var deleteRequestTask = _httpClient.DeleteAsync($"api/recipe/{recipeId}");
-            //var response = deleteRequestTask.Result;
-            //Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            var recipeId = 1088;
+            var deleteRequestTask = _httpClient.DeleteAsync($"api/recipe/{recipeId}");
+            var response = deleteRequestTask.Result;
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [TestMethod]
+        public void Recipe_Update()
+        {
+            var strFileStream = string.Empty;
+            using (FileStream fs = new FileStream("Resources/UpdateRecipe.json", FileMode.Open))
+            using (StreamReader sr = new StreamReader(fs))
+                strFileStream = sr.ReadToEnd();
+            var requestContent = strFileStream;
+
+            var postRequestTask = _httpClient.PutAsync(
+                $"api/recipe", new StringContent(requestContent, Encoding.UTF8, "application/json"));
+
+            var response = postRequestTask.Result;
+
+            // Assert
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
     }
 }

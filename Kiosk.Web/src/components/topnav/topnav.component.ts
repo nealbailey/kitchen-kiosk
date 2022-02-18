@@ -97,7 +97,7 @@ export class topnavComponent implements OnInit, AfterViewInit {
     this.homePageState.categories = await this.categoriesService.GetCategories();
     this.homePageState.selectedRecipe = new Recipe();
     this.homePageState.selectedRecipe.useruid = this.userSessionService.getUserSession().id;
-    console.log(this.homePageState.categories);
+    //console.log(this.homePageState.categories);
     this.homePageState.createRecipeDialogIsVisible = true;
   }
 

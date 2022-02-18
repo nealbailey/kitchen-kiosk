@@ -62,5 +62,12 @@ namespace Kiosk.Data.Repository
         /// <param name="options"></param>
         /// <returns></returns>
         public Task<Recipe> GetOne(Recipe recipe, RepositoryOptionsRecipe options);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="recipe"></param>
+        /// <returns></returns>
+        public Task<Recipe> Update(Recipe recipe);
     }
 }

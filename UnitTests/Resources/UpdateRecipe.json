@@ -1,0 +1,45 @@
+{
+  "recId": "1092",
+  "useruid": "abc4bbf1-5bb4-43df-8c1b-ca5b1c85883d",
+  "date": "2022-02-18T20:59:09.118Z",
+  "title": "Basic American Oatmeal",
+  "instructions": "1**. Combine oats, milk, water, salt, and cinnamon in a medium saucepan. Bring to a boil, then reduce heat to low.\n\n2. Simmer uncovered for 3 to 5 minutes until thickened, stirring occasionally. Remove from heat and let cool slightly.\n\n3. Divide equally between two bowls. Drizzle each serving with 1/2 teaspoon honey. Add additional desired toppings and serve.",
+  "ingredients": [
+    {
+      "ingredient": "1 cup old-fashioned rolled oats",
+      "recId": 0
+    },
+    {
+      "ingredient": "1 cup milk",
+      "recId": 0
+    },
+    {
+      "ingredient": "1 cup water",
+      "recId": 0
+    },
+    {
+      "ingredient": "1/8 teaspoon kosher salt",
+      "recId": 0
+    },
+    {
+      "ingredient": "1/2 teaspoon ground cinnamon (optional)",
+      "recId": 0
+    },
+    {
+      "ingredient": "1 teaspoon honey (optional)",
+      "recId": 0
+    },
+    {
+      "ingredient": "toppings (sliced almonds, banana, blueberries)",
+      "recId": 0
+    }
+  ],
+  "strIngredients": "1 cup old-fashioned rolled oats\n1 cup milk\n1 cup water\n1/8 teaspoon kosher salt\n1/2 teaspoon ground cinnamon (optional)\n1 teaspoon honey (optional)\ntoppings (sliced almonds, banana, blueberries)",
+  "primaryCategory": {
+    "catId": 4,
+    "category": "Breakfast",
+    "total": 11,
+    "recipes": []
+  },
+  "description": "DIS is a traditional Quaker homestyle oatmeal recipe from Pennsylvania\n\n"
+}

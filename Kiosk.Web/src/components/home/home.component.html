@@ -22,7 +22,12 @@
           </div>
           <p class="post-summary">
             {{recipe.description}}
-          </p><a routerLink="/recipe/{{recipe.recId}}" class="button-round w-button">See Recipe →</a>
+          </p>
+          <!--<button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help"></button>&nbsp;-->
+          <button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-outlined"></button>&nbsp;
+          <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-success p-button-outlined" (click)="onEditRecipeClicked(recipe);"></button>&nbsp;
+          <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-outlined"></button>
+          <!--<a routerLink="/recipe/{{recipe.recId}}" class="button-round w-button">See Recipe →</a>-->
         </div>
       </div>
       <!-- End Posts -->
@@ -56,22 +61,6 @@
     </ng-template>
   </p-dialog>
 
-  <!--<p-dialog #createMessageDialog [(visible)]="marketingMessagesState.createMessageWizardVisible" (onHide)="onCloseCreateMessageDialog()"
-            [resizable]="false" [modal]="true"
-            [style]="{'width': '52.5em','font-weight': '700'}">
-    <p-header>
-      <i class="pi pi-send" style="font-size:1.3rem; margin-right:0.5rem;"></i>
-      <span class="dialog-head">{{marketingMessagesState.createMessageWizardState?.dialogTitleMessage}}</span>
-    </p-header>
-    <div class="card-hr"></div>
-    <createMessageDialog-root [createMessageWizardState]="this.marketingMessagesState.createMessageWizardState"></createMessageDialog-root>
-    <div class="card-hr"></div>
-    <ng-template pTemplate="footer">
-      <p-button label="Back" icon="pi pi-angle-left" styleClass="p-button-secondary" (onClick)="onCreateMessageDialogPrevClicked()" *ngIf="marketingMessagesState.createMessageWizardState.currentStep.step > 1 && !marketingMessagesState.createMessageWizardState.templatePreviewVisible && !marketingMessagesState.createMessageWizardState.templateReportVisible"></p-button>
-      <p-button label="Next" icon="pi pi-angle-right" iconPos="right" (onClick)="onCreateMessageDialogNextClicked()" *ngIf="marketingMessagesState.createMessageWizardState.currentStep.step < 4 && !marketingMessagesState.createMessageWizardState.templatePreviewVisible && !marketingMessagesState.createMessageWizardState.templateReportVisible" [disabled]="!marketingMessagesState.createMessageWizardState.validateSteps()"></p-button>
-      <p-button label="Save" icon="pi pi-save" (onClick)="onCreateMessageDialogSaveClicked()" *ngIf="marketingMessagesState.createMessageWizardState.currentStep.step === 4" [disabled]="!marketingMessagesState.createMessageWizardState.validateSteps()"></p-button>
-    </ng-template>
-  </p-dialog>-->
   <!--
   *************************************************************************************
   Spinner while loading the page

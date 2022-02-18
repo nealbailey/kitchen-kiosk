@@ -103,6 +103,26 @@ namespace KioskApi.Controllers
         /// <summary>
         /// Create a new <see cref="Recipe"/>.
         /// </summary>
+        /// <returns></returns>
+        [HttpPut(Name = "UpdateRecipe")]
+        public async Task<IActionResult> UpdateRecipe([FromBody] Recipe recipe)
+        {
+            try
+            {
+                recipe.CatId = recipe.PrimaryCategory.CatId;
+                recipe.PrimaryCategory = null;
+                var record = await _recipeRepository.Update(recipe);
+                return Ok(record);
+            }
+            catch (System.Exception ex)
+            {
+                return UnprocessableEntity(new { message = $"Unable to create recipe: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Create a new <see cref="Recipe"/>.
+        /// </summary>
         /// <param name="id">The recipe Id to Delete</param>
         /// <returns></returns>        
         [HttpDelete("{id}", Name = "DeleteRecipe")]
