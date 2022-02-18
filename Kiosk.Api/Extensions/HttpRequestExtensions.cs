@@ -21,6 +21,7 @@ namespace Kiosk.Api.Extensions
     using Microsoft.AspNetCore.Http;
     using System.IO;
     using System.Text;
+    using Newtonsoft.Json;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -46,6 +47,26 @@ namespace Kiosk.Api.Extensions
 
             using var reader = new StreamReader(request.Body, encoding);
             return await reader.ReadToEndAsync();
+        }
+
+        /// <summary>
+        /// Deserializes the Http request body.
+        /// </summary>
+        /// <typeparam name="T">The type to populate into.</typeparam>
+        /// <param name="request">The request.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns>The requested return type.</returns>
+        public static T DeserializeRequestBody<T>(this HttpRequest request, Encoding encoding = null)
+        {
+            T requestObject = default(T);
+            if (request != null)
+            {
+                var strRequest = GetRawBodyStringAsync(request, encoding).Result;
+                requestObject = JsonSerializer.CreateDefault().Deserialize<T>(
+                    new JsonTextReader(new StringReader(strRequest)));
+            }
+
+            return requestObject;
         }
     }
 }

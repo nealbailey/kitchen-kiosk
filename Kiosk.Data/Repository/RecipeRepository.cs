@@ -61,6 +61,53 @@ namespace Kiosk.Data.Repository
         #region Methods
 
         /// <summary>
+        /// Create a new recipe.
+        /// </summary>
+        /// <param name="recipe">The recipe to create.</param>
+        /// <returns>The id of the newly created record.</returns>
+        public Task<int> Create(Recipe recipe)
+        {
+            // Create recipe
+            _context.Add(recipe);
+            _context.SaveChanges();
+            _context.Entry(recipe).GetDatabaseValues();
+
+            // Create category map
+            var mmap = new RecipeCategoryMap(){
+                CatId = recipe.CatId,
+                RecId = recipe.RecId
+            };
+            _context.Add(mmap);
+            _context.SaveChanges();
+
+            //return recipe.RecId;
+            return Task.Run(() => recipe.RecId);
+        }
+
+        /// <summary>
+        /// Delete a recipe.
+        /// </summary>
+        /// <param name="id">The id of the recipe to delete.</param>
+        /// <returns>Boolean flag that indicates the success or failure state.</returns>
+        public Task<bool> Delete(int id)
+        {
+            var recipe = GetOne(new Recipe() { RecId = id }).Result;
+            var mmap = new RecipeCategoryMap()
+            {
+                CatId = recipe.CatId,
+                RecId = recipe.RecId
+            };
+
+            // delete recipe
+            _context.Remove(mmap);
+            _context.Remove(recipe);
+            _context.SaveChanges();
+
+            //return recipe.RecId;
+            return Task.Run(() => true);
+        }
+
+        /// <summary>
         /// Fetch recipes.
         /// </summary>
         /// <param name="options">Options when fetching recipes.</param>        

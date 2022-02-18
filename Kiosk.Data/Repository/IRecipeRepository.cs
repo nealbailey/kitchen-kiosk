@@ -28,6 +28,20 @@ namespace Kiosk.Data.Repository
     public interface IRecipeRepository
     {
         /// <summary>
+        /// Create a new recipe.
+        /// </summary>
+        /// <param name="recipe">The recipe to create.</param>
+        /// <returns>The id of the newly created record.</returns>
+        public Task<int> Create(Recipe recipe);
+
+        /// <summary>
+        /// Delete a recipe.
+        /// </summary>
+        /// <param name="id">The id of the recipe to delete.</param>
+        /// <returns>Boolean flag that indicates the success or failure state.</returns>
+        public Task<bool> Delete(int id);
+
+        /// <summary>
         /// Fetch recipes.
         /// </summary>
         /// <param name="options">Options when fetching recipes.</param>

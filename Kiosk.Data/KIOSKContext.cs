@@ -187,7 +187,7 @@ namespace KioskApi.Data
 
             modelBuilder.Entity<RecipeCategoryMap>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => new { e.CatId, e.RecId });
 
                 entity.ToTable("recipeCategoryMap");
 

@@ -18,14 +18,11 @@
 //-----------------------------------------------------------------------
 namespace KioskApi.Controllers
 {
-    using Kiosk.Api.Extensions;
     using Kiosk.Data.Repository;
     using KioskApi.Domain.Models;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
-    using Newtonsoft.Json;
-    using System;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -88,28 +85,24 @@ namespace KioskApi.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost(Name = "InsertRecipe")]
-        public async Task<IActionResult> InsertRecipe()
+        public async Task<IActionResult> InsertRecipe([FromBody] Recipe recipe)
         {
-            var HttpBody = Request.GetRawBodyStringAsync().Result;
-            try
-            {
-                dynamic x = JsonConvert.DeserializeObject<dynamic>(HttpBody);
-                var recipe = new Recipe()
-                {
-                    Useruid = x.useruid,                    
-                    Title = x.title,
-                    Date = DateTime.Parse(x.date),
-                    Instructions = x.instructions,
-                    Description = x.description,
-                    CatId = x.primaryCategory.catId
-                };
-            }
-            catch(Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-            }            
+            recipe.CatId = recipe.PrimaryCategory.CatId;
+            recipe.PrimaryCategory = null;
+            var recId = await _recipeRepository.Create(recipe);
+            return Ok(recId);
+        }
 
-            return Ok();
+        /// <summary>
+        /// Create a new <see cref="Recipe"/>.
+        /// </summary>
+        /// <param name="id">The recipe Id to Delete</param>
+        /// <returns></returns>        
+        [HttpDelete("{id}", Name = "DeleteRecipe")]
+        public async Task<IActionResult> DeleteRecipe(int id)
+        {
+            var recId = await _recipeRepository.Delete(id);
+            return Ok(recId);
         }
 
         #endregion
