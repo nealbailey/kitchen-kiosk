@@ -35,4 +35,8 @@
     <ProjectReference Include="..\Kiosk.Api\Kiosk.Api.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repository\" />
+  </ItemGroup>
+
 </Project>

@@ -87,10 +87,17 @@ namespace KioskApi.Controllers
         [HttpPost(Name = "InsertRecipe")]
         public async Task<IActionResult> InsertRecipe([FromBody] Recipe recipe)
         {
-            recipe.CatId = recipe.PrimaryCategory.CatId;
-            recipe.PrimaryCategory = null;
-            var recId = await _recipeRepository.Create(recipe);
-            return Ok(recId);
+            try
+            {
+                recipe.CatId = recipe.PrimaryCategory.CatId;
+                recipe.PrimaryCategory = null;
+                var recId = await _recipeRepository.Create(recipe);
+                return Ok(recId);
+            }
+            catch(System.Exception ex)
+            {
+                return UnprocessableEntity(new { message = $"Unable to create recipe: {ex.Message}" });
+            }            
         }
 
         /// <summary>

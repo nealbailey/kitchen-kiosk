@@ -142,7 +142,7 @@ namespace UnitTests.Api
             //var strFileStream = string.Empty;
             //using (FileStream fs = new FileStream("Resources/InsertRecipe.json", FileMode.Open))
             //using (StreamReader sr = new StreamReader(fs))
-            //    strFileStream = sr.ReadToEnd();  
+            //    strFileStream = sr.ReadToEnd();
             //var requestContent = strFileStream;
 
             //var postRequestTask = _httpClient.PostAsync(
@@ -157,7 +157,7 @@ namespace UnitTests.Api
         [TestMethod]
         public void Recipe_Delete()
         {
-            //var recipeId = 1063;
+            //var recipeId = 1066;
             //var deleteRequestTask = _httpClient.DeleteAsync($"api/recipe/{recipeId}");
             //var response = deleteRequestTask.Result;
             //Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);

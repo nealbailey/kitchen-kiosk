@@ -67,6 +67,9 @@ namespace Kiosk.Data.Repository
         /// <returns>The id of the newly created record.</returns>
         public Task<int> Create(Recipe recipe)
         {
+            if (GetByName(recipe.Title).Result != null)
+                throw new System.InvalidOperationException("Recipe with the same name already exist.");
+
             // Create recipe
             _context.Add(recipe);
             _context.SaveChanges();
@@ -225,6 +228,17 @@ namespace Kiosk.Data.Repository
             }
 
             return Task.Run(() => dbrecipe);
+        }
+
+        /// <summary>
+        /// Fetch a specific recipe by its title.
+        /// </summary>
+        /// <param name="title">The recipe title.</param>
+        /// <returns></returns>
+        public Task<Recipe> GetByName(string title)
+        {
+            var recipe = _context.Recipes.Where(p => p.Title.ToLower() == title.ToLower()).FirstOrDefaultAsync();
+            return recipe;
         }
 
         #endregion
