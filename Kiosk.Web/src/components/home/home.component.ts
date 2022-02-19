@@ -17,6 +17,7 @@
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { ConfirmationService } from 'primeng/api';
 import { formatHelper } from 'src/helpers/format.helper';
 import { Ingredient } from 'src/models/ingredient.model';
 import { Recipe } from 'src/models/recipe.model';
@@ -46,7 +47,8 @@ export class homeComponent implements OnInit, AfterViewInit {
     public homePageState: HomePageState,
     private recipeService: RecipesService,
     private categoriesService: CategoriesService,
-    private toastService: ToastService  ) {
+    private toastService: ToastService,
+    private confirmationService: ConfirmationService) {
   }
   // #endregion
  
@@ -102,6 +104,26 @@ export class homeComponent implements OnInit, AfterViewInit {
   // #region Methods
 
   /**
+  * Deletes the selected recipe
+  * @param recipeId the recipe id of the record to delete.
+  */
+  async DeleteRecipe(recipeId: number) {
+    try {
+      this.homePageState.pageIsLoading = true;
+      
+      await this.recipeService.DeleteRecipe(recipeId);
+      this.homePageState.pageIsLoading = false;
+
+      await this.getData();
+    }
+    catch (e) {
+      this.homePageState.pageIsLoading = false;
+      this.toastService.showError('Error: ' + e);
+      console.log(e);
+    }
+  }
+
+  /**
   * Converts date string from the database to friendly date-time
   * @param the_date the date you need to convert 
   */
@@ -127,6 +149,20 @@ export class homeComponent implements OnInit, AfterViewInit {
         window.scrollTo(0, 0);
       }
     }
+  }
+
+  /**
+   * User clicked the Delete button on a recipe record
+   * @param recipeId the id of the record to delete
+   */
+  async onRecipeDeleteClicked(recipeId: number) {    
+    this.confirmationService.confirm({
+      message: '&nbsp;Are you sure you want to delete this recipe?&nbsp;&nbsp;&nbsp;<br/>&nbsp;This delete action cannot be undone.&nbsp;&nbsp;&nbsp;',
+      accept: () => {
+        this.DeleteRecipe(recipeId);
+      }
+    });
+    return;    
   }
 
   /**
@@ -237,6 +273,7 @@ export class homeComponent implements OnInit, AfterViewInit {
       this.toastService.showError(message);
     }     
   }
+
   //#endregion
 
   // #endregion

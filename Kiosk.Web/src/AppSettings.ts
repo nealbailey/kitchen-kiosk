@@ -37,16 +37,16 @@ export class AppSettings {
   public static API_LOGIN_ENDPOINT = AppSettings.API_URL + '/api/authenticate/login';
 
   /** Controller endpoint for fetching categories. */
-  public static API_GET_CATEGORIES = AppSettings.API_URL + '/api/categories';
+  public static API_CATEGORIES = AppSettings.API_URL + '/api/categories';
     
   /** Controller endpoint for fetching recipes. */
-  public static API_GET_RECIPES = AppSettings.API_URL + '/api/recipes';
+  public static API_RECIPES = AppSettings.API_URL + '/api/recipes';
 
   /** Controller endpoint for a single recipe. */
-  public static API_GET_RECIPE = AppSettings.API_URL + '/api/recipe/';
+  public static API_RECIPE = AppSettings.API_URL + '/api/recipe/';
 
   /** Controller endpoint for a recipe ingredients. */
-  public static API_GET_RECIPE_INGREDIENTS = AppSettings.API_URL + '/api/ingredient/';
+  public static API_RECIPE_INGREDIENTS = AppSettings.API_URL + '/api/ingredient/';
 
 
   // #endregion

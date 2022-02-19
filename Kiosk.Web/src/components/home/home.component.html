@@ -1,10 +1,11 @@
-<!--<p-toast position="center" sticky="true"></p-toast>-->
 <div id="homeDiv" class="content" role="main">
   <div id="divFilters">
     <p-chip icon="pi pi-file" [label]="'Page: ' + this.homePageState?.pagingData.pageNumber" styleClass="mr-2"></p-chip>&nbsp;
     <p-chip *ngIf="this.homePageState?.pagingData.searchString" icon="pi pi-search" [label]="this.homePageState?.pagingData.searchString" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipSearch')"></p-chip>&nbsp;
     <p-chip *ngIf="this.homePageState?.pagingData.categoryId > 0" icon="pi pi-book" [label]="this.homePageState?.pagingData.category" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipCategory')"></p-chip>
   </div>
+
+  <p-confirmDialog header="Warning" icon="pi pi-exclamation-triangle"></p-confirmDialog>
 
   <p></p>
   <div class="blog-list w-dyn-list">
@@ -26,14 +27,16 @@
           <!--<button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help"></button>&nbsp;-->
           <button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-outlined"></button>&nbsp;
           <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-success p-button-outlined" (click)="onEditRecipeClicked(recipe);"></button>&nbsp;
-          <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-outlined"></button>
+          <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-outlined" (click)="onRecipeDeleteClicked(recipe.recId);"></button>
           <!--<a routerLink="/recipe/{{recipe.recId}}" class="button-round w-button">See Recipe →</a>-->
         </div>
       </div>
       <!-- End Posts -->
 
     </div>
+    iv
   </div>
+  iv
   <div class="button-wrapper">
     <a *ngIf="this.homePageState.pagingData.pageNumber !== 1" class="button w-button" (click)="onPrevPageClicked()">←&nbsp;Prev Page&nbsp;</a>&nbsp;&nbsp;
     <a *ngIf="this.homePageState.recipes.length >= this.homePageState.pagingData.pageSize" class="button w-button" (click)="onNextPageClicked()">Next Page&nbsp;→</a>
@@ -50,7 +53,7 @@
     <p-header>
       <i class="pi pi-send" style="font-size:1.3rem; margin-right:0.5rem;"></i>
       <span class="dialog-head">Create Recipe</span>
-    </p-header>    
+    </p-header>
     <hr class="card-hr" />
     <createRecipeDialog-root></createRecipeDialog-root>
     <!--<hr class="card-hr" />-->
@@ -71,3 +74,4 @@
             [baseZIndex]="10000">
     <p-progressSpinner [style]="{width: '50px', height: '50px'}" styleClass="custom-spinner" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
   </p-dialog>
+</div>

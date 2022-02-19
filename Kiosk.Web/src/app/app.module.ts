@@ -12,6 +12,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextareaModule } from 'primeng/inputtextarea';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 
 // Routes
 import { appRoutes } from '../routes'
@@ -58,8 +60,10 @@ import { RouterModule } from '@angular/router';
     ToastModule,
     DropdownModule,
     InputTextareaModule,
+    ConfirmDialogModule,
   ],
   providers: [
+    ConfirmationService,
     HomePageState,
     LoginService,
     UserSessionService,

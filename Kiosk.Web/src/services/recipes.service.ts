@@ -33,16 +33,25 @@ export class RecipesService {
   /** Create a new recipe. */
   async CreateRecipe(recipe: Recipe) {
     console.info("Call POST in the api recipe Controller");
-    let url: string = AppSettings.API_GET_RECIPE;
+    let url: string = AppSettings.API_RECIPE;
     console.info(url);
     return await this.http.post<number>(url, recipe)
+      .pipe(catchError(this.handleError)).toPromise();
+  }
+
+  /** Delete a recipe. */
+  async DeleteRecipe(id: number) {
+    console.info("Call DELETE in the api recipe Controller");
+    let url: string = AppSettings.API_RECIPE + id;
+    console.info(url);
+    return await this.http.delete(url)
       .pipe(catchError(this.handleError)).toPromise();
   }
 
   /** Update a recipe. */
   async UpdateRecipe(recipe: Recipe) {
     console.info("Call PUT in the api recipe Controller");
-    let url: string = AppSettings.API_GET_RECIPE;
+    let url: string = AppSettings.API_RECIPE;
     console.info(url);
     return await this.http.put<Recipe>(url, recipe)
       .pipe(catchError(this.handleError)).toPromise();
@@ -51,7 +60,7 @@ export class RecipesService {
   /** Gets a collection of Recipe records.  */
   async GetRecipes(homePageState: HomePageState) {
     console.info("Call GET in the api recipes Controller");
-    let url: string = AppSettings.API_GET_RECIPES + homePageState.pagingData.CreateQueryString();
+    let url: string = AppSettings.API_RECIPES + homePageState.pagingData.CreateQueryString();
     console.info(url);
     return await this.http.get<Recipe[]>(url)
       .pipe(catchError(this.handleError)).toPromise();
@@ -60,7 +69,7 @@ export class RecipesService {
   /** Gets a single recipe by id.  */
   async GetRecipe(id: number) {
     console.info("Call GET in the api recipe Controller");
-    let url: string = AppSettings.API_GET_RECIPE + id + '?expand=true';
+    let url: string = AppSettings.API_RECIPE + id + '?expand=true';
     console.info(url);
     return await this.http.get<Recipe>(url)
       .pipe(catchError(this.handleError)).toPromise();
@@ -69,7 +78,7 @@ export class RecipesService {
   /** Gets a single recipe by id.  */
   async GetRecipeIngredients(id: number) {
     console.info("Call GET in the api ingredient Controller");
-    let url: string = AppSettings.API_GET_RECIPE_INGREDIENTS + id;
+    let url: string = AppSettings.API_RECIPE_INGREDIENTS + id;
     console.info(url);
     return await this.http.get<Ingredient[]>(url)
       .pipe(catchError(this.handleError)).toPromise();
