@@ -98,6 +98,7 @@ export class topnavComponent implements OnInit, AfterViewInit {
     this.homePageState.selectedRecipe = new Recipe();
     this.homePageState.selectedRecipe.useruid = this.userSessionService.getUserSession().id;
     //console.log(this.homePageState.categories);
+    this.homePageState.createRecipeDialogCurrentStep = 1;
     this.homePageState.createRecipeDialogIsVisible = true;
   }
 

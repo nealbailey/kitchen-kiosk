@@ -275,9 +275,12 @@ namespace Kiosk.Data.Repository
             recipe.CatId = updatedRecipe.CatId;
             recipe.Date = System.DateTime.UtcNow;
             recipe.Description = updatedRecipe.Description;
-            recipe.Instructions = updatedRecipe.Instructions;
             recipe.Title = updatedRecipe.Title;
             recipe.Useruid = updatedRecipe.Useruid;
+            // Swap out newlines for Html breaks
+            var instructions = updatedRecipe.Instructions.Replace("\n", "<br />");
+            recipe.Instructions = instructions;
+
             _context.Update(recipe);
             _context.SaveChanges();
 
