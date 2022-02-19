@@ -10,6 +10,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 
 // Routes
 import { appRoutes } from '../routes'
@@ -29,6 +31,7 @@ import { topnavComponent } from 'src/components/topnav/topnav.component';
 import { sidebarComponent } from 'src/components/sidebar/sidebar.component';
 import { homeComponent } from 'src/components/home/home.component';
 import { recipeComponent } from 'src/components/recipe/recipe.component';
+import { createRecipeDialogComponent } from 'src/components/recipe/createRecipeDialog.component'
 import { RouterModule } from '@angular/router';
 
 @NgModule({
@@ -37,7 +40,8 @@ import { RouterModule } from '@angular/router';
     topnavComponent,
     sidebarComponent,
     homeComponent,
-    recipeComponent
+    recipeComponent,
+    createRecipeDialogComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
@@ -52,6 +56,8 @@ import { RouterModule } from '@angular/router';
     OverlayPanelModule,
     InputTextModule,
     ToastModule,
+    DropdownModule,
+    InputTextareaModule,
   ],
   providers: [
     HomePageState,

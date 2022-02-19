@@ -4,9 +4,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using UnitTests.Extensions;
+using UnitTests.Helpers;
 
 namespace UnitTests.Api
 {
@@ -131,6 +134,51 @@ namespace UnitTests.Api
             Assert.IsNull(recipe.Owner);
             Assert.IsNull(recipe.Categories);
             Assert.IsNull(recipe.Ingredients);
+        }
+
+        [TestMethod]
+        public void Recipe_Create()
+        {
+            var strFileStream = string.Empty;
+            using (FileStream fs = new FileStream("Resources/InsertRecipe.json", FileMode.Open))
+            using (StreamReader sr = new StreamReader(fs))
+                strFileStream = sr.ReadToEnd();
+            var requestContent = strFileStream;
+
+            var postRequestTask = _httpClient.PostAsync(
+                $"api/recipe", new StringContent(requestContent, Encoding.UTF8, "application/json"));
+
+            var response = postRequestTask.Result;
+
+            // Assert
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [TestMethod]
+        public void Recipe_Delete()
+        {
+            var recipeId = 1088;
+            var deleteRequestTask = _httpClient.DeleteAsync($"api/recipe/{recipeId}");
+            var response = deleteRequestTask.Result;
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [TestMethod]
+        public void Recipe_Update()
+        {
+            var strFileStream = string.Empty;
+            using (FileStream fs = new FileStream("Resources/UpdateRecipe.json", FileMode.Open))
+            using (StreamReader sr = new StreamReader(fs))
+                strFileStream = sr.ReadToEnd();
+            var requestContent = strFileStream;
+
+            var postRequestTask = _httpClient.PutAsync(
+                $"api/recipe", new StringContent(requestContent, Encoding.UTF8, "application/json"));
+
+            var response = postRequestTask.Result;
+
+            // Assert
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
     }
 }

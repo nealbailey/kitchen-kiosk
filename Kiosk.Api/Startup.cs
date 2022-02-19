@@ -67,7 +67,11 @@ namespace KioskApi
             
             // For Entity Framework              
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ConnStr")));
-            services.AddDbContext<KIOSKContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ConnStr")));
+            services.AddDbContext<KIOSKContext>(opt =>
+            {
+                opt.UseSqlServer(Configuration.GetConnectionString("ConnStr"));
+                opt.EnableSensitiveDataLogging();
+            });
 
             // For Identity  
             services.AddIdentity<ApplicationUser, IdentityRole>()

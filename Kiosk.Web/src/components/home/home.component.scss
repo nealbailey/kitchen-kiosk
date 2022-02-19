@@ -7,5 +7,21 @@
    @import 'path/filename1', 'path/filename2', ... , 'path/filenameN'; 
  
    Omitting the file's extension will automatically load filename.scss, filename.sass, or filename.css 
-*/ 
- 
+*/
+
+.dialog-head {
+  margin-left: 0.5em;
+  font-size: 1.1em;
+  font-style: normal;
+  font-weight: 500;
+}
+
+
+/* Pleasant underline style below card header text */
+.card-hr {
+  width: 100%;
+  background: var(--light-gray);
+  height: 1px;
+  opacity: 0.4;
+  margin-bottom: 1.5em;
+}

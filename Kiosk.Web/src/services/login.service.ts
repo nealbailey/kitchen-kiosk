@@ -29,6 +29,7 @@ import { AppSettings } from '../appSettings';
 export interface LoginResponse {
   token: string;
   expiration: Date;
+  id: string;
 }
 
 /**
@@ -88,6 +89,7 @@ export class LoginService {
     //console.log(response);
     userSession.token = response.token;
     userSession.expiration = response.expiration;
+    userSession.id = response.id;
 
     // Serialize the token data
     userSession.password = ''; // do NOT serialize password

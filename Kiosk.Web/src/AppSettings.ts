@@ -45,6 +45,9 @@ export class AppSettings {
   /** Controller endpoint for a single recipe. */
   public static API_GET_RECIPE = AppSettings.API_URL + '/api/recipe/';
 
+  /** Controller endpoint for a recipe ingredients. */
+  public static API_GET_RECIPE_INGREDIENTS = AppSettings.API_URL + '/api/ingredient/';
+
 
   // #endregion
 

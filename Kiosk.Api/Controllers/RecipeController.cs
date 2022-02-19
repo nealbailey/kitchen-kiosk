@@ -23,7 +23,6 @@ namespace KioskApi.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
-    using System;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -79,6 +78,58 @@ namespace KioskApi.Controllers
                 : await _recipeRepository.GetOne(httpRecipe);
 
             return Ok(dbRecipe);
+        }
+
+        /// <summary>
+        /// Create a new <see cref="Recipe"/>.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost(Name = "InsertRecipe")]
+        public async Task<IActionResult> InsertRecipe([FromBody] Recipe recipe)
+        {
+            try
+            {
+                recipe.CatId = recipe.PrimaryCategory.CatId;
+                recipe.PrimaryCategory = null;
+                var recId = await _recipeRepository.Create(recipe);
+                return Ok(recId);
+            }
+            catch(System.Exception ex)
+            {
+                return UnprocessableEntity(new { message = $"Unable to create recipe: {ex.Message}" });
+            }            
+        }
+
+        /// <summary>
+        /// Create a new <see cref="Recipe"/>.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPut(Name = "UpdateRecipe")]
+        public async Task<IActionResult> UpdateRecipe([FromBody] Recipe recipe)
+        {
+            try
+            {
+                recipe.CatId = recipe.PrimaryCategory.CatId;
+                recipe.PrimaryCategory = null;
+                var record = await _recipeRepository.Update(recipe);
+                return Ok(record);
+            }
+            catch (System.Exception ex)
+            {
+                return UnprocessableEntity(new { message = $"Unable to create recipe: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Create a new <see cref="Recipe"/>.
+        /// </summary>
+        /// <param name="id">The recipe Id to Delete</param>
+        /// <returns></returns>        
+        [HttpDelete("{id}", Name = "DeleteRecipe")]
+        public async Task<IActionResult> DeleteRecipe(int id)
+        {
+            var recId = await _recipeRepository.Delete(id);
+            return Ok(recId);
         }
 
         #endregion

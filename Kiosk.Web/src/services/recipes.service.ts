@@ -21,6 +21,7 @@ import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AppSettings } from 'src/appSettings';
+import { Ingredient } from '../models/ingredient.model';
 import { Recipe } from '../models/recipe.model';
 import { HomePageState } from './home.state';
 
@@ -28,6 +29,24 @@ import { HomePageState } from './home.state';
 export class RecipesService {
   constructor(
     private http: HttpClient) { }
+
+  /** Create a new recipe. */
+  async CreateRecipe(recipe: Recipe) {
+    console.info("Call POST in the api recipe Controller");
+    let url: string = AppSettings.API_GET_RECIPE;
+    console.info(url);
+    return await this.http.post<number>(url, recipe)
+      .pipe(catchError(this.handleError)).toPromise();
+  }
+
+  /** Update a recipe. */
+  async UpdateRecipe(recipe: Recipe) {
+    console.info("Call PUT in the api recipe Controller");
+    let url: string = AppSettings.API_GET_RECIPE;
+    console.info(url);
+    return await this.http.put<Recipe>(url, recipe)
+      .pipe(catchError(this.handleError)).toPromise();
+  }
 
   /** Gets a collection of Recipe records.  */
   async GetRecipes(homePageState: HomePageState) {
@@ -44,6 +63,15 @@ export class RecipesService {
     let url: string = AppSettings.API_GET_RECIPE + id + '?expand=true';
     console.info(url);
     return await this.http.get<Recipe>(url)
+      .pipe(catchError(this.handleError)).toPromise();
+  }
+
+  /** Gets a single recipe by id.  */
+  async GetRecipeIngredients(id: number) {
+    console.info("Call GET in the api ingredient Controller");
+    let url: string = AppSettings.API_GET_RECIPE_INGREDIENTS + id;
+    console.info(url);
+    return await this.http.get<Ingredient[]>(url)
       .pipe(catchError(this.handleError)).toPromise();
   }
  

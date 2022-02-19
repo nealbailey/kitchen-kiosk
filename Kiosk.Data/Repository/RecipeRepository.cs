@@ -61,6 +61,73 @@ namespace Kiosk.Data.Repository
         #region Methods
 
         /// <summary>
+        /// Create a new recipe.
+        /// </summary>
+        /// <param name="recipe">The recipe to create.</param>
+        /// <returns>The id of the newly created record.</returns>
+        public Task<Recipe> Create(Recipe recipe)
+        {
+            if (GetByName(recipe.Title).Result != null)
+                throw new System.InvalidOperationException("Recipe with the same name already exist.");
+
+            // Swap out newlines for Html breaks
+            var instructions = recipe.Instructions.Replace("\n", "<br />");
+            recipe.Instructions = instructions;
+
+            // Create recipe
+            _context.Add(recipe);
+            _context.SaveChanges();
+            _context.Entry(recipe).GetDatabaseValues();
+
+            // Add ingredients
+            foreach(var i in recipe.Ingredients)
+            {
+                i.RecId = recipe.RecId;
+                i.Ingredient = i.Ingredient;
+                _context.Add(i);
+            }            
+            _context.SaveChanges();
+
+            // Create category map
+            var mmap = new RecipeCategoryMap(){
+                CatId = recipe.CatId,
+                RecId = recipe.RecId
+            };
+            _context.Add(mmap);
+            _context.SaveChanges();
+
+            //return recipe.RecId;
+            return Task.Run(() => recipe);
+        }
+
+        /// <summary>
+        /// Delete a recipe.
+        /// </summary>
+        /// <param name="id">The id of the recipe to delete.</param>
+        /// <returns>Boolean flag that indicates the success or failure state.</returns>
+        public Task<bool> Delete(int id)
+        {
+            var recipe = GetOne(new Recipe() { RecId = id }).Result;
+            var mmap = new RecipeCategoryMap()
+            {
+                CatId = recipe.CatId,
+                RecId = recipe.RecId
+            };
+
+            recipe.Ingredients = _ingredientRepository.GetByRecipe(recipe).Result;
+            foreach(var i in recipe.Ingredients)            
+                _context.Remove(i);            
+
+            // delete recipe
+            _context.Remove(mmap);
+            _context.Remove(recipe);
+            _context.SaveChanges();
+
+            //return recipe.RecId;
+            return Task.Run(() => true);
+        }
+
+        /// <summary>
         /// Fetch recipes.
         /// </summary>
         /// <param name="options">Options when fetching recipes.</param>        
@@ -180,6 +247,52 @@ namespace Kiosk.Data.Repository
             return Task.Run(() => dbrecipe);
         }
 
+        /// <summary>
+        /// Fetch a specific recipe by its title.
+        /// </summary>
+        /// <param name="title">The recipe title.</param>
+        /// <returns></returns>
+        public Task<Recipe> GetByName(string title)
+        {
+            var recipe = _context.Recipes.Where(p => p.Title.ToLower() == title.ToLower()).FirstOrDefaultAsync();
+            return recipe;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="updatedRecipe"></param>
+        /// <returns></returns>
+        public Task<Recipe> Update(Recipe updatedRecipe)
+        {
+            var ingredients = _ingredientRepository.GetByRecipe(updatedRecipe).Result;            
+            foreach (var i in ingredients)
+                _context.Remove(i);
+
+            _context.SaveChanges();
+
+            var recipe = GetOne(updatedRecipe).Result;
+            recipe.CatId = updatedRecipe.CatId;
+            recipe.Date = System.DateTime.UtcNow;
+            recipe.Description = updatedRecipe.Description;
+            recipe.Title = updatedRecipe.Title;
+            recipe.Useruid = updatedRecipe.Useruid;
+            // Swap out newlines for Html breaks
+            var instructions = updatedRecipe.Instructions.Replace("\n", "<br />");
+            recipe.Instructions = instructions;
+
+            _context.Update(recipe);
+            _context.SaveChanges();
+
+            foreach (var i in updatedRecipe.Ingredients)
+            {
+                i.RecId = updatedRecipe.RecId;
+                _context.Add(i);
+                _context.SaveChanges();
+            }
+
+            return Task.Run(() => recipe);
+        }
         #endregion
 
         #region Experimental

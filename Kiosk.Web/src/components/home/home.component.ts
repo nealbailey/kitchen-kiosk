@@ -16,17 +16,21 @@
 //-----------------------------------------------------------------------
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { formatHelper } from 'src/helpers/format.helper';
+import { Ingredient } from 'src/models/ingredient.model';
+import { Recipe } from 'src/models/recipe.model';
+import { CategoriesService } from 'src/services/categories.service';
 import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
 import { ToastService } from 'src/services/toast.service';
  
-@Component({    
-    selector: 'home-root', 
-    templateUrl: './home.component.html', 
-    styleUrls: ['./home.component.scss'] 
-}) 
+@Component({
+  encapsulation: ViewEncapsulation.None,
+  selector: 'home-root',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss']
+})
 export class homeComponent implements OnInit, AfterViewInit {
 
   // #region Properties
@@ -41,6 +45,7 @@ export class homeComponent implements OnInit, AfterViewInit {
   constructor(
     public homePageState: HomePageState,
     private recipeService: RecipesService,
+    private categoriesService: CategoriesService,
     private toastService: ToastService  ) {
   }
   // #endregion
@@ -80,9 +85,8 @@ export class homeComponent implements OnInit, AfterViewInit {
     // start the progress bar/spinner or display a skeleton.
     this.homePageState.pageIsLoading = true;
  
-    try {
-      console.log('categoryId (getData) = ' + this.homePageState.pagingData.categoryId);
-      this.homePageState.recipes = await this.recipeService.GetRecipes(this.homePageState);
+    try {      
+      this.homePageState.recipes = await this.recipeService.GetRecipes(this.homePageState);      
 
       // when data is retrieved, set this.loadingPage to false.
       this.homePageState.pageIsLoading = false;
@@ -91,9 +95,6 @@ export class homeComponent implements OnInit, AfterViewInit {
       console.log(message);
       this.homePageState.pageIsLoading = false;
     }
-
-    // REMOVE this when acquiring data via a Web API call. 
-    this.homePageState.pageIsLoading = false;
   }
 
   // #endregion
@@ -126,6 +127,31 @@ export class homeComponent implements OnInit, AfterViewInit {
         window.scrollTo(0, 0);
       }
     }
+  }
+
+  /**
+   * User clicked the Edit recipe button
+   * @param recipe the selected recipe
+   */
+  async onEditRecipeClicked(recipe: Recipe) {
+    console.log(recipe);
+
+    if (this.homePageState.categories.length == 0)
+      this.homePageState.categories = await this.categoriesService.GetCategories();
+
+    if (!recipe.ingredients || recipe.ingredients.length == 0) {
+      recipe.ingredients = await this.recipeService.GetRecipeIngredients(recipe.recId);      
+    }      
+
+    this.homePageState.selectedRecipe = recipe;
+    this.homePageState.selectedRecipe.instructions = recipe.instructions.split("<br />").join("\n");
+    this.homePageState.selectedRecipe.strIngredients = recipe.ingredients.map(o => o.ingredient).join("\n");
+    this.homePageState.selectedRecipe.primaryCategory =
+      this.homePageState.categories.find(
+        x => x.catId === this.homePageState.selectedRecipe.primaryCategory.catId);
+
+    this.homePageState.createRecipeDialogCurrentStep = 1;
+    this.homePageState.createRecipeDialogIsVisible = true;
   }
 
   /** User clicked on the Next Page button */
@@ -161,6 +187,58 @@ export class homeComponent implements OnInit, AfterViewInit {
     }
     await this.getData();
   }
+
+  //#region Create Dialog
+
+  /** Called when the user clicks the 'Next' button in the create dialog */
+  onCreateRecipeDialogNextClicked() {
+    let stepNum: number = this.homePageState.createRecipeDialogCurrentStep;
+    if (stepNum === 3)
+      return;
+
+    let nextStep = ++this.homePageState.createRecipeDialogCurrentStep;
+    this.homePageState.createRecipeDialogCurrentStep = nextStep;
+  }
+
+  /** Called when the user clicks the 'Previous' button in the create dialog */
+  onCreateRecipeDialogPrevClicked() {
+    let stepNum: number = this.homePageState.createRecipeDialogCurrentStep;
+    if (stepNum === 1)
+      return;
+
+    let nextStep = --this.homePageState.createRecipeDialogCurrentStep;
+    this.homePageState.createRecipeDialogCurrentStep = nextStep;
+  }
+
+  /** User clicked 'Save' button in create dialog */
+  async onCreateRecipeSaveClicked() {
+    // Populate ingredient array
+    var i = this.homePageState.selectedRecipe.strIngredients.split("\n");
+    if (i.length > 0) {
+      this.homePageState.selectedRecipe.ingredients = [];
+      for (var x in i) {
+        this.homePageState.selectedRecipe.ingredients.push(new Ingredient(0, i[x]));
+      }
+    }    
+
+    try {
+      if (!this.homePageState.selectedRecipe.recId) {
+        await this.recipeService.CreateRecipe(this.homePageState.selectedRecipe);
+        this.toastService.showSuccess('Recipe created successfully');
+      }
+      else {
+        await this.recipeService.UpdateRecipe(this.homePageState.selectedRecipe);
+        this.toastService.showSuccess('Recipe updated successfully');
+      }
+
+      this.homePageState.createRecipeDialogIsVisible = false;
+      await this.getData();
+    } catch (message: any) {
+      this.toastService.showError(message);
+    }     
+  }
+  //#endregion
+
   // #endregion
 } 
  

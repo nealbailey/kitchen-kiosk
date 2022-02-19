@@ -1,0 +1,36 @@
+<!--<p-toast position="center" sticky="true"></p-toast>--> 
+<div id="createRecipeDialogDiv">
+  <div id="wizStepOne" *ngIf="homePageState.createRecipeDialogCurrentStep==1">
+    <div class="p-field p-grid">
+      <label for="txtRecipeTitle" class="p-col-fixed" style="width:200px">Details</label>
+      <div class="p-col">
+        <input #txtRecipeTitle id="txtRecipeTitle" pInputText type="text" maxlength="64" style="width:60%" placeholder="Title" [(ngModel)]="homePageState.selectedRecipe.title">&nbsp;&nbsp;
+        <p-dropdown #ddlCategory id="ddlCategory" autoWidth="false" [options]="homePageState.categories" optionLabel="category" [style]="{'width':'35%'}" placeholder="Category" [(ngModel)]="homePageState.selectedRecipe.primaryCategory" appendTo="body"></p-dropdown>
+      </div>
+    </div>
+    <div class="p-field p-grid">
+      <div class="p-col">
+        <label for="txtDescription" class="p-col-fixed" style="width:200px;">Description</label>
+        <textarea pInputTextarea id="txtDescription" autoWidth="false" [style]="{'width':'100%', 'height':'230px'}" [(ngModel)]="homePageState.selectedRecipe.description"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div id="wizStepTwo" *ngIf="homePageState.createRecipeDialogCurrentStep==2">
+    <div class="p-field p-grid">
+      <div class="p-col">
+        <label for="txtIngredients" class="p-col-fixed" style="width:200px;">Ingredients</label>
+        <textarea pInputTextarea id="txtIngredients" autoWidth="false" [style]="{'width':'100%', 'height':'300px'}" [(ngModel)]="homePageState.selectedRecipe.strIngredients"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div id="wizStepThree" *ngIf="homePageState.createRecipeDialogCurrentStep==3">
+    <div class="p-field p-grid">
+      <div class="p-col">
+        <label for="txtDirections" class="p-col-fixed" style="width:200px;">Instructions</label>
+        <textarea pInputTextarea id="txtDirections" autoWidth="false" [style]="{'width':'100%', 'height':'300px'}" [(ngModel)]="homePageState.selectedRecipe.instructions"></textarea>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -7,6 +7,7 @@
       <a href="#">Submit</a>
     -->    
     <div class="topnav-right">
+      <p-button *ngIf="homePageState.userSession?.username" label="Add Recipe" icon="pi pi-plus-circle" styleClass="p-button-secondary" (click)="onCreateRecipeClicked()"></p-button>
       <p-button *ngIf="!homePageState.userSession?.username" label="Login" icon="pi pi-lock" (click)="op.toggle($event)"></p-button>&nbsp;&nbsp;&nbsp;
 
       <p-overlayPanel #op [showCloseIcon]="true" [style]="{width: '300px'}">
