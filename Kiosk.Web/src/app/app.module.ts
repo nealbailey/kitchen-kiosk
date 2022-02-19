@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from "@angular/forms";
 import { ButtonModule } from "primeng/button";
 import { ChipModule } from 'primeng/chip';
@@ -20,6 +20,7 @@ import { appRoutes } from '../routes'
 
 //Services
 import { LoginService } from 'src/services/login.service';
+import { AuthenticationInterceptorService } from 'src/services/authInterceptor.service';
 import { UserSessionService } from 'src/services/userSession.service';
 import { HomePageState } from 'src/services/home.state';
 import { CategoriesService } from 'src/services/categories.service';
@@ -63,6 +64,7 @@ import { RouterModule } from '@angular/router';
     ConfirmDialogModule,
   ],
   providers: [
+    AuthenticationInterceptorService,
     ConfirmationService,
     HomePageState,
     LoginService,
@@ -71,6 +73,7 @@ import { RouterModule } from '@angular/router';
     RecipesService,
     CategoriesService,
     MessageService,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptorService, multi: true }
   ],
   bootstrap: [AppComponent]
 })

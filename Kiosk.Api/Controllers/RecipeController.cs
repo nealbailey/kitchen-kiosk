@@ -20,6 +20,8 @@ namespace KioskApi.Controllers
 {
     using Kiosk.Data.Repository;
     using KioskApi.Domain.Models;
+    using KioskApi.Domain.Models.Auth;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
@@ -84,6 +86,7 @@ namespace KioskApi.Controllers
         /// Create a new <see cref="Recipe"/>.
         /// </summary>
         /// <returns></returns>
+        [Authorize()]
         [HttpPost(Name = "InsertRecipe")]
         public async Task<IActionResult> InsertRecipe([FromBody] Recipe recipe)
         {
@@ -104,6 +107,7 @@ namespace KioskApi.Controllers
         /// Create a new <see cref="Recipe"/>.
         /// </summary>
         /// <returns></returns>
+        [Authorize()]
         [HttpPut(Name = "UpdateRecipe")]
         public async Task<IActionResult> UpdateRecipe([FromBody] Recipe recipe)
         {
@@ -124,7 +128,8 @@ namespace KioskApi.Controllers
         /// Create a new <see cref="Recipe"/>.
         /// </summary>
         /// <param name="id">The recipe Id to Delete</param>
-        /// <returns></returns>        
+        /// <returns></returns> 
+        [Authorize()]
         [HttpDelete("{id}", Name = "DeleteRecipe")]
         public async Task<IActionResult> DeleteRecipe(int id)
         {

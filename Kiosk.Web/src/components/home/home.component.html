@@ -24,19 +24,19 @@
           <p class="post-summary">
             {{recipe.description}}
           </p>
-          <!--<button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help"></button>&nbsp;-->
-          <button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-outlined"></button>&nbsp;
-          <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-success p-button-outlined" (click)="onEditRecipeClicked(recipe);"></button>&nbsp;
-          <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-outlined" (click)="onRecipeDeleteClicked(recipe.recId);"></button>
+          <span *ngIf="userSessionService.userIsLoggedIn()">
+            <!--<button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help"></button>&nbsp;-->
+            <button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-outlined"></button>&nbsp;
+            <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-success p-button-outlined" (click)="onEditRecipeClicked(recipe);"></button>&nbsp;
+            <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-outlined" (click)="onRecipeDeleteClicked(recipe.recId);"></button>
+          </span>          
           <!--<a routerLink="/recipe/{{recipe.recId}}" class="button-round w-button">See Recipe →</a>-->
         </div>
       </div>
       <!-- End Posts -->
 
     </div>
-    iv
   </div>
-  iv
   <div class="button-wrapper">
     <a *ngIf="this.homePageState.pagingData.pageNumber !== 1" class="button w-button" (click)="onPrevPageClicked()">←&nbsp;Prev Page&nbsp;</a>&nbsp;&nbsp;
     <a *ngIf="this.homePageState.recipes.length >= this.homePageState.pagingData.pageSize" class="button w-button" (click)="onNextPageClicked()">Next Page&nbsp;→</a>
@@ -51,8 +51,8 @@
             [resizable]="false" [modal]="true"
             [style]="{'width': '45.5em','font-weight': '700'}">
     <p-header>
-      <i class="pi pi-send" style="font-size:1.3rem; margin-right:0.5rem;"></i>
-      <span class="dialog-head">Create Recipe</span>
+      <i class="pi pi-list" style="font-size:1.3rem; margin-right:0.5rem;"></i>
+      <span class="dialog-head">{{ homePageState.selectedRecipe.recId > 0 ? 'Edit Recipe' : 'Create Recipe' }}</span>
     </p-header>
     <hr class="card-hr" />
     <createRecipeDialog-root></createRecipeDialog-root>

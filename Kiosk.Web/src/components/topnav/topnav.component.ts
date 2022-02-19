@@ -45,8 +45,8 @@ export class topnavComponent implements OnInit, AfterViewInit {
   /** Constructor */ 
   constructor(
     public homePageState: HomePageState,
-    private loginService: LoginService,
-    private userSessionService: UserSessionService,
+    public userSessionService: UserSessionService,
+    private loginService: LoginService,    
     private toastService: ToastService,
     private categoriesService: CategoriesService) {
     if (!this.homePageState.userSession)

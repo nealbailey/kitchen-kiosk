@@ -1,4 +1,4 @@
-<p-toast position="center" sticky="true"></p-toast> 
+<p-toast position="top-center" sticky="true"></p-toast> 
 <div id="topnavDiv" class="topnav">
   <div class="topnav">
     <!--
@@ -7,8 +7,8 @@
       <a href="#">Submit</a>
     -->    
     <div class="topnav-right">
-      <p-button *ngIf="homePageState.userSession?.username" label="Add Recipe" icon="pi pi-plus-circle" styleClass="p-button-secondary" (click)="onCreateRecipeClicked()"></p-button>
-      <p-button *ngIf="!homePageState.userSession?.username" label="Login" icon="pi pi-lock" (click)="op.toggle($event)"></p-button>&nbsp;&nbsp;&nbsp;
+      <p-button *ngIf="userSessionService.userIsLoggedIn()" label="Add Recipe" icon="pi pi-plus-circle" styleClass="p-button-secondary" (click)="onCreateRecipeClicked()"></p-button>
+      <p-button *ngIf="!userSessionService.userIsLoggedIn()" label="Login" icon="pi pi-lock" (click)="op.toggle($event)"></p-button>&nbsp;&nbsp;&nbsp;
 
       <p-overlayPanel #op [showCloseIcon]="true" [style]="{width: '300px'}">
         <ng-template pTemplate>
@@ -32,7 +32,7 @@
         </ng-template>
       </p-overlayPanel>
 
-      <p-button *ngIf="homePageState.userSession?.username" label="{{ homePageState.userSession.username }}" icon="pi pi-user" (click)="opLogout.toggle($event)"></p-button>
+      <p-button *ngIf="userSessionService.userIsLoggedIn()" label="{{ homePageState.userSession.username }}" icon="pi pi-user" (click)="opLogout.toggle($event)"></p-button>
 
       <p-overlayPanel #opLogout [showCloseIcon]="true" [style]="{width: '200px'}">
         <button pButton pRipple type="button" label="Sign Out" class="p-button-outlined p-button-rounded" (click)="opLogout.hide($event);onLogoutClicked()"></button>

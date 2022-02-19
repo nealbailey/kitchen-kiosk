@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // Source File:  "userSession.service.ts"
 // Create Date:  03/17/2021 01:33:00 PM
-// Last Updated: 02/17/2022 07:21:00 AM
+// Last Updated: 02/19/2022 07:13:00 AM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -48,5 +48,35 @@ export class UserSessionService {
   */
   updateUserSession(userSession: UserSession) {
     localStorage.setItem('token', JSON.stringify(userSession));
+  }
+
+  /** Checks if the user is currently logged in */
+  userIsLoggedIn(): boolean {
+    let userSession: UserSession = this.getUserSession();
+    if (!userSession) {
+      this.updateUserSession(new UserSession());
+      return false;
+    }
+    if (!userSession.token || !userSession.expiration || !userSession.username)
+      return false;
+
+    return this.validateUserSession();
+  }
+
+  /** Automatically logs the user off if the token is expired. */
+  validateUserSession(): boolean {
+    let userSession: UserSession = this.getUserSession();
+    if (!userSession)
+      this.updateUserSession(new UserSession());
+
+    let utcnow = new Date();
+    let expiry = new Date(userSession.expiration);    
+    if (utcnow.getTime() > expiry.getTime()) {
+      console.log('Token expired. Clearing user session state.');     
+      //console.log('UtcNow: ' + utcnow + '. Expiration: ' + expiry);
+      this.logOutUser();
+      return false;
+    }
+    return true;
   }
 }

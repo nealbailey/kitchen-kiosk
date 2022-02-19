@@ -25,6 +25,7 @@ import { CategoriesService } from 'src/services/categories.service';
 import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
 import { ToastService } from 'src/services/toast.service';
+import { UserSessionService } from 'src/services/userSession.service';
  
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -45,6 +46,7 @@ export class homeComponent implements OnInit, AfterViewInit {
    */ 
   constructor(
     public homePageState: HomePageState,
+    public userSessionService: UserSessionService,
     private recipeService: RecipesService,
     private categoriesService: CategoriesService,
     private toastService: ToastService,
