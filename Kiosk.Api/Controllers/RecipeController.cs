@@ -22,6 +22,7 @@ namespace KioskApi.Controllers
     using KioskApi.Domain.Models;
     using KioskApi.Domain.Models.Auth;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
@@ -44,12 +45,16 @@ namespace KioskApi.Controllers
         /// Constructor
         /// </summary>
         /// <param name="configuration"></param>
+        /// <param name="roleManager"></param>
+        /// <param name="userManager"></param>
         /// <param name="logger"></param>
         /// <param name="recipeRepository"></param>
         public RecipeController(
             IConfiguration configuration,
+            UserManager<ApplicationUser> userManager, 
+            RoleManager<IdentityRole> roleManager,
             ILogger<RecipeController> logger,
-            IRecipeRepository recipeRepository): base(configuration) 
+            IRecipeRepository recipeRepository): base(configuration, userManager, roleManager) 
         {
             _logger = logger;
             _recipeRepository = recipeRepository;
@@ -99,7 +104,7 @@ namespace KioskApi.Controllers
             }
             catch(System.Exception ex)
             {
-                return UnprocessableEntity(new { message = $"Unable to create recipe: {ex.Message}" });
+                return UnprocessableEntity($"Unable to create recipe: {ex.Message}");
             }            
         }
 
@@ -113,6 +118,9 @@ namespace KioskApi.Controllers
         {
             try
             {
+                if (!IsAdminOrOwner(recipe.Useruid))
+                    return UnprocessableEntity($"Access is denied. This recipe is owned by another user.");
+
                 recipe.CatId = recipe.PrimaryCategory.CatId;
                 recipe.PrimaryCategory = null;
                 var record = await _recipeRepository.Update(recipe);
@@ -120,7 +128,7 @@ namespace KioskApi.Controllers
             }
             catch (System.Exception ex)
             {
-                return UnprocessableEntity(new { message = $"Unable to create recipe: {ex.Message}" });
+                return UnprocessableEntity($"Unable to create recipe: {ex.Message}");
             }
         }
 
@@ -133,8 +141,19 @@ namespace KioskApi.Controllers
         [HttpDelete("{id}", Name = "DeleteRecipe")]
         public async Task<IActionResult> DeleteRecipe(int id)
         {
-            var recId = await _recipeRepository.Delete(id);
-            return Ok(recId);
+            try
+            {
+                var recipe = _recipeRepository.GetOne(new Recipe() { RecId = id }).Result;
+                if (!IsAdminOrOwner(recipe.Useruid))
+                    return UnprocessableEntity($"Access is denied. This recipe is owned by another user.");
+
+                var recId = await _recipeRepository.Delete(id);
+                return Ok(recId);
+            }
+            catch (System.Exception ex)
+            {
+                return UnprocessableEntity($"Unable to delete recipe: {ex.Message}");
+            }           
         }
 
         #endregion
