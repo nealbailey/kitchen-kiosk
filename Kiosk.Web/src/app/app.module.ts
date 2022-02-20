@@ -23,6 +23,7 @@ import { LoginService } from 'src/services/login.service';
 import { AuthenticationInterceptorService } from 'src/services/authInterceptor.service';
 import { UserSessionService } from 'src/services/userSession.service';
 import { HomePageState } from 'src/services/home.state';
+import { StateValidator } from 'src/services/stateValidator.service';
 import { CategoriesService } from 'src/services/categories.service';
 import { RecipesService } from 'src/services/recipes.service';
 import { ToastService } from 'src/services/toast.service';
@@ -67,6 +68,7 @@ import { RouterModule } from '@angular/router';
     AuthenticationInterceptorService,
     ConfirmationService,
     HomePageState,
+    StateValidator,
     LoginService,
     UserSessionService,
     ToastService,

@@ -51,7 +51,7 @@ export class HomePageState {
 
   /** The current position of the wizard */
   public createRecipeDialogCurrentStep = 1;
-
+  
   //#endregion
 
   //#region Constructor
@@ -59,5 +59,9 @@ export class HomePageState {
   public HomePageState() {
     this.pagingData = new PagingData();
   }
+  //#endregion
+
+  //#region Methods
+
   //#endregion
 }

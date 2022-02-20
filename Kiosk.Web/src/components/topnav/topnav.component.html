@@ -25,7 +25,7 @@
             </div>
           </div>
           <div class="p-field p-grid">
-            <div class="p-col" style="margin-top:5px;">
+            <div class="p-col" style="margin-top:5px;" (keydown.enter)="onLoginClicked($event)">
               <p-button label="Submit" (click)="op.hide($event);onLoginClicked($event)"></p-button>&nbsp;
             </div>
           </div>

@@ -26,6 +26,7 @@ import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
 import { ToastService } from 'src/services/toast.service';
 import { UserSessionService } from 'src/services/userSession.service';
+import { StateValidator } from 'src/services/stateValidator.service';
  
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -45,8 +46,9 @@ export class homeComponent implements OnInit, AfterViewInit {
    * @param recipeService the recipe Http service.
    */ 
   constructor(
-    public homePageState: HomePageState,
+    public homePageState: HomePageState,    
     public userSessionService: UserSessionService,
+    private stateValidator: StateValidator,
     private recipeService: RecipesService,
     private categoriesService: CategoriesService,
     private toastService: ToastService,
@@ -230,6 +232,9 @@ export class homeComponent implements OnInit, AfterViewInit {
 
   /** Called when the user clicks the 'Next' button in the create dialog */
   onCreateRecipeDialogNextClicked() {
+    if (!this.stateValidator.validateCreateRecipeSteps())
+      return;
+
     let stepNum: number = this.homePageState.createRecipeDialogCurrentStep;
     if (stepNum === 3)
       return;
@@ -250,12 +255,17 @@ export class homeComponent implements OnInit, AfterViewInit {
 
   /** User clicked 'Save' button in create dialog */
   async onCreateRecipeSaveClicked() {
+
+    if (!this.stateValidator.validateCreateRecipeSteps())
+      return;
+
     // Populate ingredient array
     var i = this.homePageState.selectedRecipe.strIngredients.split("\n");
     if (i.length > 0) {
       this.homePageState.selectedRecipe.ingredients = [];
       for (var x in i) {
-        this.homePageState.selectedRecipe.ingredients.push(new Ingredient(0, i[x]));
+        if (i[x])
+          this.homePageState.selectedRecipe.ingredients.push(new Ingredient(0, i[x]));
       }
     }    
 

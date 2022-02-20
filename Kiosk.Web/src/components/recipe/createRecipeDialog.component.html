@@ -4,14 +4,14 @@
     <div class="p-field p-grid">
       <label for="txtRecipeTitle" class="p-col-fixed" style="width:200px">Details</label>
       <div class="p-col">
-        <input #txtRecipeTitle id="txtRecipeTitle" pInputText type="text" maxlength="64" style="width:60%" placeholder="Title" [(ngModel)]="homePageState.selectedRecipe.title">&nbsp;&nbsp;
-        <p-dropdown #ddlCategory id="ddlCategory" autoWidth="false" [options]="homePageState.categories" optionLabel="category" [style]="{'width':'35%'}" placeholder="Category" [(ngModel)]="homePageState.selectedRecipe.primaryCategory" appendTo="body"></p-dropdown>
+        <input #txtRecipeTitle id="txtRecipeTitle" pInputText type="text" maxlength="64" style="width:60%" placeholder="Title" [(ngModel)]="homePageState.selectedRecipe.title" [class]="stateValidator.txtTitleStyle">&nbsp;&nbsp;
+        <p-dropdown #ddlCategory id="ddlCategory" autoWidth="false" [options]="homePageState.categories" optionLabel="category" [style]="{'width':'35%'}" placeholder="Category" [(ngModel)]="homePageState.selectedRecipe.primaryCategory" [class]="stateValidator.ddlCategoryStyle" appendTo="body"></p-dropdown>
       </div>
     </div>
     <div class="p-field p-grid">
       <div class="p-col">
         <label for="txtDescription" class="p-col-fixed" style="width:200px;">Description</label>
-        <textarea pInputTextarea id="txtDescription" autoWidth="false" [style]="{'width':'100%', 'height':'230px'}" [(ngModel)]="homePageState.selectedRecipe.description"></textarea>
+        <textarea pInputTextarea id="txtDescription" autoWidth="false" [style]="{'width':'100%', 'height':'230px'}" [(ngModel)]="homePageState.selectedRecipe.description" [class]="stateValidator.txtDescriptionStyle"></textarea>
       </div>
     </div>
   </div>
@@ -20,7 +20,7 @@
     <div class="p-field p-grid">
       <div class="p-col">
         <label for="txtIngredients" class="p-col-fixed" style="width:200px;">Ingredients</label>
-        <textarea pInputTextarea id="txtIngredients" autoWidth="false" [style]="{'width':'100%', 'height':'300px'}" [(ngModel)]="homePageState.selectedRecipe.strIngredients"></textarea>
+        <textarea pInputTextarea id="txtIngredients" autoWidth="false" [style]="{'width':'100%', 'height':'300px'}" [(ngModel)]="homePageState.selectedRecipe.strIngredients" [class]="stateValidator.txtIngredientsStyle"></textarea>
       </div>
     </div>
   </div>
@@ -29,7 +29,7 @@
     <div class="p-field p-grid">
       <div class="p-col">
         <label for="txtDirections" class="p-col-fixed" style="width:200px;">Instructions</label>
-        <textarea pInputTextarea id="txtDirections" autoWidth="false" [style]="{'width':'100%', 'height':'300px'}" [(ngModel)]="homePageState.selectedRecipe.instructions"></textarea>
+        <textarea pInputTextarea id="txtDirections" autoWidth="false" [style]="{'width':'100%', 'height':'300px'}" [(ngModel)]="homePageState.selectedRecipe.instructions" [class]="stateValidator.txtDescriptionStyle"></textarea>
       </div>
     </div>
   </div>
