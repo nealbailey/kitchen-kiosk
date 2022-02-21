@@ -91,8 +91,9 @@ export class RecipesService {
   private handleError(caught: any) {
     if (caught) {
       if (caught.error) {
-        console.error(caught.error.message);
-        return throwError(caught.error.message);
+        return throwError(caught.error);
+        //console.error(caught.error.message);
+        //return throwError(caught.error.message);
       }
     }
     if (caught) {

@@ -36,7 +36,7 @@ export class CategoriesService {
     return await this.http.get<Category[]>(url)
       .pipe(catchError(this.handleError)).toPromise();
   }
- 
+
   /**
   * Error processing.
   * @param caught The caught error information.
@@ -44,14 +44,13 @@ export class CategoriesService {
   private handleError(caught: any) {
     if (caught) {
       if (caught.error) {
-        console.error(caught.error.message);
-        return throwError(caught.error.message);
+        return throwError(caught.error);
+        //console.error(caught.error.message);
+        //return throwError(caught.error.message);
       }
     }
     if (caught) {
       return throwError(caught);
     }
   }
-
-  // #endregion
 }
