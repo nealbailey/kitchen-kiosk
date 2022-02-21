@@ -43,7 +43,12 @@ export class homeComponent implements OnInit, AfterViewInit {
   /** 
    * Constructor 
    * @param homePageState the shared application state service.
+   * @param userSessionService service required to work with user sessions.
+   * @param stateValidator service for validating user input.   
    * @param recipeService the recipe Http service.
+   * @param categoriesService service required for working with categories.
+   * @param toastService service for dispatching toast notices.
+   * @param confirmationService service for dispatching comfirm dialogs.
    */ 
   constructor(
     public homePageState: HomePageState,    
@@ -141,6 +146,7 @@ export class homeComponent implements OnInit, AfterViewInit {
   /**
    * User selected a category
    * @param categoryId the category id (catId)
+   * @param categoryName the category friendly name
    */
   async onCategoryClicked(categoryId: number, categoryName) {
     if (categoryId > 0) {
