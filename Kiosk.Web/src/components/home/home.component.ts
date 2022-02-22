@@ -162,6 +162,24 @@ export class homeComponent implements OnInit, AfterViewInit {
   }
 
   /**
+  * User selected a user
+  * @param id the user id (guid)
+  * @param userName the friendly user name
+  */
+  async onUserClicked(id: string, userName: string) {
+    if (id) {
+      if (this.homePageState.pagingData.userId != id) {
+        this.homePageState.pagingData.pageNumber = 1;
+        this.homePageState.pagingData.userId = id;
+        this.homePageState.pagingData.userName = userName;
+        await this.getData();
+
+        window.scrollTo(0, 0);
+      }
+    }
+  }
+
+  /**
    * User clicked the Delete button on a recipe record
    * @param recipeId the id of the record to delete
    */
@@ -229,6 +247,10 @@ export class homeComponent implements OnInit, AfterViewInit {
       case 'chipCategory':
         this.homePageState.pagingData.categoryId = 0;
         this.homePageState.pagingData.category = '';
+        break;
+      case 'chipUser':
+        this.homePageState.pagingData.userId = '';
+        this.homePageState.pagingData.userName = '';
         break;
     }
     await this.getData();

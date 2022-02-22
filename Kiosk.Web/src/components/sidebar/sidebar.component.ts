@@ -23,6 +23,7 @@ import { PagingData } from 'src/models/PagingData';
 import { CategoriesService } from 'src/services/categories.service';
 import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
+import { UsersService } from 'src/services/users.service';
 import { UserSessionService } from 'src/services/userSession.service';
 
 @Component({ 
@@ -50,6 +51,7 @@ export class sidebarComponent implements OnInit, AfterViewInit {
   constructor(
     private router: Router,
     private categoriesService: CategoriesService,
+    private usersService: UsersService,
     private recipesService: RecipesService,
     public homePageState: HomePageState,
     public userSessionService: UserSessionService) {
@@ -95,6 +97,9 @@ export class sidebarComponent implements OnInit, AfterViewInit {
       if (this.homePageState.categories.length == 0)
         this.homePageState.categories = await this.categoriesService.GetCategories();
 
+      if (this.homePageState.users.length == 0)
+        this.homePageState.users = await this.usersService.GetUsers();
+
       this.getTieredMenu();
 
     } catch (message: any) {
@@ -109,6 +114,7 @@ export class sidebarComponent implements OnInit, AfterViewInit {
   /** Build the sidebar navigation menu */
   getTieredMenu() {
     let catMenuItems: MenuItem[] = [];
+    let userMenuItems: MenuItem[] = [];
 
     this.homePageState.categories.forEach((category) => {
       catMenuItems.push({
@@ -117,7 +123,16 @@ export class sidebarComponent implements OnInit, AfterViewInit {
         id: category.catId.toString(),
         command: (event) => { this.onTieredMenuItemClick(event, 'category'); }
       })
-    })
+    });
+
+    this.homePageState.users.forEach((usr) => {
+      userMenuItems.push({
+        label: usr.userName,
+        icon: 'pi pi-fw pi-user',
+        id: usr.id.toString(),
+        command: (event) => { this.onTieredMenuItemClick(event, 'user'); }
+      })
+    });
 
     //ToDo: Users menu
     this.sidebarMenuItems = [
@@ -128,7 +143,8 @@ export class sidebarComponent implements OnInit, AfterViewInit {
       },
       {
         label: 'Users',
-        icon: 'pi pi-user'
+        icon: 'pi pi-users',
+        items: userMenuItems
       }
     ];
   }
@@ -189,7 +205,10 @@ export class sidebarComponent implements OnInit, AfterViewInit {
     }
 
     if (type == 'user') {
-
+      this.homePageState.pagingData.pageNumber = 1;
+      this.homePageState.pagingData.userId = event.item.id;
+      this.homePageState.pagingData.userName = event.item.label;
+      await this.getData();
     }
   }
 

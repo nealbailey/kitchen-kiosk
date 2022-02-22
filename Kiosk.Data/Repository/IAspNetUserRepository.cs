@@ -19,6 +19,7 @@
 namespace Kiosk.Data.Repository
 {
     using KioskApi.Domain.Models;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     public interface IAspNetUserRepository
@@ -29,5 +30,11 @@ namespace Kiosk.Data.Repository
         /// <param name="userId"></param>
         /// <returns></returns>
         public Task<AspNetUser> GetById(string userId);
+
+        /// <summary>
+        /// Get users.
+        /// </summary>
+        /// <returns></returns>
+        public Task<List<AspNetUser>> Get();
     }
 }

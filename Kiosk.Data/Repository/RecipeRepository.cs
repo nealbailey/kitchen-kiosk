@@ -207,6 +207,18 @@ namespace Kiosk.Data.Repository
                 }
             }
 
+            if (options.IncludeUser)
+            {
+                foreach (var r in pagedResult.Result)
+                {
+                    if (r.Owner == null)
+                    {
+                        var owner = _userRepository.GetById(r.Useruid).Result;
+                        r.User = new RecipeUser() { Id = owner.Id, UserName = owner.UserName, Email = owner.Email };
+                    }
+                }
+            }
+
             return pagedResult;
         }
 

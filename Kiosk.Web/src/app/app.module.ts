@@ -28,6 +28,7 @@ import { HomePageState } from 'src/services/home.state';
 import { StateValidator } from 'src/services/stateValidator.service';
 import { CategoriesService } from 'src/services/categories.service';
 import { RecipesService } from 'src/services/recipes.service';
+import { UsersService } from 'src/services/users.service';
 import { ToastService } from 'src/services/toast.service';
 import { MessageService } from 'primeng/api';
 
@@ -77,6 +78,7 @@ import { RouterModule } from '@angular/router';
     ToastService,
     RecipesService,
     CategoriesService,
+    UsersService,
     MessageService,
     { provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptorService, multi: true }
   ],

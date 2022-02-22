@@ -2,7 +2,8 @@
   <div id="divFilters">
     <p-chip icon="pi pi-file" [label]="'Page: ' + this.homePageState?.pagingData.pageNumber" styleClass="mr-2"></p-chip>&nbsp;
     <p-chip *ngIf="this.homePageState?.pagingData.searchString" icon="pi pi-search" [label]="this.homePageState?.pagingData.searchString" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipSearch')"></p-chip>&nbsp;
-    <p-chip *ngIf="this.homePageState?.pagingData.categoryId > 0" icon="pi pi-book" [label]="this.homePageState?.pagingData.category" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipCategory')"></p-chip>
+    <p-chip *ngIf="this.homePageState?.pagingData.categoryId > 0" icon="pi pi-book" [label]="this.homePageState?.pagingData.category" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipCategory')"></p-chip>&nbsp;
+    <p-chip *ngIf="this.homePageState?.pagingData.userId" icon="pi pi-user" [label]="this.homePageState?.pagingData.userName" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipUser')"></p-chip>
   </div>
 
   <p-confirmDialog header="Warning" icon="pi pi-exclamation-triangle"></p-confirmDialog>
@@ -18,8 +19,10 @@
           </a>
           <div class="post-info-wrapper">
             <div class="post-info">{{getLocalDateString(recipe.date)}}</div>
+            <!--<div class="post-info">|</div>-->
+            <button pButton pRipple type="button" label="{{recipe.primaryCategory.category}}" class="p-button-warning p-button-text" (click)="onCategoryClicked(recipe.primaryCategory.catId, recipe.primaryCategory.category)"></button>
             <div class="post-info">|</div>
-            <button pButton pRipple type="button" class="p-button-outlined p-button-rounded" (click)="onCategoryClicked(recipe.primaryCategory.catId, recipe.primaryCategory.category)">{{recipe.primaryCategory.category}}</button>
+            <button pButton pRipple type="button" label="{{recipe.user.userName}}" class="p-button-secondary p-button-text" (click)="onUserClicked(recipe.user.id, recipe.user.userName)"></button>
           </div>
           <p class="post-summary">
             {{recipe.description}}

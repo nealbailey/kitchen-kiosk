@@ -1,0 +1,91 @@
+﻿//-----------------------------------------------------------------------
+// Source File:  "UsersController.cs"
+// Create Date:  02/22/2022 07:10:00 PM
+// Last Updated: 02/22/2022 07:10:00 PM
+// Authors(s):   Neal Bailey <nealbailey@hotmail.com>
+//-----------------------------------------------------------------------
+// COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
+// Intellectual Property Rights Holder: Neal Bailey
+// Software Rights Holder: Baileysoft Solutions
+//-----------------------------------------------------------------------
+// The licensee's rights to use, modify, reproduce, release, perform,
+// display, or disclose this technical data/computer software are
+// restricted by US patent copyright protections. any reproduction
+// of this technical data/computer software or portions thereof marked
+// with this legend must also reproduce the all original markings.
+//-----------------------------------------------------------------------
+// Copyright (c) 2012-2022 Baileysoft Solutions.
+//-----------------------------------------------------------------------
+namespace Kiosk.Api.Controllers
+{
+    using Kiosk.Data.Repository;
+    using KioskApi.Controllers;
+    using KioskApi.Domain.Models;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    /// <summary>
+    /// Endpoints for categories
+    /// </summary>
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UsersController : BaseController
+    {
+        #region Fields
+        private readonly ILogger _logger;
+        private readonly IAspNetUserRepository _usersRepository;
+        #endregion
+
+        #region Constructors
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="logger"></param>
+        /// <param name="usersRepository"></param>
+        public UsersController(
+            IConfiguration configuration,
+            ILogger<UsersController> logger,
+            IAspNetUserRepository usersRepository) : base(configuration)
+        {
+            _logger = logger;
+            _usersRepository = usersRepository;
+        }
+        #endregion
+
+        #region Http Action Endpoints
+
+        /// <summary>
+        /// Fetch a collection of <see cref="AspNetUser"/> instances.
+        /// </summary>        
+        /// <returns></returns>
+        [HttpGet(Name = "GetUsers")]
+        public async Task<IActionResult> GetUsers()
+        {
+            try
+            {
+                var users = await _usersRepository.Get();
+                var trimUsers = new List<object>();
+                foreach(var u in users)
+                    trimUsers.Add(
+                        new { 
+                            userName = u.UserName, 
+                            id = u.Id, 
+                            email = u.Email 
+                        });
+
+                return Ok(trimUsers);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Unable to retrieve users: '{ex.Message}'");
+            }
+        }
+
+        #endregion
+    }
+}

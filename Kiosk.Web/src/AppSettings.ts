@@ -38,7 +38,10 @@ export class AppSettings {
 
   /** Controller endpoint for fetching categories. */
   public static API_CATEGORIES = AppSettings.API_URL + '/api/categories';
-    
+
+  /** Controller endpoint for fetching users. */
+  public static API_USERS = AppSettings.API_URL + '/api/users';
+
   /** Controller endpoint for fetching recipes. */
   public static API_RECIPES = AppSettings.API_URL + '/api/recipes';
 

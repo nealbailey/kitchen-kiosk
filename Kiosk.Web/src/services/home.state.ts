@@ -19,6 +19,7 @@
 import { PagingData } from "src/models/PagingData";
 import { Recipe } from "src/models/recipe.model";
 import { Category } from "../models/category.model";
+import { User } from "../models/user.model";
 import { UserSession } from "../models/userSession.model";
 
 export class HomePageState {
@@ -36,6 +37,9 @@ export class HomePageState {
 
   /** All the categories */
   public categories: Category[] = [];
+
+  /** All the users */
+  public users: User[] = [];
 
   /** The search criteria */
   public searchString: string = '';
