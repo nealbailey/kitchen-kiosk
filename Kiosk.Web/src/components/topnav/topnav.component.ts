@@ -17,13 +17,13 @@
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Recipe } from 'src/models/recipe.model';
 import { UserSession } from 'src/models/userSession.model';
+import { CategoriesService } from 'src/services/categories.service';
 import { HomePageState } from 'src/services/home.state';
 import { LoginService } from 'src/services/login.service';
 import { ToastService } from 'src/services/toast.service';
 import { UserSessionService } from 'src/services/userSession.service';
-import { Recipe } from '../../models/recipe.model';
-import { CategoriesService } from '../../services/categories.service';
 
 @Component({ 
     encapsulation: ViewEncapsulation.None, 
@@ -45,8 +45,8 @@ export class topnavComponent implements OnInit, AfterViewInit {
   /** Constructor */ 
   constructor(
     public homePageState: HomePageState,
-    private loginService: LoginService,
-    private userSessionService: UserSessionService,
+    public userSessionService: UserSessionService,
+    private loginService: LoginService,    
     private toastService: ToastService,
     private categoriesService: CategoriesService) {
     if (!this.homePageState.userSession)

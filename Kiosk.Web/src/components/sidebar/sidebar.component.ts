@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // Source File:  "sidebar.component.ts"
 // Create Date:  02/04/2021 10:18:00 PM
-// Last Updated: 02/11/2022 10:35:00 AM
+// Last Updated: 02/21/2022 08:40:00 AM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -18,9 +18,13 @@
 //-----------------------------------------------------------------------
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
+import { MenuItem } from 'primeng/api';
 import { PagingData } from 'src/models/PagingData';
+import { CategoriesService } from 'src/services/categories.service';
 import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
+import { UsersService } from 'src/services/users.service';
+import { UserSessionService } from 'src/services/userSession.service';
 
 @Component({ 
     encapsulation: ViewEncapsulation.None, 
@@ -31,11 +35,7 @@ import { RecipesService } from 'src/services/recipes.service';
 export class sidebarComponent implements OnInit, AfterViewInit { 
   
   // #region Properties
-
-  // used for showing/hiding spinner, progress bar or skeleton.
-  loadingPage: boolean = false; 
-  // Standard Request/Response object. Includes Paging support if necessary 
-  
+  sidebarMenuItems: MenuItem[];  
   // #endregion
 
   // #region Constructor
@@ -43,13 +43,18 @@ export class sidebarComponent implements OnInit, AfterViewInit {
   /** 
    * Constructor 
    * @param router angular router
+   * @param categoriesService service needed to work with categories
    * @param recipesService service needed to work with recipes
    * @param homePageState shared application state
+   * @param userSessionService service needed to work with user sessions
    */ 
   constructor(
     private router: Router,
+    private categoriesService: CategoriesService,
+    private usersService: UsersService,
     private recipesService: RecipesService,
-    public homePageState: HomePageState) {
+    public homePageState: HomePageState,
+    public userSessionService: UserSessionService) {
 
     if (!this.homePageState.pagingData)
       this.homePageState.pagingData = new PagingData();
@@ -86,27 +91,64 @@ export class sidebarComponent implements OnInit, AfterViewInit {
 
   /** Retrieves all necessary data for this component. */
   async getData() {
-    // start the progress bar/spinner or display a skeleton.
-    //this.loadingPage = true;
-
     try {
       this.homePageState.recipes = await this.recipesService.GetRecipes(this.homePageState);
-      
-      // when data is retrieved, set this.loadingPage to false.
-      //this.loadingPage = false;
+
+      if (this.homePageState.categories.length == 0)
+        this.homePageState.categories = await this.categoriesService.GetCategories();
+
+      if (this.homePageState.users.length == 0)
+        this.homePageState.users = await this.usersService.GetUsers();
+
+      this.getTieredMenu();
 
     } catch (message: any) {
       console.log(message);
-      //this.loadingPage = false;
     }
-
-    // REMOVE this when acquiring data via a Web API call. 
-    //this.loadingPage = false;
   }
 
   // #endregion
  
   // #region Methods
+
+  /** Build the sidebar navigation menu */
+  getTieredMenu() {
+    let catMenuItems: MenuItem[] = [];
+    let userMenuItems: MenuItem[] = [];
+
+    this.homePageState.categories.forEach((category) => {
+      catMenuItems.push({
+        label: category.category,
+        icon: 'pi pi-fw pi-file',
+        id: category.catId.toString(),
+        command: (event) => { this.onTieredMenuItemClick(event, 'category'); }
+      })
+    });
+
+    this.homePageState.users.forEach((usr) => {
+      userMenuItems.push({
+        label: usr.userName,
+        icon: 'pi pi-fw pi-user',
+        id: usr.id.toString(),
+        command: (event) => { this.onTieredMenuItemClick(event, 'user'); }
+      })
+    });
+
+    //ToDo: Users menu
+    this.sidebarMenuItems = [
+      {
+        label: 'Categories',
+        icon: 'pi pi-fw pi-file',
+        items: catMenuItems
+      },
+      {
+        label: 'Users',
+        icon: 'pi pi-users',
+        items: userMenuItems
+      }
+    ];
+  }
+
   // #endregion
 
   // #region Event Handlers 
@@ -149,6 +191,28 @@ export class sidebarComponent implements OnInit, AfterViewInit {
     await this.getData();
   }
 
+  /**
+  *  Handles the click event of items in tiered menu
+  *  @param event the menuitem that was clicked (event.item)
+  *  @param type the menu type (category or user)
+  */
+  async onTieredMenuItemClick(event: any, type: string) {
+    if (type == 'category') {
+      this.homePageState.pagingData.pageNumber = 1;
+      this.homePageState.pagingData.categoryId = event.item.id;
+      this.homePageState.pagingData.category = event.item.label;
+      await this.getData();
+    }
+
+    if (type == 'user') {
+      this.homePageState.pagingData.pageNumber = 1;
+      this.homePageState.pagingData.userId = event.item.id;
+      this.homePageState.pagingData.userName = event.item.label;
+      await this.getData();
+    }
+  }
+
   // #endregion
-} 
- 
+
+}
+

@@ -97,13 +97,17 @@ export class LoginService {
   }
 
   /**
-  * Processes error handling
-  * @param errMsg The raw [[HttpErrorResponse]] returned from the server
+  * Error processing.
+  * @param caught The caught error information.
   */
-  private handleError(errMsg: HttpErrorResponse) {
-    console.error(errMsg);
-    let errorMessage = 'An authentication error occured';
-    //Check http response for errors
-    return throwError(errorMessage + ": " + errMsg);
+  private handleError(caught: any) {
+    if (caught) {
+      if (caught.error) {
+        return throwError(caught.error.status + ' ' + caught.error.title)
+      }
+    }
+    if (caught) {
+      return throwError(caught);
+    }
   }
 }

@@ -26,6 +26,8 @@ export class PagingData {
   public pageNumber: number = 1;
   public categoryId: number = 0;
   public category: string = '';
+  public userId: string = '';
+  public userName: string = '';
 
   /**
   * Constructor - all parameters are optional.
@@ -38,6 +40,8 @@ export class PagingData {
   * @param sortColumn The search column.
   * @param categoryId The filtered id.
   * @param category The filtered name.
+  * @param userId The filtered user id (guid).
+  * @param userName The filtered user name.
   */
   constructor(
     pageNumber?: number,
@@ -46,7 +50,9 @@ export class PagingData {
     sortOrder?: string,
     sortColumn?: string,
     categoryId?: number,
-    category?: string) {
+    category?: string,
+    userId?: string,
+    userName?: string  ) {
     if ((pageNumber !== undefined) && (pageNumber !== null)) this.pageNumber = pageNumber;
     if ((pageSize !== undefined) && (pageSize !== null)) this.pageSize = pageSize;
     if ((searchString !== undefined) && (searchString !== null)) this.searchString = searchString;    
@@ -54,6 +60,8 @@ export class PagingData {
     if ((sortColumn !== undefined) && (sortColumn !== null)) this.sortColumn = sortColumn;
     if ((categoryId !== undefined) && (categoryId !== null)) this.categoryId = categoryId;
     if ((category !== undefined) && (category !== null)) this.category = category;
+    if ((userId !== undefined) && (userId !== null)) this.userId = userId;
+    if ((userName !== undefined) && (userName !== null)) this.userName = userName;
   }
 
   /** Create query-string parameters */
@@ -71,6 +79,8 @@ export class PagingData {
       q += "pagesize=" + this.pageSize + '&';
     if (this.categoryId > 0)
       q += "categoryId=" + this.categoryId + '&';
+    if (this.userId)
+      q += "userId=" + this.userId + '&';
 
     return q;
   }

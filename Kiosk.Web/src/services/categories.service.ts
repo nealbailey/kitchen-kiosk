@@ -31,12 +31,12 @@ export class CategoriesService {
   /** Gets a collection of Category records.  */
   async GetCategories() {
     console.info("Call GET in the api categories Controller");
-    let url: string = AppSettings.API_GET_CATEGORIES;
+    let url: string = AppSettings.API_CATEGORIES;
     console.info(url);
     return await this.http.get<Category[]>(url)
       .pipe(catchError(this.handleError)).toPromise();
   }
- 
+
   /**
   * Error processing.
   * @param caught The caught error information.
@@ -44,14 +44,13 @@ export class CategoriesService {
   private handleError(caught: any) {
     if (caught) {
       if (caught.error) {
-        console.error(caught.error.message);
-        return throwError(caught.error.message);
+        return throwError(caught.error);
+        //console.error(caught.error.message);
+        //return throwError(caught.error.message);
       }
     }
     if (caught) {
       return throwError(caught);
     }
   }
-
-  // #endregion
 }

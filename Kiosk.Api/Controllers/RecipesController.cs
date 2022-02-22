@@ -95,7 +95,8 @@ namespace KioskApi.Controllers
                     IncludeCategories = (expand),
                     IncludeIngredients = (expand),
                     IncludeOwner = (expand),
-                    IncludePrimaryCategory = true
+                    IncludePrimaryCategory = true,
+                    IncludeUser = true
                 };
 
                 switch (sortOrder.ToLower())

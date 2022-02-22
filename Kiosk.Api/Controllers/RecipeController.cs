@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "RecipeController.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 02/02/2022 12:33:00 PM
+// Last Updated: 02/21/2022 12:33:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -20,6 +20,9 @@ namespace KioskApi.Controllers
 {
     using Kiosk.Data.Repository;
     using KioskApi.Domain.Models;
+    using KioskApi.Domain.Models.Auth;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
@@ -42,12 +45,16 @@ namespace KioskApi.Controllers
         /// Constructor
         /// </summary>
         /// <param name="configuration"></param>
+        /// <param name="roleManager"></param>
+        /// <param name="userManager"></param>
         /// <param name="logger"></param>
         /// <param name="recipeRepository"></param>
         public RecipeController(
             IConfiguration configuration,
+            UserManager<ApplicationUser> userManager, 
+            RoleManager<IdentityRole> roleManager,
             ILogger<RecipeController> logger,
-            IRecipeRepository recipeRepository): base(configuration) 
+            IRecipeRepository recipeRepository): base(configuration, userManager, roleManager) 
         {
             _logger = logger;
             _recipeRepository = recipeRepository;
@@ -84,6 +91,7 @@ namespace KioskApi.Controllers
         /// Create a new <see cref="Recipe"/>.
         /// </summary>
         /// <returns></returns>
+        [Authorize()]
         [HttpPost(Name = "InsertRecipe")]
         public async Task<IActionResult> InsertRecipe([FromBody] Recipe recipe)
         {
@@ -96,7 +104,7 @@ namespace KioskApi.Controllers
             }
             catch(System.Exception ex)
             {
-                return UnprocessableEntity(new { message = $"Unable to create recipe: {ex.Message}" });
+                return UnprocessableEntity($"Unable to create recipe: {ex.Message}");
             }            
         }
 
@@ -104,11 +112,15 @@ namespace KioskApi.Controllers
         /// Create a new <see cref="Recipe"/>.
         /// </summary>
         /// <returns></returns>
+        [Authorize()]
         [HttpPut(Name = "UpdateRecipe")]
         public async Task<IActionResult> UpdateRecipe([FromBody] Recipe recipe)
         {
             try
             {
+                if (!IsAdminOrOwner(recipe.Useruid))
+                    return UnprocessableEntity($"Access is denied. This recipe is owned by another user.");
+
                 recipe.CatId = recipe.PrimaryCategory.CatId;
                 recipe.PrimaryCategory = null;
                 var record = await _recipeRepository.Update(recipe);
@@ -116,7 +128,7 @@ namespace KioskApi.Controllers
             }
             catch (System.Exception ex)
             {
-                return UnprocessableEntity(new { message = $"Unable to create recipe: {ex.Message}" });
+                return UnprocessableEntity($"Unable to create recipe: {ex.Message}");
             }
         }
 
@@ -124,12 +136,24 @@ namespace KioskApi.Controllers
         /// Create a new <see cref="Recipe"/>.
         /// </summary>
         /// <param name="id">The recipe Id to Delete</param>
-        /// <returns></returns>        
+        /// <returns></returns> 
+        [Authorize()]
         [HttpDelete("{id}", Name = "DeleteRecipe")]
         public async Task<IActionResult> DeleteRecipe(int id)
         {
-            var recId = await _recipeRepository.Delete(id);
-            return Ok(recId);
+            try
+            {
+                var recipe = _recipeRepository.GetOne(new Recipe() { RecId = id }).Result;
+                if (!IsAdminOrOwner(recipe.Useruid))
+                    return UnprocessableEntity($"Access is denied. This recipe is owned by another user.");
+
+                var recId = await _recipeRepository.Delete(id);
+                return Ok(recId);
+            }
+            catch (System.Exception ex)
+            {
+                return UnprocessableEntity($"Unable to delete recipe: {ex.Message}");
+            }           
         }
 
         #endregion

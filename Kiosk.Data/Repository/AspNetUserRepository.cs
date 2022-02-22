@@ -57,6 +57,16 @@ namespace Kiosk.Data.Repository
             var user = _context.AspNetUsers.Where(p => p.Id.Equals(userId)).SingleOrDefaultAsync().Result;
             return Task.Run(() => user);
         }
+
+        /// <summary>
+        /// Get users.
+        /// </summary>
+        /// <returns></returns>
+        public Task<List<AspNetUser>> Get()
+        {
+            var users = _context.AspNetUsers.OrderBy(x => x.UserName).ToListAsync();
+            return Task.Run(() => users);
+        }
         #endregion
     }
 }

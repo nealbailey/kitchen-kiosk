@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { ToastService } from 'src/services/toast.service';
 import { HomePageState } from 'src/services/home.state';
+import { StateValidator } from 'src/services/stateValidator.service';
+import { ToastService } from 'src/services/toast.service';
 
 @Component({ 
     encapsulation: ViewEncapsulation.None, 
@@ -27,6 +28,7 @@ export class createRecipeDialogComponent implements OnInit, AfterViewInit {
   constructor(
     private http: HttpClient,
     public homePageState: HomePageState,
+    private stateValidator: StateValidator,
     private toastService: ToastService
     ) { 
   }

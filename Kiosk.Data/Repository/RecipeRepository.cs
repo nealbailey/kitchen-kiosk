@@ -80,16 +80,17 @@ namespace Kiosk.Data.Repository
             _context.Entry(recipe).GetDatabaseValues();
 
             // Add ingredients
-            foreach(var i in recipe.Ingredients)
+            foreach (var i in recipe.Ingredients)
             {
                 i.RecId = recipe.RecId;
                 i.Ingredient = i.Ingredient;
                 _context.Add(i);
-            }            
+            }
             _context.SaveChanges();
 
             // Create category map
-            var mmap = new RecipeCategoryMap(){
+            var mmap = new RecipeCategoryMap()
+            {
                 CatId = recipe.CatId,
                 RecId = recipe.RecId
             };
@@ -115,8 +116,8 @@ namespace Kiosk.Data.Repository
             };
 
             recipe.Ingredients = _ingredientRepository.GetByRecipe(recipe).Result;
-            foreach(var i in recipe.Ingredients)            
-                _context.Remove(i);            
+            foreach (var i in recipe.Ingredients)
+                _context.Remove(i);
 
             // delete recipe
             _context.Remove(mmap);
@@ -144,13 +145,13 @@ namespace Kiosk.Data.Repository
             switch (options.SortOrder)
             {
                 case SortOrder.Ascending:
-                    recipes = (options.SortColumn == RecipeSortColumn.Date) 
-                        ? recipes.OrderBy(s => s.Date) 
+                    recipes = (options.SortColumn == RecipeSortColumn.Date)
+                        ? recipes.OrderBy(s => s.Date)
                         : recipes.OrderBy(s => s.Title);
                     break;
                 case SortOrder.Descending:
-                    recipes = (options.SortColumn == RecipeSortColumn.Date) 
-                        ? recipes.OrderByDescending(s => s.Date) 
+                    recipes = (options.SortColumn == RecipeSortColumn.Date)
+                        ? recipes.OrderByDescending(s => s.Date)
                         : recipes.OrderByDescending(s => s.Title);
                     break;
                 case SortOrder.None:
@@ -158,11 +159,11 @@ namespace Kiosk.Data.Repository
             }
 
             // By user
-            if(!string.IsNullOrEmpty(options.UserUid))
+            if (!string.IsNullOrEmpty(options.UserUid))
                 recipes = recipes.Where(s => s.Useruid.Equals(options.UserUid));
 
             // By category
-            if(options.CategoryId > 0)
+            if (options.CategoryId > 0)
             {
                 // SELECT * FROM recipe r
                 // WHERE r.recId = 
@@ -202,6 +203,18 @@ namespace Kiosk.Data.Repository
                     {
                         var owner = _userRepository.GetById(r.Useruid).Result;
                         r.Owner = new AspNetUser() { Id = owner.Id, UserName = owner.UserName };
+                    }
+                }
+            }
+
+            if (options.IncludeUser)
+            {
+                foreach (var r in pagedResult.Result)
+                {
+                    if (r.Owner == null)
+                    {
+                        var owner = _userRepository.GetById(r.Useruid).Result;
+                        r.User = new RecipeUser() { Id = owner.Id, UserName = owner.UserName, Email = owner.Email };
                     }
                 }
             }
@@ -265,7 +278,7 @@ namespace Kiosk.Data.Repository
         /// <returns></returns>
         public Task<Recipe> Update(Recipe updatedRecipe)
         {
-            var ingredients = _ingredientRepository.GetByRecipe(updatedRecipe).Result;            
+            var ingredients = _ingredientRepository.GetByRecipe(updatedRecipe).Result;
             foreach (var i in ingredients)
                 _context.Remove(i);
 
@@ -276,7 +289,7 @@ namespace Kiosk.Data.Repository
             recipe.Date = System.DateTime.UtcNow;
             recipe.Description = updatedRecipe.Description;
             recipe.Title = updatedRecipe.Title;
-            recipe.Useruid = updatedRecipe.Useruid;
+            //recipe.Useruid = updatedRecipe.Useruid;
             // Swap out newlines for Html breaks
             var instructions = updatedRecipe.Instructions.Replace("\n", "<br />");
             recipe.Instructions = instructions;
