@@ -21,7 +21,7 @@
  */
 export class UserSession {
   public token: string = '';
-  public expiration: Date;
+  public expiration: Date = new Date(Date.now() - 1000);
   public id: string = '00000000-0000-0000-0000-000000000000';
   public username: string = '';
   public password: string = '';  

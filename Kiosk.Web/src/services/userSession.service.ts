@@ -68,17 +68,20 @@ export class UserSessionService {
     let userSession: UserSession = this.getUserSession();
     if (!userSession)
       this.updateUserSession(new UserSession());
-    if (!userSession.expiration)
+    if (userSession && !userSession.expiration)
       userSession.expiration = new Date(Date.now() - 1000);
 
-    let utcnow = new Date();
-    let expiry = new Date(userSession.expiration);    
-    if (utcnow.getTime() > expiry.getTime()) {
-      console.log('Token expired. Clearing user session state.');     
-      //console.log('UtcNow: ' + utcnow + '. Expiration: ' + expiry);
-      this.logOutUser();
-      return false;
+    if (userSession) {
+      let utcnow = new Date();
+      let expiry = new Date(userSession.expiration);
+      if (utcnow.getTime() > expiry.getTime()) {
+        console.log('Token expired. Clearing user session state.');
+        //console.log('UtcNow: ' + utcnow + '. Expiration: ' + expiry);
+        this.logOutUser();
+        return false;
+      }
     }
+    
     return true;
   }
 }

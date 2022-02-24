@@ -22,7 +22,7 @@ export class AppSettings {
 
   // #region Constants
   readonly DEVL_URL = 'https://localhost:44389';
-  readonly PROD_URL = '';    
+  readonly PROD_URL = 'https://kiosk-data.azurewebsites.net';
   // #endregion
 
   // #region Properties
