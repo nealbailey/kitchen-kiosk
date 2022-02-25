@@ -195,30 +195,20 @@ namespace Kiosk.Data.Repository
                     if (r.Categories == null)
                         r.Categories = _categoryRepository.GetByRecipe(r).Result;
 
-            if (options.IncludeOwner)
+            if (options.IncludeOwner || options.IncludeUser)
             {
                 foreach (var r in pagedResult.Result)
                 {
                     if (r.Owner == null)
                     {
                         var owner = _userRepository.GetById(r.Useruid).Result;
-                        r.Owner = new AspNetUser() { Id = owner.Id, UserName = owner.UserName };
+                        if (options.IncludeOwner)
+                            r.Owner = new AspNetUser() { Id = owner.Id, UserName = owner.UserName };
+                        if (options.IncludeUser)
+                            r.User = new RecipeUser() { Id = owner.Id, UserName = owner.UserName, Email = owner.Email };
                     }
                 }
             }
-
-            if (options.IncludeUser)
-            {
-                foreach (var r in pagedResult.Result)
-                {
-                    if (r.Owner == null)
-                    {
-                        var owner = _userRepository.GetById(r.Useruid).Result;
-                        r.User = new RecipeUser() { Id = owner.Id, UserName = owner.UserName, Email = owner.Email };
-                    }
-                }
-            }
-
             return pagedResult;
         }
 
@@ -251,10 +241,11 @@ namespace Kiosk.Data.Repository
             if (options.IncludeCategories)
                 dbrecipe.Categories = _categoryRepository.GetByRecipe(recipe).Result;
 
-            if (options.IncludeOwner)
+            if (options.IncludeOwner || options.IncludeUser)
             {
                 var owner = _userRepository.GetById(dbrecipe.Useruid).Result;
-                dbrecipe.Owner = new AspNetUser() { Id = owner.Id, UserName = owner.UserName };
+                dbrecipe.Owner = (options.IncludeOwner) ? new AspNetUser() { Id = owner.Id, UserName = owner.UserName } : null;
+                dbrecipe.User = (options.IncludeUser) ? new RecipeUser() { Id = owner.Id, UserName = owner.UserName, Email = owner.Email } : null;                
             }
 
             return Task.Run(() => dbrecipe);

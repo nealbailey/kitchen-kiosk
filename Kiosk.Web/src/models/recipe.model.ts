@@ -14,6 +14,7 @@ export class Recipe {
   public primaryCategory: Category;
   public ingredients: Ingredient[] = [];
   public strIngredients: string = '';
+  public user: RecipeUser;
   
   /**
   * Constructor - all parameters are optional.
@@ -27,6 +28,7 @@ export class Recipe {
   * @param instructions The recipe instructions
   * @param primaryCategory The main recipe category
   * @param ingredients The recipe ingredients
+  * @param user The user who created this recipe
   */
   constructor(
     recId?: number,
@@ -37,7 +39,8 @@ export class Recipe {
     description?: string,
     instructions?: string,
     primaryCategory?: Category,
-    ingredients?: Array<Ingredient>) {
+    ingredients?: Array<Ingredient>,
+    user?: RecipeUser) {
     if ((recId !== undefined) && (recId !== null)) this.recId = recId;
     if ((catId !== undefined) && (catId !== null)) this.catId = catId;
     if ((useruid !== undefined) && (useruid !== null)) this.useruid = useruid;
@@ -47,5 +50,13 @@ export class Recipe {
     if ((instructions !== undefined) && (instructions !== null)) this.instructions = instructions;
     if ((primaryCategory !== undefined) && (primaryCategory !== null)) this.primaryCategory = primaryCategory;
     if ((ingredients !== undefined) && (ingredients !== null)) this.ingredients = ingredients;
+    if ((user !== undefined) && (user !== null)) this.user = user;
   }
+}
+
+/** User who created recipe */
+export class RecipeUser {
+  public id: string = '00000000-0000-0000-0000-000000000000';
+  public userName: string = '';
+  public email: string;  
 }
