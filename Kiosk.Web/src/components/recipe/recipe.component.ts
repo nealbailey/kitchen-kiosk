@@ -33,8 +33,6 @@ export class recipeComponent implements OnInit, AfterViewInit {
   recipe: Recipe;
  
   // #region Properties
-  // used for showing/hiding spinner, progress bar or skeleton.
-  loadingPage: boolean = false; 
   // #endregion
 
   // #region Constructor
@@ -84,7 +82,7 @@ export class recipeComponent implements OnInit, AfterViewInit {
   /** Retrieves all necessary data for this component. */
   async getData() {
     // start the progress bar/spinner or display a skeleton.
-    this.loadingPage = true;
+    this.homePageState.pageIsLoading = true;
 
     try {
       this.recipe = await this.recipeService.GetRecipe(
@@ -93,15 +91,15 @@ export class recipeComponent implements OnInit, AfterViewInit {
       console.log(this.router.url);
 
       // when data is retrieved, set this.loadingPage to false.
-      this.loadingPage = false;
+      this.homePageState.pageIsLoading = false;
 
     } catch (message: any) {
       console.log(message);
-      this.loadingPage = false;
+      this.homePageState.pageIsLoading = false;
     }
 
     // REMOVE this when acquiring data via a Web API call. 
-    this.loadingPage = false;
+    this.homePageState.pageIsLoading = false;
   }
 
   // #endregion
@@ -120,6 +118,7 @@ export class recipeComponent implements OnInit, AfterViewInit {
   /**
   * User selected a category
   * @param categoryId the category id (catId)
+  * @param categoryName the category name
   */
   async onCategoryClicked(categoryId: number, categoryName) {
     if (categoryId > 0) {
@@ -127,6 +126,21 @@ export class recipeComponent implements OnInit, AfterViewInit {
         this.homePageState.pagingData.pageNumber = 1;
         this.homePageState.pagingData.categoryId = categoryId;
         this.homePageState.pagingData.category = categoryName;
+      }
+    }
+  }
+
+  /**
+  * User selected a user
+  * @param id the user id (guid)
+  * @param userName the friendly user name
+  */
+  async onUserClicked(id: string, userName: string) {
+    if (id) {
+      if (this.homePageState.pagingData.userId != id) {
+        this.homePageState.pagingData.pageNumber = 1;
+        this.homePageState.pagingData.userId = id;
+        this.homePageState.pagingData.userName = userName;
       }
     }
   }

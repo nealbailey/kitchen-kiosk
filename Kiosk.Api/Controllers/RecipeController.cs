@@ -76,7 +76,8 @@ namespace KioskApi.Controllers
             IncludeCategories = (expand),
             IncludeIngredients = (expand),
             IncludeOwner = (expand),
-            IncludePrimaryCategory = (expand)
+            IncludePrimaryCategory = (expand), 
+            IncludeUser = (expand)
             };
 
             var httpRecipe = new Recipe() { RecId = id };

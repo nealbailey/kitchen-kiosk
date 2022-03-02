@@ -24,7 +24,7 @@
         public virtual bool IncludeIngredients { get; set; } = false;
         public virtual bool IncludeCategories { get; set; } = false;
         public virtual bool IncludeOwner { get; set; } = false;
-        public virtual bool IncludeUser { get; set; } = false;
+        public virtual bool IncludeUser { get; set; } = true;
         public virtual bool IncludePrimaryCategory { get; set; } = false;
         public virtual int CategoryId { get; set; } = 0;
         public virtual string UserUid { get; set; } = string.Empty;
