@@ -92,6 +92,7 @@ export class sidebarComponent implements OnInit, AfterViewInit {
   /** Retrieves all necessary data for this component. */
   async getData() {
     try {
+      this.homePageState.pageIsLoading = true;
       this.homePageState.recipes = await this.recipesService.GetRecipes(this.homePageState);
 
       if (this.homePageState.categories.length == 0)
@@ -104,6 +105,9 @@ export class sidebarComponent implements OnInit, AfterViewInit {
 
     } catch (message: any) {
       console.log(message);
+    }
+    finally {
+      this.homePageState.pageIsLoading = false;
     }
   }
 
@@ -173,7 +177,7 @@ export class sidebarComponent implements OnInit, AfterViewInit {
     // Give some time before triggering AJAX calls
     setTimeout(() => {
       console.log("Search: " + input.value)
-    }, 1000);
+    }, 1250);
 
     // Redirect to home if somewhere else in the system
     if (this.router.url !== '/home') {

@@ -82,7 +82,7 @@ namespace KioskApi.Controllers
             var roles = _userManager.GetRolesAsync(user).Result;
 
             if (!roles.Contains("Admin"))
-                if (userId != user.Id)
+                if (!userId.Equals(user.Id, System.StringComparison.InvariantCultureIgnoreCase))
                     return false;
             
             return true;
