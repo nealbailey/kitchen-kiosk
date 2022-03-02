@@ -284,6 +284,7 @@ namespace Kiosk.Data.Repository
             // Swap out newlines for Html breaks
             var instructions = updatedRecipe.Instructions.Replace("\n", "<br />");
             recipe.Instructions = instructions;
+            recipe.Owner = _userRepository.GetById(recipe.Useruid).Result;
 
             _context.Update(recipe);
             _context.SaveChanges();
