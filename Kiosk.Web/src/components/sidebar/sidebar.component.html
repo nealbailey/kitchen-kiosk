@@ -13,7 +13,7 @@
         <!-- Sidebar nav -->
         <a routerLink="/home" aria-current="page" class="nav-link w-nav-link w--current" (click)="onHomeClicked()">Home</a>
         <a href="#" *ngIf="userSessionService.userIsLoggedIn()" class="nav-link w-nav-link">My Favorites</a>
-        <a href="#" class="nav-link w-nav-link">Request Access</a>
+        <a href="#" *ngIf="!userSessionService.userIsLoggedIn()" class="nav-link w-nav-link">Request Access</a>
 
         <div class="divider"></div>
         <input #txtSearch id="txtSearch" placeholder="search" type="text" pInputText maxlength="50" [(ngModel)]="this.homePageState?.pagingData.searchString" (input)="searchEntered($event.target)">

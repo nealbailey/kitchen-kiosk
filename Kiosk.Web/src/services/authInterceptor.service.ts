@@ -47,13 +47,13 @@ export class AuthenticationInterceptorService implements HttpInterceptor {
       console.log("Injecting JWT access_token");
       let strTokenHeader = `Bearer ${session.token}`;
 
-      // The Firefox javascript engine has a bug where multiple attempts to connect to the same url
-      // is seen as a denial of service attack and blocked (even if the response of the request is
-      // different for every request). To resolve this issue we must ensure every request that is
-      // made contains some unique value (in other words; urls must be unique across requests)
-      let uniqReqParam = (req.url.indexOf("?") > -1)
-        ? "&req=" + this.getRandomInt(10)
-        : "?req=" + this.getRandomInt(10);
+      //// The Firefox javascript engine has a bug where multiple attempts to connect to the same url
+      //// is seen as a denial of service attack and blocked (even if the response of the request is
+      //// different for every request). To resolve this issue we must ensure every request that is
+      //// made contains some unique value (in other words; urls must be unique across requests)
+      //let uniqReqParam = (req.url.indexOf("?") > -1)
+      //  ? "&req=" + this.getRandomInt(10)
+      //  : "?req=" + this.getRandomInt(10);
 
       //let modifiedUrl = req.url + uniqReqParam;
       let modifiedUrl = req.url;
@@ -62,10 +62,13 @@ export class AuthenticationInterceptorService implements HttpInterceptor {
       const tokenReq: HttpRequest<any> = req.clone({
         setHeaders: {
           Authorization: strTokenHeader,
-          'Cache-Control': 'max-age=28800'
+          'Cache-Control': 'no-cache',
+           Pragma: 'no-cache'
         },
          url: modifiedUrl 
       });      
+
+      //'Cache-Control': 'max-age=28800'
 
       return next.handle(tokenReq);
     }

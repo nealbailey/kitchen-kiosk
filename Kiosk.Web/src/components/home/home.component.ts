@@ -198,8 +198,6 @@ export class homeComponent implements OnInit, AfterViewInit {
    * @param recipe the selected recipe
    */
   async onEditRecipeClicked(recipe: Recipe) {
-    console.log(recipe);
-
     if (this.homePageState.categories.length == 0)
       this.homePageState.categories = await this.categoriesService.GetCategories();
 
@@ -299,6 +297,7 @@ export class homeComponent implements OnInit, AfterViewInit {
 
     try {
       if (!this.homePageState.selectedRecipe.recId) {
+        this.homePageState.pageIsLoading = true;
         await this.recipeService.CreateRecipe(this.homePageState.selectedRecipe);
         this.toastService.showSuccess('Recipe created successfully');
       }
@@ -311,7 +310,10 @@ export class homeComponent implements OnInit, AfterViewInit {
       await this.getData();
     } catch (message: any) {
       this.toastService.showError(message);
-    }     
+    }
+    finally {
+      this.homePageState.pageIsLoading = false;
+    }
   }
 
   //#endregion
