@@ -120,6 +120,7 @@ export class homeComponent implements OnInit, AfterViewInit {
   async DeleteRecipe(recipeId: number) {
     try {
       this.homePageState.pageIsLoading = true;
+      this.homePageState.createRecipeDialogIsVisible = false;
       await this.recipeService.DeleteRecipe(recipeId);
       await this.getData();
     }
@@ -297,6 +298,7 @@ export class homeComponent implements OnInit, AfterViewInit {
     }    
 
     try {
+      this.homePageState.createRecipeDialogIsVisible = false;
       if (!this.homePageState.selectedRecipe.recId) {
         this.homePageState.pageIsLoading = true;
         await this.recipeService.CreateRecipe(this.homePageState.selectedRecipe);
@@ -306,9 +308,7 @@ export class homeComponent implements OnInit, AfterViewInit {
         this.homePageState.pageIsLoading = true;
         await this.recipeService.UpdateRecipe(this.homePageState.selectedRecipe);
         this.toastService.showSuccess('Recipe updated successfully');
-      }
-
-      this.homePageState.createRecipeDialogIsVisible = false;
+      }      
       await this.getData();
     } catch (message: any) {
       this.toastService.showError(message);

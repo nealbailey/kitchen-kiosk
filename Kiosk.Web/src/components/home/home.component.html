@@ -1,4 +1,18 @@
 <div id="homeDiv" class="content" role="main">
+  <!--
+  *************************************************************************************
+  Spinner while loading the page
+  *************************************************************************************
+  -->
+  <!--<p-dialog [draggable]="false" [resizable]="false" [(visible)]="homePageState.pageIsLoading" [modal]="true"
+            [closeOnEscape]="false" closeable="false" [showHeader]="false"
+            [baseZIndex]="10000">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" styleClass="custom-spinner" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+  </p-dialog>-->
+  <div *ngIf="homePageState.pageIsLoading" [baseZIndex]="10000" style="z-index:10000">
+    <p-progressSpinner [style]="{width: '50px', height: '50px'}" styleClass="custom-spinner" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+  </div>
+
   <div id="divFilters">
     <p-chip icon="pi pi-file" [label]="'Page: ' + this.homePageState?.pagingData.pageNumber" styleClass="mr-2"></p-chip>&nbsp;
     <p-chip *ngIf="this.homePageState?.pagingData.searchString" icon="pi pi-search" [label]="this.homePageState?.pagingData.searchString" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipSearch')"></p-chip>&nbsp;
@@ -32,7 +46,7 @@
             <button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-outlined"></button>&nbsp;
             <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-success p-button-outlined" (click)="onEditRecipeClicked(recipe);"></button>&nbsp;
             <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-outlined" (click)="onRecipeDeleteClicked(recipe.recId);"></button>
-          </span>          
+          </span>
           <!--<a routerLink="/recipe/{{recipe.recId}}" class="button-round w-button">See Recipe →</a>-->
         </div>
       </div>
@@ -65,16 +79,5 @@
       <p-button label="Next" icon="pi pi-angle-right" iconPos="right" (click)="onCreateRecipeDialogNextClicked()" [hidden]="this.homePageState.createRecipeDialogCurrentStep==3"></p-button>
       <p-button label="Save" icon="pi pi-save" [hidden]="this.homePageState.createRecipeDialogCurrentStep != 3" (click)="onCreateRecipeSaveClicked()"></p-button>
     </ng-template>
-  </p-dialog>
-
-  <!--
-  *************************************************************************************
-  Spinner while loading the page
-  *************************************************************************************
-  -->
-  <p-dialog [draggable]="false" [resizable]="false" [(visible)]="homePageState.pageIsLoading" [modal]="true"
-            [closeOnEscape]="false" closeable="false" [showHeader]="false"
-            [baseZIndex]="10000">
-    <p-progressSpinner [style]="{width: '50px', height: '50px'}" styleClass="custom-spinner" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
   </p-dialog>
 </div>
