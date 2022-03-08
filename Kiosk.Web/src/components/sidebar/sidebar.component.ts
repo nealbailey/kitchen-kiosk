@@ -35,7 +35,8 @@ import { UserSessionService } from 'src/services/userSession.service';
 export class sidebarComponent implements OnInit, AfterViewInit { 
   
   // #region Properties
-  sidebarMenuItems: MenuItem[];  
+  sidebarMenuItems: MenuItem[];
+  isLoading: boolean;
   // #endregion
 
   // #region Constructor
@@ -92,7 +93,7 @@ export class sidebarComponent implements OnInit, AfterViewInit {
   /** Retrieves all necessary data for this component. */
   async getData() {
     try {
-      this.homePageState.pageIsLoading = true;
+      this.isLoading = true;
       this.homePageState.recipes = await this.recipesService.GetRecipes(this.homePageState);
 
       if (this.homePageState.categories.length == 0)
@@ -107,7 +108,7 @@ export class sidebarComponent implements OnInit, AfterViewInit {
       console.log(message);
     }
     finally {
-      this.homePageState.pageIsLoading = false;
+      this.isLoading = false;
     }
   }
 
