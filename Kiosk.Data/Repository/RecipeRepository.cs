@@ -109,22 +109,21 @@ namespace Kiosk.Data.Repository
         public Task<bool> Delete(int id)
         {
             var recipe = GetOne(new Recipe() { RecId = id }).Result;
-            var mmap = new RecipeCategoryMap()
-            {
-                CatId = recipe.CatId,
-                RecId = recipe.RecId
-            };
 
+            // Remove mappings
+            var rcmap = GetCategoryMaps(recipe).Result;
+            foreach (var m in rcmap)
+                _context.Remove(m);
+
+            // Remove recipes
             recipe.Ingredients = _ingredientRepository.GetByRecipe(recipe).Result;
             foreach (var i in recipe.Ingredients)
                 _context.Remove(i);
 
-            // delete recipe
-            _context.Remove(mmap);
+            // Remove recipe            
             _context.Remove(recipe);
             _context.SaveChanges();
-
-            //return recipe.RecId;
+            
             return Task.Run(() => true);
         }
 
@@ -223,6 +222,28 @@ namespace Kiosk.Data.Repository
         }
 
         /// <summary>
+        /// Fetch a specific category to recipe mapping from the database.
+        /// </summary>
+        /// <param name="recipe">The recipe</param>
+        /// <returns></returns>
+        public Task<RecipeCategoryMap> GetCategoryMap(Recipe recipe)
+        {
+            var map = _context.RecipeCategoryMaps.Where(p => p.RecId == recipe.RecId && p.CatId == recipe.CatId).SingleOrDefaultAsync();
+            return Task.Run(() => map);
+        }
+
+        /// <summary>
+        /// Fetch a specific category to recipe mapping from the database.
+        /// </summary>
+        /// <param name="recipe">The recipe</param>
+        /// <returns></returns>
+        public Task<List<RecipeCategoryMap>> GetCategoryMaps(Recipe recipe)
+        {
+            var maps = _context.RecipeCategoryMaps.Where(p => p.RecId == recipe.RecId).ToListAsync();            
+            return Task.Run(() => maps);
+        }
+
+        /// <summary>
         /// Fetch a specific category from the database.
         /// </summary>
         /// <param name="category"></param>
@@ -272,10 +293,13 @@ namespace Kiosk.Data.Repository
             var ingredients = _ingredientRepository.GetByRecipe(updatedRecipe).Result;
             foreach (var i in ingredients)
                 _context.Remove(i);
-
+            
             _context.SaveChanges();
 
             var recipe = GetOne(updatedRecipe).Result;
+
+            //ToDo: Update category map
+
             recipe.CatId = updatedRecipe.CatId;
             recipe.Date = System.DateTime.UtcNow;
             recipe.Description = updatedRecipe.Description;
