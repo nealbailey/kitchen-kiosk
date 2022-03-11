@@ -119,9 +119,9 @@ export class homeComponent implements OnInit, AfterViewInit {
   */
   async DeleteRecipe(recipeId: number) {
     try {
-      this.homePageState.pageIsLoading = true;
-      this.homePageState.createRecipeDialogIsVisible = false;
+      this.homePageState.pageIsLoading = true;      
       await this.recipeService.DeleteRecipe(recipeId);
+      this.toastService.showSuccess('Recipe deleted successfully');
       await this.getData();
     }
     catch (e) {
@@ -189,6 +189,7 @@ export class homeComponent implements OnInit, AfterViewInit {
     this.confirmationService.confirm({
       message: '&nbsp;Are you sure you want to delete this recipe?&nbsp;&nbsp;&nbsp;<br/>&nbsp;This delete action cannot be undone.&nbsp;&nbsp;&nbsp;',
       accept: () => {
+        this.confirmationService.close();
         this.DeleteRecipe(recipeId);
       }
     });
