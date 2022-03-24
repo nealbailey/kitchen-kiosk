@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "RecipeRepository.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 02/08/2022 06:08:00 AM
+// Last Updated: 03/24/2022 11:17:00 AM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -26,6 +26,9 @@ namespace Kiosk.Data.Repository
     using System.Linq;
     using System.Threading.Tasks;
 
+    /// <summary>
+    /// Database access for working with <see cref="Recipe"/> entities.
+    /// </summary>
     public class RecipeRepository : BaseRepository, IRecipeRepository
     {
         #region Fields
@@ -58,7 +61,7 @@ namespace Kiosk.Data.Repository
         }
         #endregion
 
-        #region Methods
+        #region Methods (Public)
 
         /// <summary>
         /// Create a new recipe.
@@ -134,7 +137,21 @@ namespace Kiosk.Data.Repository
         /// <returns></returns>
         public Task<List<Recipe>> Get(RepositoryOptionsRecipe options)
         {
-            var recipes = (from r in _context.Recipes select r);
+            return Get(options, null);
+        }
+
+        /// <summary>
+        /// Fetch recipes.
+        /// </summary>
+        /// <param name="options">Options when fetching recipes.</param>
+        /// <param name="requestingUid">The uid of the user requesting the recipe list.</param>
+        /// <returns></returns>
+        public Task<List<Recipe>> Get(RepositoryOptionsRecipe options, string requestingUid)
+        {
+            // Fetch all or just favorites
+            var recipes = (options.FavoritesOnly && !string.IsNullOrEmpty(requestingUid))
+                ? GetFavorites(requestingUid)
+                : GetAll();
 
             // Search filter
             if (!string.IsNullOrEmpty(options.SearchString))
@@ -208,17 +225,20 @@ namespace Kiosk.Data.Repository
                     }
                 }
             }
-            return pagedResult;
-        }
 
-        /// <summary>
-        /// Fetch a specific recipe from the database.
-        /// </summary>
-        /// <param name="recipe"></param>
-        /// <returns></returns>
-        public Task<Recipe> GetOne(Recipe recipe)
-        {
-            return (GetOne(recipe, new RepositoryOptionsRecipe()));
+            // If requestor is authenticated, fetch their favorites
+            if (options.IncludeFavoriteFlag && requestingUid != null)
+            {
+                foreach (var r in pagedResult.Result)
+                {
+                    var fx = (from fr in _context.RecipeFavorites.Where(
+                        x => x.Useruid.ToString().ToLower() == requestingUid.ToLower() && x.RecId == r.RecId) select fr).SingleOrDefault();
+                    if (fx != null)
+                        r.IsFavorite = true;
+                }
+            }
+
+            return pagedResult;
         }
 
         /// <summary>
@@ -241,6 +261,16 @@ namespace Kiosk.Data.Repository
         {
             var maps = _context.RecipeCategoryMaps.Where(p => p.RecId == recipe.RecId).ToListAsync();            
             return Task.Run(() => maps);
+        }
+
+        /// <summary>
+        /// Fetch a specific recipe from the database.
+        /// </summary>
+        /// <param name="recipe"></param>
+        /// <returns></returns>
+        public Task<Recipe> GetOne(Recipe recipe)
+        {
+            return (GetOne(recipe, new RepositoryOptionsRecipe()));
         }
 
         /// <summary>
@@ -322,6 +352,33 @@ namespace Kiosk.Data.Repository
 
             return Task.Run(() => recipe);
         }
+        #endregion
+
+        #region Methods (Non-Public)
+
+        /// <summary>
+        /// Get favorite recipes by user uid.
+        /// </summary>
+        /// <param name="userUid">User uid (guid)</param>
+        /// <returns></returns>
+        protected internal virtual IQueryable<Recipe> GetFavorites(string userUid)
+        {
+            return (from recipe in _context.Recipes
+                    join favorites in _context.RecipeFavorites
+                    on recipe.RecId equals favorites.RecId
+                    where favorites.Useruid.ToString().ToLower() == userUid.ToLower()
+                    select recipe);
+        }
+
+        /// <summary>
+        /// Get all recipes in context.
+        /// </summary>
+        /// <returns></returns>
+        protected internal virtual IQueryable<Recipe> GetAll()
+        {
+            return (from r in _context.Recipes select r);
+        }
+
         #endregion
 
         #region Experimental

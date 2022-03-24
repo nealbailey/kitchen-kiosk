@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "IRecipeRepository.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 02/02/2022 12:33:00 PM
+// Last Updated: 03/24/2022 11:26:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -23,7 +23,7 @@ namespace Kiosk.Data.Repository
     using System.Threading.Tasks;
 
     /// <summary>
-    /// 
+    /// Database access for working with <see cref="Recipe"/> entities.
     /// </summary>
     public interface IRecipeRepository
     {
@@ -47,7 +47,14 @@ namespace Kiosk.Data.Repository
         /// <param name="options">Options when fetching recipes.</param>
         /// <returns></returns>
         public Task<List<Recipe>> Get(RepositoryOptionsRecipe options);
-        
+
+        /// <summary>
+        /// Fetch recipes.
+        /// </summary>
+        /// <param name="options">Options when fetching recipes.</param>
+        /// <returns></returns>
+        public Task<List<Recipe>> Get(RepositoryOptionsRecipe options, string requestingUid = null);
+
         /// <summary>
         /// Fetch a specific category from the database.
         /// </summary>
