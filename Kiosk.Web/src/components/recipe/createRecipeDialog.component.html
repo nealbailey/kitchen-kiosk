@@ -1,9 +1,9 @@
 <!--<p-toast position="center" sticky="true"></p-toast>--> 
 <div id="createRecipeDialogDiv">
   <div id="wizStepOne" *ngIf="homePageState.createRecipeDialogCurrentStep==1">
-    <div class="p-field p-grid">
-      <label for="txtRecipeTitle" class="p-col-fixed" style="width:200px">Details</label>
+    <div class="p-field p-grid">      
       <div class="p-col">
+        <label for="txtRecipeTitle" class="p-col-fixed" style="width:200px">Details</label>
         <input #txtRecipeTitle id="txtRecipeTitle" pInputText type="text" maxlength="64" style="width:60%" placeholder="Title" [(ngModel)]="homePageState.selectedRecipe.title" [class]="stateValidator.txtTitleStyle">&nbsp;&nbsp;
         <p-dropdown #ddlCategory id="ddlCategory" autoWidth="false" [options]="homePageState.categories" optionLabel="category" [style]="{'width':'35%'}" placeholder="Category" [(ngModel)]="homePageState.selectedRecipe.primaryCategory" [class]="stateValidator.ddlCategoryStyle" appendTo="body"></p-dropdown>
       </div>

@@ -96,14 +96,15 @@ export class homeComponent implements OnInit, AfterViewInit {
     // start the progress bar/spinner or display a skeleton.
     this.homePageState.pageIsLoading = true;
  
-    try {      
+    try {
       this.homePageState.recipes = await this.recipeService.GetRecipes(this.homePageState);      
-
-      // when data is retrieved, set this.loadingPage to false.
       this.homePageState.pageIsLoading = false;
 
     } catch (message: any) {
-      console.log(message);
+      this.homePageState.pageIsLoading = false;
+      this.toastService.showError(message);
+    }
+    finally {
       this.homePageState.pageIsLoading = false;
     }
   }
@@ -118,17 +119,18 @@ export class homeComponent implements OnInit, AfterViewInit {
   */
   async DeleteRecipe(recipeId: number) {
     try {
-      this.homePageState.pageIsLoading = true;
-      
+      this.homePageState.pageIsLoading = true;      
       await this.recipeService.DeleteRecipe(recipeId);
-      this.homePageState.pageIsLoading = false;
-
+      this.toastService.showSuccess('Recipe deleted successfully');
       await this.getData();
     }
     catch (e) {
       this.homePageState.pageIsLoading = false;
       this.toastService.showError('Error: ' + e);
       console.log(e);
+    }
+    finally {
+      this.homePageState.pageIsLoading = false;
     }
   }
 
@@ -187,6 +189,7 @@ export class homeComponent implements OnInit, AfterViewInit {
     this.confirmationService.confirm({
       message: '&nbsp;Are you sure you want to delete this recipe?&nbsp;&nbsp;&nbsp;<br/>&nbsp;This delete action cannot be undone.&nbsp;&nbsp;&nbsp;',
       accept: () => {
+        this.confirmationService.close();
         this.DeleteRecipe(recipeId);
       }
     });
@@ -198,8 +201,6 @@ export class homeComponent implements OnInit, AfterViewInit {
    * @param recipe the selected recipe
    */
   async onEditRecipeClicked(recipe: Recipe) {
-    console.log(recipe);
-
     if (this.homePageState.categories.length == 0)
       this.homePageState.categories = await this.categoriesService.GetCategories();
 
@@ -298,20 +299,24 @@ export class homeComponent implements OnInit, AfterViewInit {
     }    
 
     try {
+      this.homePageState.createRecipeDialogIsVisible = false;
       if (!this.homePageState.selectedRecipe.recId) {
+        this.homePageState.pageIsLoading = true;
         await this.recipeService.CreateRecipe(this.homePageState.selectedRecipe);
         this.toastService.showSuccess('Recipe created successfully');
       }
       else {
+        this.homePageState.pageIsLoading = true;
         await this.recipeService.UpdateRecipe(this.homePageState.selectedRecipe);
         this.toastService.showSuccess('Recipe updated successfully');
-      }
-
-      this.homePageState.createRecipeDialogIsVisible = false;
+      }      
       await this.getData();
     } catch (message: any) {
       this.toastService.showError(message);
-    }     
+    }
+    finally {
+      this.homePageState.pageIsLoading = false;
+    }
   }
 
   //#endregion

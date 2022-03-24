@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // Source File:  "sidebar.component.ts"
 // Create Date:  02/04/2021 10:18:00 PM
-// Last Updated: 02/21/2022 08:40:00 AM
+// Last Updated: 03/09/2022 08:40:00 AM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -18,7 +18,7 @@
 //-----------------------------------------------------------------------
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
-import { MenuItem } from 'primeng/api';
+import { ConfirmationService, MenuItem } from 'primeng/api';
 import { PagingData } from 'src/models/PagingData';
 import { CategoriesService } from 'src/services/categories.service';
 import { HomePageState } from 'src/services/home.state';
@@ -35,7 +35,8 @@ import { UserSessionService } from 'src/services/userSession.service';
 export class sidebarComponent implements OnInit, AfterViewInit { 
   
   // #region Properties
-  sidebarMenuItems: MenuItem[];  
+  sidebarMenuItems: MenuItem[];
+  isLoading: boolean;
   // #endregion
 
   // #region Constructor
@@ -47,6 +48,7 @@ export class sidebarComponent implements OnInit, AfterViewInit {
    * @param recipesService service needed to work with recipes
    * @param homePageState shared application state
    * @param userSessionService service needed to work with user sessions
+   * @param confirmationService service for dispatching comfirm dialogs.
    */ 
   constructor(
     private router: Router,
@@ -54,7 +56,8 @@ export class sidebarComponent implements OnInit, AfterViewInit {
     private usersService: UsersService,
     private recipesService: RecipesService,
     public homePageState: HomePageState,
-    public userSessionService: UserSessionService) {
+    public userSessionService: UserSessionService,
+    private confirmationService: ConfirmationService  ) {
 
     if (!this.homePageState.pagingData)
       this.homePageState.pagingData = new PagingData();
@@ -92,7 +95,7 @@ export class sidebarComponent implements OnInit, AfterViewInit {
   /** Retrieves all necessary data for this component. */
   async getData() {
     try {
-      this.homePageState.pageIsLoading = true;
+      this.isLoading = true;
       this.homePageState.recipes = await this.recipesService.GetRecipes(this.homePageState);
 
       if (this.homePageState.categories.length == 0)
@@ -107,7 +110,7 @@ export class sidebarComponent implements OnInit, AfterViewInit {
       console.log(message);
     }
     finally {
-      this.homePageState.pageIsLoading = false;
+      this.isLoading = false;
     }
   }
 
@@ -153,6 +156,13 @@ export class sidebarComponent implements OnInit, AfterViewInit {
     ];
   }
 
+
+  /** Show request access form */
+  requestAccess() {
+    this.confirmationService.close();
+    //ToDo: show access form    
+  }
+
   // #endregion
 
   // #region Event Handlers 
@@ -193,6 +203,20 @@ export class sidebarComponent implements OnInit, AfterViewInit {
   async onHomeClicked() {
     this.homePageState.pagingData.pageNumber = 1;
     await this.getData();
+  }
+
+  /** User clicked the Request Access button */
+  onRequestAccessClicked() {
+    this.confirmationService.confirm({
+      message: '&nbsp;This site is for a limited private audience.&nbsp;&nbsp;&nbsp;<br/>&nbsp;To request access send an email to nealbailey@hotmail.com&nbsp;&nbsp;&nbsp;',
+      accept: () => {
+        this.requestAccess();
+      },
+      reject: () => {
+        this.confirmationService.close();
+      }
+    });
+    return;
   }
 
   /**

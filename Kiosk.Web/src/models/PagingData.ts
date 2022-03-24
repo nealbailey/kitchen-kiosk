@@ -22,7 +22,7 @@ export class PagingData {
   public sortColumn: string = 'date';
   public sortOrder: string = 'desc';
   public searchString: string = '';
-  public pageSize: number = 10;
+  public pageSize: number = 6;
   public pageNumber: number = 1;
   public categoryId: number = 0;
   public category: string = '';
