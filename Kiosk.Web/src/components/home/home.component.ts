@@ -253,7 +253,11 @@ export class homeComponent implements OnInit, AfterViewInit {
         this.homePageState.pagingData.userId = '';
         this.homePageState.pagingData.userName = '';
         break;
+      case 'chipFavorites':
+        this.homePageState.pagingData.favoritesOnly = false;
+        break;
     }
+    this.homePageState.pagingData.pageNumber = 1;
     await this.getData();
   }
 

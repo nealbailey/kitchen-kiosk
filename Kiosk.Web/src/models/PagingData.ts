@@ -28,6 +28,7 @@ export class PagingData {
   public category: string = '';
   public userId: string = '';
   public userName: string = '';
+  public favoritesOnly: boolean = false;
 
   /**
   * Constructor - all parameters are optional.
@@ -42,6 +43,7 @@ export class PagingData {
   * @param category The filtered name.
   * @param userId The filtered user id (guid).
   * @param userName The filtered user name.
+  * @param favoritesOnly The user's favorites.
   */
   constructor(
     pageNumber?: number,
@@ -52,7 +54,8 @@ export class PagingData {
     categoryId?: number,
     category?: string,
     userId?: string,
-    userName?: string  ) {
+    userName?: string,
+    favoritesOnly?: boolean) {
     if ((pageNumber !== undefined) && (pageNumber !== null)) this.pageNumber = pageNumber;
     if ((pageSize !== undefined) && (pageSize !== null)) this.pageSize = pageSize;
     if ((searchString !== undefined) && (searchString !== null)) this.searchString = searchString;    
@@ -62,6 +65,7 @@ export class PagingData {
     if ((category !== undefined) && (category !== null)) this.category = category;
     if ((userId !== undefined) && (userId !== null)) this.userId = userId;
     if ((userName !== undefined) && (userName !== null)) this.userName = userName;
+    if ((favoritesOnly !== undefined) && (favoritesOnly !== null)) this.favoritesOnly = favoritesOnly;
   }
 
   /** Create query-string parameters */
@@ -81,6 +85,8 @@ export class PagingData {
       q += "categoryId=" + this.categoryId + '&';
     if (this.userId)
       q += "userId=" + this.userId + '&';
+    if (this.favoritesOnly == true)
+      q += "favorites=true&";
 
     return q;
   }

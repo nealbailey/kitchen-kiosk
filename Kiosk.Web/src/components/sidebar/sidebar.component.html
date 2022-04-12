@@ -14,7 +14,8 @@
 
         <!-- Sidebar nav -->
         <a routerLink="/home" aria-current="page" class="nav-link w-nav-link w--current" (click)="onHomeClicked()">Home</a>
-        <a href="#" *ngIf="userSessionService.userIsLoggedIn()" class="nav-link w-nav-link">My Favorites</a>        
+        <a *ngIf="userSessionService.userIsLoggedIn()" routerLink="/home" aria-current="page" class="nav-link w-nav-link w--current" (click)="onFavoritesClicked()">My Favorites</a>
+        <!--<a href="#" *ngIf="userSessionService.userIsLoggedIn()" class="nav-link w-nav-link">My Favorites</a>-->
         <a *ngIf="!userSessionService.userIsLoggedIn()" style="cursor: pointer" class="nav-link w-nav-link" (click)="onRequestAccessClicked()">Request Access</a>
 
         <div class="divider"></div>
