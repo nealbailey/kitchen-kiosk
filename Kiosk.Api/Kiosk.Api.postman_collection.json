@@ -1,0 +1,435 @@
+{
+	"info": {
+		"_postman_id": "fe9de442-2c95-4c31-8d7c-ab9ea063690c",
+		"name": "Kiosk (Local)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "RegisterUser",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"nealbailey\",\r\n    \"email\": \"nealbailey@hotmail.com\",\r\n    \"password\": \"Cla$$ified123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:44389/api/authenticate/register",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44389",
+							"path": [
+								"api",
+								"authenticate",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\" : \"nealbailey\",\r\n    \"password\" : \"Cla$$ified123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:44389/api/authenticate/login",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44389",
+							"path": [
+								"api",
+								"authenticate",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RegisterAdmin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"developer\",\r\n    \"email\": \"nealosis@gmail.com\",\r\n    \"password\": \"Pa$$word123123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:44389/api/authenticate/register-admin",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44389",
+							"path": [
+								"api",
+								"authenticate",
+								"register-admin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteUser",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"developer\"    \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:44389/api/authenticate/delete",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44389",
+							"path": [
+								"api",
+								"authenticate",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Recipe",
+			"item": [
+				{
+					"name": "GetRecipe",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:44389/api/recipe/1058?expand=true",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44389",
+							"path": [
+								"api",
+								"recipe",
+								"1058"
+							],
+							"query": [
+								{
+									"key": "expand",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Recipes",
+			"item": [
+				{
+					"name": "GetRecipes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:44389/api/recipes?sortcolumn=date&pagesize=10&pagenumber=1&searchstring=roast&sortorder=asc",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44389",
+							"path": [
+								"api",
+								"recipes"
+							],
+							"query": [
+								{
+									"key": "sortcolumn",
+									"value": "date"
+								},
+								{
+									"key": "pagesize",
+									"value": "10"
+								},
+								{
+									"key": "pagenumber",
+									"value": "1"
+								},
+								{
+									"key": "expand",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "searchstring",
+									"value": "roast"
+								},
+								{
+									"key": "sortorder",
+									"value": "asc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateRecipe",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoibmVhbGJhaWxleSIsImp0aSI6IjcwYTFiMzRiLTVjM2MtNDA4Ny1iZWMwLTk4OWY4Mzc1NTE1NyIsImV4cCI6MTY0NTI4NDI4OCwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo2MTk1NSIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NDIwMCJ9.uq_MSop6PjjbrkhO6bMq9HG042pnG2t_SE1_36EI21g",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"recId\": 1081,\r\n    \"catId\": 20,\r\n    \"useruid\": \"abc4bbf1-5bb4-43df-8c1b-ca5b1c85883d\",\r\n    \"date\": \"2022-02-19T01:50:36.363\",\r\n    \"title\": \"BBQ Pork Sandwiches\",\r\n    \"description\": \"This is a classic American pulled pork barbeque\",\r\n    \"instructions\": \"1. Put roast in slow cooker sprinkle salt and pepper over roast. Pour vinegar over meat.\\n\\n2. Cover and cook on low for 12 hours. Remove meat and shred.\\n\\n3. Reserve 2 cups of liquid and discard the rest. Return meat to cooker\\n\\n4. Add brown sugar, hot sauce, and pepper flakes. Heat on low or warm setting until ready to serve.\",\r\n    \"primaryCategory\": {\r\n        \"catId\": 20,\r\n        \"category\": \"Main Dish\",\r\n        \"total\": 30,\r\n        \"recipes\": []\r\n    },\r\n    \"owner\": null,\r\n    \"categories\": null,\r\n    \"ingredients\": [\r\n        {\r\n            \"ingredient\": \"1 tablespoon hot sauce (optional)\",\r\n            \"recId\": 0\r\n        },\r\n        {\r\n            \"ingredient\": \"1 tablespoon liquid smoke\",\r\n            \"recId\": 0\r\n        },\r\n        {\r\n            \"ingredient\": \"1 tablespoon salt\",\r\n            \"recId\": 0\r\n        },\r\n        {\r\n            \"ingredient\": \"1 teaspoon crushed red pepper flakes (optional)\",\r\n            \"recId\": 0\r\n        },\r\n        {\r\n            \"ingredient\": \"1 teaspoon pepper\",\r\n            \"recId\": 0\r\n        },\r\n        {\r\n            \"ingredient\": \"1.5 cups of cider vinegar\",\r\n            \"recId\": 0\r\n        },\r\n        {\r\n            \"ingredient\": \"2 tablespoons brown sugar\",\r\n            \"recId\": 0\r\n        },\r\n        {\r\n            \"ingredient\": \"5 lbs pork shoulder (or boston butt)\",\r\n            \"recId\": 0\r\n        }\r\n    ],\r\n    \"strIngredients\": \"1 tablespoon hot sauce (optional)\\n1 tablespoon liquid smoke\\n1 tablespoon salt\\n1 teaspoon crushed red pepper flakes (optional)\\n1 teaspoon pepper\\n1.5 cups of cider vinegar\\n2 tablespoons brown sugar\\n5 lbs pork shoulder (or boston butt)\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:44389/api/recipe/",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44389",
+							"path": [
+								"api",
+								"recipe",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Category",
+			"item": [
+				{
+					"name": "AddCategory",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"category\" : \"Testing\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:44389/api/category",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44389",
+							"path": [
+								"api",
+								"category"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCategoryById",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:44389/api/category/1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44389",
+							"path": [
+								"api",
+								"category",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCategory",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:44389/api/category/GetCategory?name=seafood",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44389",
+							"path": [
+								"api",
+								"category",
+								"GetCategory"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "seafood"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCategories",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:44389/api/categories",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44389",
+							"path": [
+								"api",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ingredient",
+			"item": [
+				{
+					"name": "GetByRecipe",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:44389/api/ingredient/1058",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44389",
+							"path": [
+								"api",
+								"ingredient",
+								"1058"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "GetUsers",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

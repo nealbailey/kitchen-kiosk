@@ -199,9 +199,17 @@ export class sidebarComponent implements OnInit, AfterViewInit {
     await this.getData();
   }
 
+  /** User clicked the My Favorites link */
+  async onFavoritesClicked() {
+    this.homePageState.pagingData.pageNumber = 1;
+    this.homePageState.pagingData.favoritesOnly = true;
+    await this.getData();
+  }
+
   /** User clicked the Home link */
   async onHomeClicked() {
     this.homePageState.pagingData.pageNumber = 1;
+    this.homePageState.pagingData.favoritesOnly = false;
     await this.getData();
   }
 

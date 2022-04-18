@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "BaseController.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 02/02/2022 12:33:00 PM
+// Last Updated: 03/24/2022 11:24:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -76,9 +76,11 @@ namespace KioskApi.Controllers
         /// <param name="userId">The user id Guid string on the record</param>
         /// <returns></returns>
         protected internal virtual bool IsAdminOrOwner(string userId)
-        {
-            var userName = HttpContext.User.Identity.Name.ToString();
-            var user = _userManager.FindByNameAsync(userName).Result;
+        {            
+            var user = GetAuthenticatedUser();
+            if (user == null)
+                return false;
+
             var roles = _userManager.GetRolesAsync(user).Result;
 
             if (!roles.Contains("Admin"))
@@ -86,6 +88,20 @@ namespace KioskApi.Controllers
                     return false;
             
             return true;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="ApplicationUser"/> executing the request.
+        /// </summary>
+        /// <returns></returns>
+        protected internal virtual ApplicationUser GetAuthenticatedUser()
+        {
+            ApplicationUser user = null;
+            var userName = HttpContext.User.Identity.Name?.ToString();
+            if (!string.IsNullOrEmpty(userName))
+                user = _userManager.FindByNameAsync(userName).Result;
+
+            return user;
         }
 
         #endregion

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "RecipesController.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 02/02/2022 12:33:00 PM
+// Last Updated: 03/24/2022 11:26:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -21,6 +21,8 @@ namespace KioskApi.Controllers
 {
     using Kiosk.Data.Repository;
     using KioskApi.Domain.Models;
+    using KioskApi.Domain.Models.Auth;
+    using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
@@ -44,12 +46,16 @@ namespace KioskApi.Controllers
         /// Constructor
         /// </summary>
         /// <param name="configuration"></param>
+        /// <param name="roleManager"></param>
+        /// <param name="userManager"></param>
         /// <param name="logger"></param>
         /// <param name="recipeRepository"></param>
         public RecipesController(
             IConfiguration configuration,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
             ILogger<RecipesController> logger,
-            IRecipeRepository recipeRepository) : base(configuration)
+            IRecipeRepository recipeRepository) : base(configuration, userManager, roleManager)
         {
             _logger = logger;
             _recipeRepository = recipeRepository;
@@ -68,6 +74,7 @@ namespace KioskApi.Controllers
         /// <param name="pageSize">Page size</param>
         /// <param name="categoryId">The category</param>
         /// <param name="userId">The user Guid</param>
+        /// <param name="favorites">Limit results to user favorites</param>
         /// <param name="expand">Return a shallow or fully populated instance.</param>
         /// <returns></returns>
         [HttpGet(Name = "GetRecipes")]
@@ -79,12 +86,14 @@ namespace KioskApi.Controllers
             int pageSize = 25,
             int categoryId = 0,
             string userId = "",
+            bool favorites = false,
             bool expand = false)
         {
             try
             {
                 var options = new RepositoryOptionsRecipe
                 {
+                    FavoritesOnly = favorites,
                     PageSize = pageSize,
                     PageNumber = pageNumber,
                     SearchString = searchstring,
@@ -93,6 +102,7 @@ namespace KioskApi.Controllers
                     SortColumn = RecipeSortColumn.Title,
                     SortOrder = SortOrder.None,
                     IncludeCategories = (expand),
+                    IncludeFavoriteFlag = true,
                     IncludeIngredients = (expand),
                     IncludeOwner = (expand),
                     IncludePrimaryCategory = true,
@@ -111,7 +121,7 @@ namespace KioskApi.Controllers
                     case "date": options.SortColumn = RecipeSortColumn.Date; break;
                 }
 
-                var recipes = await _recipeRepository.Get(options);
+                var recipes = await _recipeRepository.Get(options, GetAuthenticatedUser()?.Id);
 
                 return Ok(recipes);
             }

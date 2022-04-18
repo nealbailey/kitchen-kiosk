@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "RecipeRepository.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 02/08/2022 06:08:00 AM
+// Last Updated: 03/24/2022 11:17:00 AM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -22,10 +22,14 @@ namespace Kiosk.Data.Repository
     using KioskApi.Domain.Models;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
+    /// <summary>
+    /// Database access for working with <see cref="Recipe"/> entities.
+    /// </summary>
     public class RecipeRepository : BaseRepository, IRecipeRepository
     {
         #region Fields
@@ -58,7 +62,7 @@ namespace Kiosk.Data.Repository
         }
         #endregion
 
-        #region Methods
+        #region Methods (Public)
 
         /// <summary>
         /// Create a new recipe.
@@ -102,6 +106,62 @@ namespace Kiosk.Data.Repository
         }
 
         /// <summary>
+        /// Flag a specific recipe as a favorite.
+        /// </summary>
+        /// <param name="recipe">The recipe to flag.</param>
+        /// <param name="userUid">The user who is flagging the recipe.</param>
+        /// <returns>A <see cref="bool"/> flag to determine if the operation succeeded or failed.</returns>
+        /// <exception cref="System.ArgumentException">The exception that is thrown when one of the arguments provided to a method is not valid.</exception>
+        /// <exception cref="System.ArgumentNullException">The exception that is thrown when a null reference (Nothing in Visual Basic) is passed to a method that does not accept it as a valid argument.</exception>
+        public Task<bool> CreateFavorite(Recipe recipe, string userUid)
+        {
+            if (recipe == null)
+                throw new ArgumentNullException("recipe");
+            if (recipe.RecId <= 0)
+                throw new ArgumentException("recipe.recId must be greater than 0.");
+            if (string.IsNullOrEmpty(userUid))
+                throw new ArgumentNullException("userUid");
+
+            var uid = Guid.Parse(userUid);
+
+            if (GetFavorite(recipe.RecId, uid).Result != null)
+                return Task.Run(() => true);
+
+            var favorite = new RecipeFavorite() { RecId = recipe.RecId, Useruid = uid };
+            _context.Add(favorite);
+            _context.SaveChanges();
+
+            return Task.Run(() => true);
+        }
+
+        /// <summary>
+        /// Unfavorite a specific recipe.
+        /// </summary>
+        /// <param name="recId">The id of the recipe to unfavorite.</param>
+        /// <param name="userUid">The user who is removing the favorite.</param>
+        /// <returns>A <see cref="bool"/> flag to determine if the operation succeeded or failed.</returns>
+        /// <exception cref="System.ArgumentException">The exception that is thrown when one of the arguments provided to a method is not valid.</exception>
+        /// <exception cref="System.ArgumentNullException">The exception that is thrown when a null reference (Nothing in Visual Basic) is passed to a method that does not accept it as a valid argument.</exception>
+        public Task<bool> DeleteFavorite(int recId, string userUid)
+        {
+            if (recId <= 0)
+                throw new ArgumentException("recipe.recId must be greater than 0.");
+            if (string.IsNullOrEmpty(userUid))
+                throw new ArgumentNullException("userUid");
+
+            var uid = Guid.Parse(userUid);
+
+            var favorite = GetFavorite(recId, uid).Result;
+            if (favorite == null)
+                return Task.Run(() => true);
+                        
+            _context.Remove(favorite);
+            _context.SaveChanges();
+
+            return Task.Run(() => true);
+        }
+
+        /// <summary>
         /// Delete a recipe.
         /// </summary>
         /// <param name="id">The id of the recipe to delete.</param>
@@ -134,7 +194,21 @@ namespace Kiosk.Data.Repository
         /// <returns></returns>
         public Task<List<Recipe>> Get(RepositoryOptionsRecipe options)
         {
-            var recipes = (from r in _context.Recipes select r);
+            return Get(options, null);
+        }
+
+        /// <summary>
+        /// Fetch recipes.
+        /// </summary>
+        /// <param name="options">Options when fetching recipes.</param>
+        /// <param name="requestingUid">The uid of the user requesting the recipe list.</param>
+        /// <returns></returns>
+        public Task<List<Recipe>> Get(RepositoryOptionsRecipe options, string requestingUid)
+        {
+            // Fetch all or just favorites
+            var recipes = (options.FavoritesOnly && !string.IsNullOrEmpty(requestingUid))
+                ? GetFavorites(requestingUid)
+                : GetAll();
 
             // Search filter
             if (!string.IsNullOrEmpty(options.SearchString))
@@ -208,17 +282,20 @@ namespace Kiosk.Data.Repository
                     }
                 }
             }
-            return pagedResult;
-        }
 
-        /// <summary>
-        /// Fetch a specific recipe from the database.
-        /// </summary>
-        /// <param name="recipe"></param>
-        /// <returns></returns>
-        public Task<Recipe> GetOne(Recipe recipe)
-        {
-            return (GetOne(recipe, new RepositoryOptionsRecipe()));
+            // If requestor is authenticated, fetch their favorites
+            if (options.IncludeFavoriteFlag && requestingUid != null)
+            {
+                foreach (var r in pagedResult.Result)
+                {
+                    var fx = (from fr in _context.RecipeFavorites.Where(
+                        x => x.Useruid.ToString().ToLower() == requestingUid.ToLower() && x.RecId == r.RecId) select fr).SingleOrDefault();
+                    if (fx != null)
+                        r.IsFavorite = true;
+                }
+            }
+
+            return pagedResult;
         }
 
         /// <summary>
@@ -241,6 +318,16 @@ namespace Kiosk.Data.Repository
         {
             var maps = _context.RecipeCategoryMaps.Where(p => p.RecId == recipe.RecId).ToListAsync();            
             return Task.Run(() => maps);
+        }
+
+        /// <summary>
+        /// Fetch a specific recipe from the database.
+        /// </summary>
+        /// <param name="recipe"></param>
+        /// <returns></returns>
+        public Task<Recipe> GetOne(Recipe recipe)
+        {
+            return (GetOne(recipe, new RepositoryOptionsRecipe()));
         }
 
         /// <summary>
@@ -269,6 +356,8 @@ namespace Kiosk.Data.Repository
                 dbrecipe.User = (options.IncludeUser) ? new RecipeUser() { Id = owner.Id, UserName = owner.UserName, Email = owner.Email } : null;                
             }
 
+            //ToDo: figure out if this recipe is a user favorite
+
             return Task.Run(() => dbrecipe);
         }
 
@@ -281,6 +370,18 @@ namespace Kiosk.Data.Repository
         {
             var recipe = _context.Recipes.Where(p => p.Title.ToLower() == title.ToLower()).FirstOrDefaultAsync();
             return recipe;
+        }
+
+        /// <summary>
+        /// Fetch a specific favorite reference.
+        /// </summary>
+        /// <param name="recId">The recipeId</param>
+        /// <param name="userUid">The user id Guid</param>
+        /// <returns></returns>
+        public Task<RecipeFavorite> GetFavorite(int recId, System.Guid userUid)
+        {
+            var favorite = _context.RecipeFavorites.Where(p => p.RecId == recId && p.Useruid == userUid).FirstOrDefaultAsync();
+            return favorite;
         }
 
         /// <summary>
@@ -322,6 +423,33 @@ namespace Kiosk.Data.Repository
 
             return Task.Run(() => recipe);
         }
+        #endregion
+
+        #region Methods (Non-Public)
+
+        /// <summary>
+        /// Get favorite recipes by user uid.
+        /// </summary>
+        /// <param name="userUid">User uid (guid)</param>
+        /// <returns></returns>
+        protected internal virtual IQueryable<Recipe> GetFavorites(string userUid)
+        {
+            return (from recipe in _context.Recipes
+                    join favorites in _context.RecipeFavorites
+                    on recipe.RecId equals favorites.RecId
+                    where favorites.Useruid.ToString().ToLower() == userUid.ToLower()
+                    select recipe);
+        }
+
+        /// <summary>
+        /// Get all recipes in context.
+        /// </summary>
+        /// <returns></returns>
+        protected internal virtual IQueryable<Recipe> GetAll()
+        {
+            return (from r in _context.Recipes select r);
+        }
+
         #endregion
 
         #region Experimental

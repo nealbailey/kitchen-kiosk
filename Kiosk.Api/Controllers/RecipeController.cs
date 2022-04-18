@@ -134,7 +134,27 @@ namespace KioskApi.Controllers
         }
 
         /// <summary>
-        /// Create a new <see cref="Recipe"/>.
+        /// Flag a specific recipe as a favorite based on it's id.
+        /// </summary>
+        /// <returns></returns>
+        [Authorize()]
+        [HttpPut("ApplyFavorite")]
+        public async Task<IActionResult> ApplyFavorite([FromBody] Recipe recipe)
+        {
+            try
+            {
+                var status = await _recipeRepository.CreateFavorite(recipe, GetAuthenticatedUser()?.Id);
+                return Ok(recipe.RecId);
+                //return Ok(new { message = "Added to favorites successfully" });
+            }
+            catch (System.Exception ex)
+            {
+                return UnprocessableEntity($"Unable to add recipe to favorites: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Delete a <see cref="Recipe"/>.
         /// </summary>
         /// <param name="id">The recipe Id to Delete</param>
         /// <returns></returns> 
@@ -155,6 +175,25 @@ namespace KioskApi.Controllers
             {
                 return UnprocessableEntity($"Unable to delete recipe: {ex.Message}");
             }           
+        }
+
+        /// <summary>
+        /// Remove a specific recipe from favorites.
+        /// </summary>
+        /// <returns></returns>
+        [Authorize()]
+        [HttpDelete("RemoveFavorite")]
+        public async Task<IActionResult> RemoveFavorite(int id)
+        {
+            try
+            {
+                var status = await _recipeRepository.DeleteFavorite(id, GetAuthenticatedUser()?.Id);
+                return Ok(new { message = "Removed from favorites successfully" });
+            }
+            catch (System.Exception ex)
+            {
+                return UnprocessableEntity($"Unable to remove recipe to favorites: {ex.Message}");
+            }
         }
 
         #endregion

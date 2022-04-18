@@ -200,7 +200,7 @@ export class homeComponent implements OnInit, AfterViewInit {
    * User clicked the Edit recipe button
    * @param recipe the selected recipe
    */
-  async onEditRecipeClicked(recipe: Recipe) {
+  async onRecipeEditClicked(recipe: Recipe) {
     if (this.homePageState.categories.length == 0)
       this.homePageState.categories = await this.categoriesService.GetCategories();
 
@@ -217,6 +217,20 @@ export class homeComponent implements OnInit, AfterViewInit {
 
     this.homePageState.createRecipeDialogCurrentStep = 1;
     this.homePageState.createRecipeDialogIsVisible = true;
+  }
+
+  /**
+   * User clicked the favorite button
+   * @param recipe the recipe clicked
+   */
+  async onRecipeFavoriteClicked(recipe: Recipe) {
+    let btnState = recipe.isFavorite;
+    recipe.isFavorite = !recipe.isFavorite;
+
+    switch (btnState) {
+      case true: await this.recipeService.RemoveRecipeAsFavorite(recipe.recId); break;
+      case false: await this.recipeService.SetRecipeAsFavorite(recipe); break;
+    }
   }
 
   /** User clicked on the Next Page button */
@@ -253,7 +267,11 @@ export class homeComponent implements OnInit, AfterViewInit {
         this.homePageState.pagingData.userId = '';
         this.homePageState.pagingData.userName = '';
         break;
+      case 'chipFavorites':
+        this.homePageState.pagingData.favoritesOnly = false;
+        break;
     }
+    this.homePageState.pagingData.pageNumber = 1;
     await this.getData();
   }
 

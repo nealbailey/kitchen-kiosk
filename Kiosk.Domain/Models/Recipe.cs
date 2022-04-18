@@ -28,6 +28,9 @@ namespace KioskApi.Domain.Models
         [NotMapped]
         public virtual RecipeUser User { get; set; }
 
+        [NotMapped]
+        public virtual bool IsFavorite { get; set; }
+
         public override string ToString()
         {
             return Title ?? base.ToString();

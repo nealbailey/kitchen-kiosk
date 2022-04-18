@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "IRecipeRepository.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 02/02/2022 12:33:00 PM
+// Last Updated: 03/24/2022 11:26:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -23,7 +23,7 @@ namespace Kiosk.Data.Repository
     using System.Threading.Tasks;
 
     /// <summary>
-    /// 
+    /// Database access for working with <see cref="Recipe"/> entities.
     /// </summary>
     public interface IRecipeRepository
     {
@@ -33,6 +33,26 @@ namespace Kiosk.Data.Repository
         /// <param name="recipe">The recipe to create.</param>
         /// <returns>The id of the newly created record.</returns>
         public Task<Recipe> Create(Recipe recipe);
+
+        /// <summary>
+        /// Flag a specific recipe as a favorite.
+        /// </summary>
+        /// <param name="recipe">The recipe to flag.</param>
+        /// <param name="userUid">The user who is flagging the recipe.</param>
+        /// <returns>A <see cref="bool"/> flag to determine if the operation succeeded or failed.</returns>
+        /// <exception cref="System.ArgumentException">The exception that is thrown when one of the arguments provided to a method is not valid.</exception>
+        /// <exception cref="System.ArgumentNullException">The exception that is thrown when a null reference (Nothing in Visual Basic) is passed to a method that does not accept it as a valid argument.</exception>
+        public Task<bool> CreateFavorite(Recipe recipe, string userUid);
+
+        /// <summary>
+        /// Unfavorite a specific recipe.
+        /// </summary>
+        /// <param name="recId">The id of the recipe to unfavorite.</param>
+        /// <param name="userUid">The user who is removing the favorite.</param>
+        /// <returns>A <see cref="bool"/> flag to determine if the operation succeeded or failed.</returns>
+        /// <exception cref="System.ArgumentException">The exception that is thrown when one of the arguments provided to a method is not valid.</exception>
+        /// <exception cref="System.ArgumentNullException">The exception that is thrown when a null reference (Nothing in Visual Basic) is passed to a method that does not accept it as a valid argument.</exception>
+        public Task<bool> DeleteFavorite(int recId, string userUid);
 
         /// <summary>
         /// Delete a recipe.
@@ -47,7 +67,14 @@ namespace Kiosk.Data.Repository
         /// <param name="options">Options when fetching recipes.</param>
         /// <returns></returns>
         public Task<List<Recipe>> Get(RepositoryOptionsRecipe options);
-        
+
+        /// <summary>
+        /// Fetch recipes.
+        /// </summary>
+        /// <param name="options">Options when fetching recipes.</param>
+        /// <returns></returns>
+        public Task<List<Recipe>> Get(RepositoryOptionsRecipe options, string requestingUid = null);
+
         /// <summary>
         /// Fetch a specific category from the database.
         /// </summary>

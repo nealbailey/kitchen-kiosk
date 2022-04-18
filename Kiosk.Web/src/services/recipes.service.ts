@@ -83,6 +83,24 @@ export class RecipesService {
     return await this.http.get<Ingredient[]>(url)
       .pipe(catchError(this.handleError)).toPromise();
   }
+
+  /** Set recipe as favorite. */
+  async SetRecipeAsFavorite(recipe: Recipe) {
+    console.info("Call PUT in the api recipe/ApplyFavorite Controller");
+    let url: string = AppSettings.API_RECIPE + 'ApplyFavorite';
+    console.info(url);
+    return await this.http.put<number>(url, recipe)
+      .pipe(catchError(this.handleError)).toPromise();
+  }
+
+  /** Remove recipe as favorite. */
+  async RemoveRecipeAsFavorite(id: number) {
+    console.info("Call DELETE in the api recipe/RemoveFavorite Controller");
+    let url: string = AppSettings.API_RECIPE + 'RemoveFavorite?id=' + id;
+    console.info(url);
+    return await this.http.delete(url)
+      .pipe(catchError(this.handleError)).toPromise();
+  }
  
   /**
   * Error processing.

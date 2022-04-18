@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32106.194
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kiosk.Api", "Kiosk.Api\Kiosk.Api.csproj", "{77F98784-50E4-4133-AA25-E88DAE787582}"
 EndProject
@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kiosk.Domain", "Kiosk.Domai
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Kiosk.Web", "Kiosk.Web\", "{D3027FDC-E4E0-4D88-8151-3F28890E7A3A}"
 	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5"
 		Debug.AspNetCompiler.VirtualPath = "/localhost_60815"
 		Debug.AspNetCompiler.PhysicalPath = "Kiosk.Web\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_60815\"
