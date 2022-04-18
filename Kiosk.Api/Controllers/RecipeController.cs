@@ -143,8 +143,9 @@ namespace KioskApi.Controllers
         {
             try
             {
-                var status = await _recipeRepository.CreateFavorite(recipe, GetAuthenticatedUser()?.Id);                
-                return Ok(new { message = "Added to favorites successfully" });
+                var status = await _recipeRepository.CreateFavorite(recipe, GetAuthenticatedUser()?.Id);
+                return Ok(recipe.RecId);
+                //return Ok(new { message = "Added to favorites successfully" });
             }
             catch (System.Exception ex)
             {

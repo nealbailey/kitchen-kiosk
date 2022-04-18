@@ -44,12 +44,12 @@
           </p>
           <span *ngIf="userSessionService.userIsLoggedIn()">
             <span [ngSwitch]="recipe.isFavorite">
-              <span *ngSwitchCase="true"><button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help"></button>&nbsp;</span>
-              <span *ngSwitchCase="false"><button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-outlined"></button>&nbsp;</span>              
+              <span *ngSwitchCase="true"><button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help" (click)="onRecipeFavoriteClicked(recipe);"></button>&nbsp;</span>
+              <span *ngSwitchCase="false"><button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-outlined" (click)="onRecipeFavoriteClicked(recipe);"></button>&nbsp;</span>              
             </span>
             <!--<button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help"></button>&nbsp;-->
             <!--<button pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-outlined"></button>&nbsp;-->
-            <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-success p-button-outlined" (click)="onEditRecipeClicked(recipe);"></button>&nbsp;
+            <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-success p-button-outlined" (click)="onRecipeEditClicked(recipe);"></button>&nbsp;
             <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-outlined" (click)="onRecipeDeleteClicked(recipe.recId);"></button>
           </span>
           <!--<a routerLink="/recipe/{{recipe.recId}}" class="button-round w-button">See Recipe →</a>-->
