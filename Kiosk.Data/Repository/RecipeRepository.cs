@@ -22,6 +22,7 @@ namespace Kiosk.Data.Repository
     using KioskApi.Domain.Models;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -102,6 +103,62 @@ namespace Kiosk.Data.Repository
 
             //return recipe.RecId;
             return Task.Run(() => recipe);
+        }
+
+        /// <summary>
+        /// Flag a specific recipe as a favorite.
+        /// </summary>
+        /// <param name="recipe">The recipe to flag.</param>
+        /// <param name="userUid">The user who is flagging the recipe.</param>
+        /// <returns>A <see cref="bool"/> flag to determine if the operation succeeded or failed.</returns>
+        /// <exception cref="System.ArgumentException">The exception that is thrown when one of the arguments provided to a method is not valid.</exception>
+        /// <exception cref="System.ArgumentNullException">The exception that is thrown when a null reference (Nothing in Visual Basic) is passed to a method that does not accept it as a valid argument.</exception>
+        public Task<bool> CreateFavorite(Recipe recipe, string userUid)
+        {
+            if (recipe == null)
+                throw new ArgumentNullException("recipe");
+            if (recipe.RecId <= 0)
+                throw new ArgumentException("recipe.recId must be greater than 0.");
+            if (string.IsNullOrEmpty(userUid))
+                throw new ArgumentNullException("userUid");
+
+            var uid = Guid.Parse(userUid);
+
+            if (GetFavorite(recipe.RecId, uid).Result != null)
+                return Task.Run(() => true);
+
+            var favorite = new RecipeFavorite() { RecId = recipe.RecId, Useruid = uid };
+            _context.Add(favorite);
+            _context.SaveChanges();
+
+            return Task.Run(() => true);
+        }
+
+        /// <summary>
+        /// Unfavorite a specific recipe.
+        /// </summary>
+        /// <param name="recId">The id of the recipe to unfavorite.</param>
+        /// <param name="userUid">The user who is removing the favorite.</param>
+        /// <returns>A <see cref="bool"/> flag to determine if the operation succeeded or failed.</returns>
+        /// <exception cref="System.ArgumentException">The exception that is thrown when one of the arguments provided to a method is not valid.</exception>
+        /// <exception cref="System.ArgumentNullException">The exception that is thrown when a null reference (Nothing in Visual Basic) is passed to a method that does not accept it as a valid argument.</exception>
+        public Task<bool> DeleteFavorite(int recId, string userUid)
+        {
+            if (recId <= 0)
+                throw new ArgumentException("recipe.recId must be greater than 0.");
+            if (string.IsNullOrEmpty(userUid))
+                throw new ArgumentNullException("userUid");
+
+            var uid = Guid.Parse(userUid);
+
+            var favorite = GetFavorite(recId, uid).Result;
+            if (favorite == null)
+                return Task.Run(() => true);
+                        
+            _context.Remove(favorite);
+            _context.SaveChanges();
+
+            return Task.Run(() => true);
         }
 
         /// <summary>
@@ -299,6 +356,8 @@ namespace Kiosk.Data.Repository
                 dbrecipe.User = (options.IncludeUser) ? new RecipeUser() { Id = owner.Id, UserName = owner.UserName, Email = owner.Email } : null;                
             }
 
+            //ToDo: figure out if this recipe is a user favorite
+
             return Task.Run(() => dbrecipe);
         }
 
@@ -311,6 +370,18 @@ namespace Kiosk.Data.Repository
         {
             var recipe = _context.Recipes.Where(p => p.Title.ToLower() == title.ToLower()).FirstOrDefaultAsync();
             return recipe;
+        }
+
+        /// <summary>
+        /// Fetch a specific favorite reference.
+        /// </summary>
+        /// <param name="recId">The recipeId</param>
+        /// <param name="userUid">The user id Guid</param>
+        /// <returns></returns>
+        public Task<RecipeFavorite> GetFavorite(int recId, System.Guid userUid)
+        {
+            var favorite = _context.RecipeFavorites.Where(p => p.RecId == recId && p.Useruid == userUid).FirstOrDefaultAsync();
+            return favorite;
         }
 
         /// <summary>
