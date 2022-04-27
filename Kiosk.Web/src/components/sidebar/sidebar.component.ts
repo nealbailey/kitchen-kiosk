@@ -203,7 +203,9 @@ export class sidebarComponent implements OnInit, AfterViewInit {
   async onFavoritesClicked() {
     this.homePageState.pagingData.pageNumber = 1;
     this.homePageState.pagingData.favoritesOnly = true;
+    this.homePageState.pageIsLoading = this.isLoading;
     await this.getData();
+    this.homePageState.pageIsLoading = this.isLoading;
   }
 
   /** User clicked the Home link */
@@ -233,6 +235,7 @@ export class sidebarComponent implements OnInit, AfterViewInit {
   *  @param type the menu type (category or user)
   */
   async onTieredMenuItemClick(event: any, type: string) {
+    this.homePageState.pageIsLoading = this.isLoading;
     if (type == 'category') {
       this.homePageState.pagingData.pageNumber = 1;
       this.homePageState.pagingData.categoryId = event.item.id;
@@ -246,6 +249,7 @@ export class sidebarComponent implements OnInit, AfterViewInit {
       this.homePageState.pagingData.userName = event.item.label;
       await this.getData();
     }
+    this.homePageState.pageIsLoading = this.isLoading;
   }
 
   // #endregion
