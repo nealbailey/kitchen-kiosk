@@ -146,6 +146,38 @@ export class homeComponent implements OnInit, AfterViewInit {
   // #region Event Handlers
 
   /**
+  * User entered a search word
+  * @param input
+  */
+  async searchEntered(input: any) {
+    if (!input)
+      return;
+
+    this.homePageState.pagingData.pageNumber = 1;
+    this.homePageState.pagingData.searchString = input.value;
+
+    if (input.value.length == 0)
+      await this.getData();
+
+    if (input.value.length < 4)
+      return;
+
+    // Give some time before triggering AJAX calls
+    setTimeout(() => {
+      console.log("Search: " + input.value)
+    }, 1250);
+
+    await this.getData();
+  }
+
+  /**
+   * User clicked the search button - Show/Hide homepage search bar
+   */
+  async onSearchClicked() {
+    this.homePageState.searchBarIsVisible = !this.homePageState.searchBarIsVisible;
+  }
+
+  /**
    * User selected a category
    * @param categoryId the category id (catId)
    * @param categoryName the category friendly name
