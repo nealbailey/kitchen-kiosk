@@ -399,8 +399,6 @@ namespace Kiosk.Data.Repository
 
             var recipe = GetOne(updatedRecipe).Result;
 
-            //ToDo: Update category map
-
             recipe.CatId = updatedRecipe.CatId;
             recipe.Date = System.DateTime.UtcNow;
             recipe.Description = updatedRecipe.Description;
@@ -419,6 +417,17 @@ namespace Kiosk.Data.Repository
                 i.RecId = updatedRecipe.RecId;
                 _context.Add(i);
                 _context.SaveChanges();
+            }
+
+            // Update category map
+            var categoryMap = GetCategoryMap(recipe).Result;
+            if (categoryMap == null) {  
+                categoryMap = new RecipeCategoryMap() {
+                    CatId = recipe.CatId,
+                    RecId = recipe.RecId
+                };                
+                _context.Add(categoryMap);
+                _context.SaveChanges();            
             }
 
             return Task.Run(() => recipe);
