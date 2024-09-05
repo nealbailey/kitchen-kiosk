@@ -22,6 +22,7 @@ import { UserSession } from 'src/models/userSession.model';
 import { CategoriesService } from 'src/services/categories.service';
 import { HomePageState } from 'src/services/home.state';
 import { LoginService } from 'src/services/login.service';
+import { RecipesService } from 'src/services/recipes.service';
 import { ToastService } from 'src/services/toast.service';
 import { UserSessionService } from 'src/services/userSession.service';
 
@@ -48,6 +49,7 @@ export class topnavComponent implements OnInit, AfterViewInit {
     public userSessionService: UserSessionService,
     private loginService: LoginService,    
     private toastService: ToastService,
+    private recipesService: RecipesService,
     private categoriesService: CategoriesService) {
     if (!this.homePageState.userSession)
       this.homePageState.userSession = new UserSession();
@@ -126,6 +128,9 @@ export class topnavComponent implements OnInit, AfterViewInit {
         // The Application component (direct parent of this component) implements the onSuccessfulLogin() method
         // that receives and processes the event.
         //this.onSuccessfulLogin.emit();
+
+        // Refresh data so favorites are accurate
+        this.homePageState.recipes = await this.recipesService.GetRecipes(this.homePageState);
       }
     }
     catch (strError) {

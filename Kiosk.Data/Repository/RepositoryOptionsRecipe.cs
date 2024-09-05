@@ -43,6 +43,7 @@ namespace Kiosk.Data.Repository
         public virtual bool IncludeIngredients { get; set; } = false;
         public virtual bool IncludeCategories { get; set; } = false;
         public virtual bool IncludeFavoriteFlag { get; set; } = false;
+        public virtual bool IncludeRecommendedFlag { get; set; } = false;
         public virtual bool IncludeOwner { get; set; } = false;
         public virtual bool IncludeUser { get; set; } = true;
         public virtual bool IncludePrimaryCategory { get; set; } = false;

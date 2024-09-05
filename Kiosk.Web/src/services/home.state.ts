@@ -29,6 +29,9 @@ export class HomePageState {
   /** Components are retrieving data */
   public pageIsLoading: boolean = false;
 
+  /** Search bar is visible on home page component */
+  public searchBarIsVisible: boolean = false;
+
   /** All the recipes that the user has access to */
   public recipes: Recipe[] = [];
 

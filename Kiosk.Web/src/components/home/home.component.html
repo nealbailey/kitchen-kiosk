@@ -14,23 +14,25 @@
   </div>
 
   <div id="divFilters">
+    <button pButton pRipple type="button" icon="pi pi-search" class="p-button-rounded p-button-success p-button-outlined" style="height: 2.5rem;width: 2.5rem; color: #808080;" (click)="onSearchClicked();"></button>&nbsp;
     <p-chip *ngIf="!homePageState.pageIsLoading" icon="pi pi-file" [label]="'Page: ' + this.homePageState?.pagingData.pageNumber" styleClass="mr-2"></p-chip>&nbsp;
     <p-chip *ngIf="this.homePageState?.pagingData.searchString" icon="pi pi-search" [label]="this.homePageState?.pagingData.searchString" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipSearch')"></p-chip>&nbsp;
     <p-chip *ngIf="this.homePageState?.pagingData.favoritesOnly === true" icon="pi pi-heart" label="My Favorites" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipFavorites')"></p-chip>&nbsp;
     <p-chip *ngIf="this.homePageState?.pagingData.categoryId > 0" icon="pi pi-book" [label]="this.homePageState?.pagingData.category" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipCategory')"></p-chip>&nbsp;
     <p-chip *ngIf="this.homePageState?.pagingData.userId" icon="pi pi-user" [label]="this.homePageState?.pagingData.userName" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipUser')"></p-chip>
   </div>
+  <br/><input #txtHomeSearch id="txtHomeSearch" placeholder="search" type="text" pInputText maxlength="50" style="width: 50%;" [(ngModel)]="this.homePageState?.pagingData.searchString" (input)="searchEntered($event.target)" *ngIf="this.homePageState.searchBarIsVisible">
 
   <p-confirmDialog header="Warning" icon="pi pi-exclamation-triangle"></p-confirmDialog>
 
-  <p></p>
+  <p>&nbsp;</p>
   <div class="blog-list w-dyn-list">
     <div role="list" class="w-dyn-items">
       <!-- Start Posts Area -->
       <div role="listitem" class="w-dyn-item">
         <div class="post-wrapper" *ngFor="let recipe of this.homePageState.recipes">
           <a routerLink="/recipe/{{recipe.recId}}" class="blog-title-link w-inline-block">
-            <h1 class="blog-title">{{recipe.title}}</h1>
+            <h1 class="blog-title">{{recipe.title}} <i *ngIf="recipe.isRecommended" class="pi pi-thumbs-up" style="font-size: 1.2rem"></i></h1> 
           </a>
           <div class="post-info-wrapper">
             <div class="post-info">{{getLocalDateString(recipe.date)}}</div>

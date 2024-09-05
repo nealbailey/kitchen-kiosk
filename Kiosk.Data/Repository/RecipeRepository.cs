@@ -295,6 +295,17 @@ namespace Kiosk.Data.Repository
                 }
             }
 
+            // Determine if any user has flagged this recipe as a favorite
+            if (options.IncludeRecommendedFlag)
+            {
+                foreach (var r in pagedResult.Result)
+                {
+                    var rx = (from rf in _context.RecipeFavorites.Where(x => x.RecId == r.RecId) select rf).FirstOrDefault();
+                    if (rx != null)
+                        r.IsRecommended = true;
+                }
+            }
+
             return pagedResult;
         }
 
@@ -373,7 +384,18 @@ namespace Kiosk.Data.Repository
         }
 
         /// <summary>
-        /// Fetch a specific favorite reference.
+        /// Fetch a specific favorite reference (by any user).
+        /// </summary>
+        /// <param name="recId">The recipeId</param>
+        /// <returns></returns>
+        public Task<RecipeFavorite> GetFavorite(int recId)
+        {
+            var favorite = _context.RecipeFavorites.Where(p => p.RecId == recId).FirstOrDefaultAsync();
+            return favorite;
+        }
+
+        /// <summary>
+        /// Fetch a specific favorite reference (by user).
         /// </summary>
         /// <param name="recId">The recipeId</param>
         /// <param name="userUid">The user id Guid</param>
@@ -399,8 +421,6 @@ namespace Kiosk.Data.Repository
 
             var recipe = GetOne(updatedRecipe).Result;
 
-            //ToDo: Update category map
-
             recipe.CatId = updatedRecipe.CatId;
             recipe.Date = System.DateTime.UtcNow;
             recipe.Description = updatedRecipe.Description;
@@ -421,11 +441,33 @@ namespace Kiosk.Data.Repository
                 _context.SaveChanges();
             }
 
+            // Update category map
+            var categoryMap = GetCategoryMap(recipe).Result;
+            if (categoryMap == null) {  
+                categoryMap = new RecipeCategoryMap() {
+                    CatId = recipe.CatId,
+                    RecId = recipe.RecId
+                };                
+                _context.Add(categoryMap);
+                _context.SaveChanges();            
+            }
+
             return Task.Run(() => recipe);
         }
         #endregion
 
         #region Methods (Non-Public)
+        /// <summary>
+        /// Get favorite recipes (from all users).
+        /// </summary>        
+        /// <returns></returns>
+        protected internal virtual IQueryable<Recipe> GetFavorites()
+        {
+            return (from recipe in _context.Recipes
+                    join favorites in _context.RecipeFavorites
+                    on recipe.RecId equals favorites.RecId                    
+                    select recipe);
+        }
 
         /// <summary>
         /// Get favorite recipes by user uid.
@@ -452,35 +494,5 @@ namespace Kiosk.Data.Repository
 
         #endregion
 
-        #region Experimental
-
-        //var recipes = (from recipe in _context.Recipes
-        //               join category in _context.RecipeCategories1
-        //               on recipe.CatId equals category.CatId
-        //               where category.Category == "seafood"
-        //               select recipe).ToList();
-        //var recipes = _context.Recipes;
-
-        //var categoryRepo = new CategoryRepository(_connectionString);
-        //foreach (var r in recipes)
-        //    r.Categories = await categoryRepo.GetByRecipe(r);
-        //foreach (var r in recipes)
-        //{
-        //    r.PrimaryCategory = new RecipeCategory();
-        //    r.PrimaryCategory.CatId = r.CatId;
-        //    r.PrimaryCategory.Category = (from category in _context.RecipeCategories
-        //                           where category.CatId == r.CatId
-        //                           select category.Category).Single();
-        //}
-
-        // --Get all recipes(without ingredients)
-        //SELECT r.recId, r.useruid, r.[Date], r.Title, r.[Description], r.Instructions, c.catId, c.category
-        //FROM recipe r, recipeCategory c
-        //WHERE r.recId =
-        //    (SELECT recId FROM recipeCategories
-        //     WHERE recId = r.recId and catId = c.catId)
-        //ORDER BY[Date] DESC;
-
-        #endregion
     }
 }
