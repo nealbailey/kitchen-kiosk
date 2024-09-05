@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "RecipesController.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 03/24/2022 11:26:00 PM
+// Last Updated: 09/05/2024 09:31:00 AM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -106,6 +106,7 @@ namespace KioskApi.Controllers
                     IncludeIngredients = (expand),
                     IncludeOwner = (expand),
                     IncludePrimaryCategory = true,
+                    IncludeRecommendedFlag = true,
                     IncludeUser = true
                 };
 
