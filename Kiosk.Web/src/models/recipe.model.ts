@@ -16,6 +16,7 @@ export class Recipe {
   public strIngredients: string = '';
   public user: RecipeUser;
   public isFavorite: boolean;
+  public isRecommended: boolean;
   
   /**
   * Constructor - all parameters are optional.
@@ -31,6 +32,7 @@ export class Recipe {
   * @param ingredients The recipe ingredients
   * @param user The user who created this recipe
   * @param isFavorite Has this user flagged this recipe as a favorite
+  * @param isRecommended Any user has flagged this recipe as a favorite
   */
   constructor(
     recId?: number,
@@ -43,7 +45,8 @@ export class Recipe {
     primaryCategory?: Category,
     ingredients?: Array<Ingredient>,
     user?: RecipeUser,
-    isFavorite?: boolean) {
+    isFavorite?: boolean,
+    isRecommended?: boolean) {
     if ((recId !== undefined) && (recId !== null)) this.recId = recId;
     if ((catId !== undefined) && (catId !== null)) this.catId = catId;
     if ((useruid !== undefined) && (useruid !== null)) this.useruid = useruid;
@@ -55,6 +58,7 @@ export class Recipe {
     if ((ingredients !== undefined) && (ingredients !== null)) this.ingredients = ingredients;
     if ((user !== undefined) && (user !== null)) this.user = user;
     if ((isFavorite !== undefined) && (isFavorite !== null)) this.isFavorite = isFavorite;
+    if ((isRecommended !== undefined) && (isRecommended !== null)) this.isRecommended = isRecommended;
   }
 }
 

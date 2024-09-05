@@ -32,7 +32,7 @@
       <div role="listitem" class="w-dyn-item">
         <div class="post-wrapper" *ngFor="let recipe of this.homePageState.recipes">
           <a routerLink="/recipe/{{recipe.recId}}" class="blog-title-link w-inline-block">
-            <h1 class="blog-title">{{recipe.title}}</h1>
+            <h1 class="blog-title">{{recipe.title}} <i *ngIf="recipe.isRecommended" class="pi pi-thumbs-up" style="font-size: 1.2rem"></i></h1> 
           </a>
           <div class="post-info-wrapper">
             <div class="post-info">{{getLocalDateString(recipe.date)}}</div>
