@@ -70,8 +70,16 @@ namespace KioskApi.Controllers
         /// <param name="expand">Return a shallow or fully populated instance.</param>
         /// <returns></returns>
         [HttpGet("{id}", Name = "GetRecipe")]
-        public async Task<IActionResult> GetRecipe(int id, bool expand = false)
+        public async Task<IActionResult> GetRecipe(string id, bool expand = false)
         {
+            //Get by name
+            if (!int.TryParse(id, out int rec_id))
+            {
+                var dbrecipe = await _recipeRepository.GetByName(id);
+                return Ok(dbrecipe);
+            }
+
+            //Get by Id
             var options = new RepositoryOptionsRecipe() {
             IncludeCategories = (expand),
             IncludeIngredients = (expand),
@@ -80,7 +88,7 @@ namespace KioskApi.Controllers
             IncludeUser = (expand)
             };
 
-            var httpRecipe = new Recipe() { RecId = id };
+            var httpRecipe = new Recipe() { RecId = rec_id };
             var dbRecipe = (expand)
                 ? await _recipeRepository.GetOne(httpRecipe, options)
                 : await _recipeRepository.GetOne(httpRecipe);

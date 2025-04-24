@@ -20,6 +20,7 @@
 import { Injectable } from "@angular/core";
 import { arrayEx } from "../helpers/arrayEx.helper";
 import { HomePageState } from "./home.state";
+import { RecipesService } from './recipes.service';
 
 @Injectable()
 export class StateValidator {
@@ -61,9 +62,11 @@ export class StateValidator {
   /** 
    * Constructor 
    * @param homePageState the shared application state service.
+   * @param recipeService the recipe Http service.
    */
   constructor(
-    public homePageState: HomePageState) {
+    public homePageState: HomePageState,
+    private recipeService: RecipesService) {
   }
   // #endregion
 
@@ -109,29 +112,25 @@ export class StateValidator {
   }
 
   /** Validates the wizard step object state */
-  public validateCreateRecipeSteps(): boolean {
+  public async validateCreateRecipeSteps(): Promise<boolean> {
     let isValid: boolean = true;
 
     switch (this.homePageState.createRecipeDialogCurrentStep) {
       case 1: // Wizard Step #1
-         this.txtTitleStyle = (this.validateRecipeTitle(this.homePageState.selectedRecipe.title, true))
+         this.txtTitleStyle = (await this.validateRecipeTitle(this.homePageState.selectedRecipe.title, true))
           ? StateValidator.inputStyleValid
           : StateValidator.inputStyleInvalid;
 
         if (this.homePageState.selectedRecipe.title)
           this.homePageState.selectedRecipe.title = this.toProperCase(this.homePageState.selectedRecipe.title, true);
 
-        this.ddlCategoryStyle = (!this.homePageState.selectedRecipe.primaryCategory)
-          ? StateValidator.inputStyleInvalid
-          : StateValidator.inputStyleValid;
+        this.ddlCategoryStyle = (this.validateRecipeCategory(this.homePageState.selectedRecipe.primaryCategory?.category, true))
+          ? StateValidator.inputStyleValid
+          : StateValidator.inputStyleInvalid;
 
         this.txtDescriptionStyle = (this.validateRecipeDescription(this.homePageState.selectedRecipe.description, true))
           ? StateValidator.inputStyleValid
           : StateValidator.inputStyleInvalid;        
-
-        //this.ddlCategoryStyle = (this.selectedContactTypes.length != 0)
-        //  ? StateValidator.inputStyleValid
-        //  : StateValidator.inputStyleInvalid;
 
         if (this.ddlCategoryStyle == StateValidator.inputStyleInvalid
           || this.txtTitleStyle == StateValidator.inputStyleInvalid
@@ -167,18 +166,49 @@ export class StateValidator {
   *  @param required flag to indicate if the value is required or not
   *  @returns boolean flag to determine if field is valid
   */
-  public validateRecipeTitle(strTitle: string, required: boolean = false) {
+  public async validateRecipeTitle(strTitle: string, required: boolean = false) {
     this.arrayHelper.removeElement(this.errors, "Recipe Title is required.");
-    this.arrayHelper.removeElement(this.errors, "Recipe Title is invalid.");
+    this.arrayHelper.removeElement(this.errors, "Recipe Title is not long enough.");
+    this.arrayHelper.removeElement(this.errors, "Recipe already exists with this title.");
 
     if (!strTitle && required) {
       this.arrayHelper.uniquePush(this.errors, "Recipe Title is required.");
       return false;
     }
     if (strTitle?.length < 3) {
-      this.arrayHelper.uniquePush(this.errors, "Recipe Title is invalid.");
+      this.arrayHelper.uniquePush(this.errors, "Recipe Title is not long enough.");
       return false;
     }
+
+    // Check db to prevent duplicate recipe names/titles
+    //strTitle !== this.homePageState.selectedRecipe.title
+    if (!this.homePageState.selectedRecipe.recId)
+    {
+      let dbRecipe = await this.recipeService.GetRecipeByName(strTitle);
+      if (dbRecipe)
+      {
+        this.arrayHelper.uniquePush(this.errors, "Recipe already exists with this title.");
+        return false;
+      }  
+    }    
+
+    return true;
+  }
+
+  /**
+  *  Validates the Description of a Recipe
+  *  @param strText the category of the recipe
+  *  @param required flag to indicate if the value is required or not
+  *  @returns boolean flag to determine if field is valid
+  */
+   public validateRecipeCategory(strText: string, required: boolean = false) {
+    this.arrayHelper.removeElement(this.errors, "Recipe Category is required.");
+
+    if (!strText && required) {
+      this.arrayHelper.uniquePush(this.errors, "Recipe Category is required.");
+      return false;
+    }
+
     return true;
   }
 
