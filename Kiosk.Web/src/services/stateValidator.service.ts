@@ -127,7 +127,7 @@ export class StateValidator {
         this.ddlCategoryStyle = (this.validateRecipeCategory(this.homePageState.selectedRecipe.primaryCategory?.category, true))
           ? StateValidator.inputStyleValid
           : StateValidator.inputStyleInvalid;
-
+4
         this.txtDescriptionStyle = (this.validateRecipeDescription(this.homePageState.selectedRecipe.description, true))
           ? StateValidator.inputStyleValid
           : StateValidator.inputStyleInvalid;        
