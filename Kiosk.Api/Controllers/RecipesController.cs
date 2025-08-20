@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "RecipesController.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 09/05/2024 09:31:00 AM
+// Last Updated: 08/20/2025 11:19:00 AM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -70,6 +70,7 @@ namespace KioskApi.Controllers
         /// <param name="sortOrder">Order Direction (Asc or Desc)</param>
         /// <param name="sortColumn">The column to sort results.</param>
         /// <param name="searchstring">Search string</param>
+        /// <param name="searchType">Search type (recipe or ingredient)</param>
         /// <param name="pageNumber">Current page</param>
         /// <param name="pageSize">Page size</param>
         /// <param name="categoryId">The category</param>
@@ -82,6 +83,7 @@ namespace KioskApi.Controllers
             string sortOrder = "Asc",
             string sortColumn = "Title",
             string searchstring = "",
+            string searchType = "none",
             int pageNumber = 1,
             int pageSize = 25,
             int categoryId = 0,
@@ -96,7 +98,8 @@ namespace KioskApi.Controllers
                     FavoritesOnly = favorites,
                     PageSize = pageSize,
                     PageNumber = pageNumber,
-                    SearchString = searchstring,
+                    SearchString = searchstring,                    
+                    SearchType = SearchStringType.None,
                     CategoryId = categoryId,
                     UserUid = userId,
                     SortColumn = RecipeSortColumn.Title,
@@ -109,6 +112,13 @@ namespace KioskApi.Controllers
                     IncludeRecommendedFlag = true,
                     IncludeUser = true
                 };
+
+                switch (searchType.ToLower())
+                {
+                    case "ingredient": options.SearchType = SearchStringType.IngredientName; break;
+                    case "recipe": options.SearchType = SearchStringType.RecipeName; break;
+                    default: options.SearchType = SearchStringType.None; break;
+                }
 
                 switch (sortOrder.ToLower())
                 {

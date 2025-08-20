@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "RecipeRepository.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 03/24/2022 11:17:00 AM
+// Last Updated: 08/20/2025 11:20:00 AM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -205,15 +205,21 @@ namespace Kiosk.Data.Repository
         /// <returns></returns>
         public Task<List<Recipe>> Get(RepositoryOptionsRecipe options, string requestingUid)
         {
-            // Fetch all or just favorites
-            var recipes = (options.FavoritesOnly && !string.IsNullOrEmpty(requestingUid))
+            // Fetch all or just favorites (non by-ingredient search)
+            var recipes = (options.FavoritesOnly
+              && !string.IsNullOrEmpty(requestingUid)
+              && options.SearchType != SearchStringType.IngredientName) 
                 ? GetFavorites(requestingUid)
                 : GetAll();
+            
+            // Search filter (by ingredient name)
+            if (!string.IsNullOrEmpty(options.SearchString) && options.SearchType == SearchStringType.IngredientName)
+                recipes = GetByIngredient(options.SearchString);
 
-            // Search filter
-            if (!string.IsNullOrEmpty(options.SearchString))
+            // Search filter (by recipe name)
+            if (!string.IsNullOrEmpty(options.SearchString) && options.SearchType != SearchStringType.IngredientName)
                 recipes = recipes.Where(s => s.Title.Contains(options.SearchString));
-
+            
             // Sort column + order
             switch (options.SortOrder)
             {
@@ -238,15 +244,11 @@ namespace Kiosk.Data.Repository
             // By category
             if (options.CategoryId > 0)
             {
-                // SELECT * FROM recipe r
-                // WHERE r.recId = 
-                // (SELECT recId FROM recipeCategoryMap
-                //  WHERE recId = r.recId and catId = 1)
-                recipes = from r in recipes
-                          where (from m in _context.RecipeCategoryMaps
-                                 where m.CatId == options.CategoryId
-                                 select m.RecId).Contains(r.RecId)
-                          select r;
+                 recipes = from r in recipes
+                    where (from m in _context.RecipeCategoryMaps
+                            where m.CatId == options.CategoryId
+                            select m.RecId).Contains(r.RecId)
+                    select r;
             }
 
             var pagedList = PaginatedList<Recipe>.CreateAsync(recipes.AsNoTracking(), options.PageNumber, options.PageSize);
@@ -288,8 +290,10 @@ namespace Kiosk.Data.Repository
             {
                 foreach (var r in pagedResult.Result)
                 {
-                    var fx = (from fr in _context.RecipeFavorites.Where(
-                        x => x.Useruid.ToString().ToLower() == requestingUid.ToLower() && x.RecId == r.RecId) select fr).SingleOrDefault();
+                    var fx = (
+                        from fr in _context.RecipeFavorites.Where(
+                            x => x.Useruid.ToString().ToLower() == requestingUid.ToLower() &&
+                            x.RecId == r.RecId) select fr).SingleOrDefault();
                     if (fx != null)
                         r.IsFavorite = true;
                 }
@@ -480,6 +484,20 @@ namespace Kiosk.Data.Repository
                     join favorites in _context.RecipeFavorites
                     on recipe.RecId equals favorites.RecId
                     where favorites.Useruid.ToString().ToLower() == userUid.ToLower()
+                    select recipe);
+        }
+
+        /// <summary>
+        /// Get recipes by ingredient name.
+        /// </summary>
+        /// <param name="ingredientName">The ingredient name to search for.</param>
+        /// <returns>List of <see cref="Recipe"/> objects.</returns>
+        protected internal virtual IQueryable<Recipe> GetByIngredient(string ingredientName)
+        {
+            return (from recipe in _context.Recipes
+                    join ingredient in _context.RecipeIngredients
+                    on recipe.RecId equals ingredient.RecId
+                    where ingredient.Ingredient.ToLower().Contains(ingredientName.ToLower())
                     select recipe);
         }
 
