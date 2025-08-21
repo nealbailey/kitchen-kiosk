@@ -494,11 +494,22 @@ namespace Kiosk.Data.Repository
         /// <returns>List of <see cref="Recipe"/> objects.</returns>
         protected internal virtual IQueryable<Recipe> GetByIngredient(string ingredientName)
         {
-            return (from recipe in _context.Recipes
-                    join ingredient in _context.RecipeIngredients
-                    on recipe.RecId equals ingredient.RecId
-                    where ingredient.Ingredient.ToLower().Contains(ingredientName.ToLower())
-                    select recipe);
+            // // Can't use this query because it returns a list of recipes, which can't use DISTINCT
+            // // since there are text fields in the result-set. So we need to first get the recipe ids 
+            // // that match the ingredient name, then return the recipes that match those ids.
+            // return (from recipe in _context.Recipes
+            //         join ingredient in _context.RecipeIngredients
+            //         on recipe.RecId equals ingredient.RecId
+            //         where ingredient.Ingredient.ToLower().Contains(ingredientName.ToLower())
+            //         select recipe);
+
+            var recipeIds = (from recipe in _context.Recipes
+                 join ingredient in _context.RecipeIngredients
+                 on recipe.RecId equals ingredient.RecId
+                 where ingredient.Ingredient.ToLower().Contains(ingredientName.ToLower())
+                 select recipe.RecId).Distinct();
+
+            return _context.Recipes.Where(r => recipeIds.Contains(r.RecId));
         }
 
         /// <summary>
