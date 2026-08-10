@@ -142,6 +142,9 @@ export class StateValidator {
         this.txtIngredientsStyle = (!this.homePageState.selectedRecipe.ingredients)
           ? StateValidator.inputStyleInvalid
           : StateValidator.inputStyleValid;
+
+          if (!this.validateRecipeIngredients(this.homePageState.selectedRecipe.strIngredients))
+            isValid = false;
                 
         if (this.txtIngredientsStyle == StateValidator.inputStyleInvalid)
           isValid = false;
@@ -233,6 +236,34 @@ export class StateValidator {
         return false;
       }
     }    
+    return true;
+  }
+
+  /**
+  *  Validates the Ingredients of a Recipe
+  *  @param strIngredients the ingredients of the recipe  
+  *  @returns boolean flag to determine if field is valid
+  */
+  public validateRecipeIngredients(strIngredients: string) {
+    this.arrayHelper.removeElement(this.errors, "Recipe Ingredients is required.");
+    this.arrayHelper.removeElement(this.errors, "Each Ingredient must be unique.");
+
+    // Populate ingredient array
+    var i = this.homePageState.selectedRecipe.strIngredients.split("\n");
+    if (i.length > 0) {
+      // Verify that each ingredient is unique
+      var uniqueIngredients: string[] = [];
+      for (var x in i) {
+        if (i[x]) {
+          if (uniqueIngredients.indexOf(i[x]) >= 0) {
+            this.arrayHelper.uniquePush(this.errors, "Each Ingredient must be unique.");
+            return false;
+          }
+          else
+            uniqueIngredients.push(i[x]);
+        }
+      }
+    }   
     return true;
   }
 
