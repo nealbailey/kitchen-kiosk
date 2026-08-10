@@ -51,7 +51,17 @@ namespace KioskApi.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(_connectionString);
+                if (string.IsNullOrEmpty(_connectionString)
+                    || _connectionString.Contains("Password=******")
+                    || _connectionString.Contains(";******;")
+                    || _connectionString.Contains("User ID=KioskApi.svc;******"))
+                {
+                    optionsBuilder.UseInMemoryDatabase("KioskApiUnitTests");
+                }
+                else
+                {
+                    optionsBuilder.UseSqlServer(_connectionString);
+                }
             }
         }
         #endregion

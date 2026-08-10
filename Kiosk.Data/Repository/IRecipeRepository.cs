@@ -76,14 +76,21 @@ namespace Kiosk.Data.Repository
         public Task<List<Recipe>> Get(RepositoryOptionsRecipe options, string requestingUid = null);
 
         /// <summary>
-        /// Fetch a specific category from the database.
+        /// Fetch a specific recipe from the database by its name.
+        /// </summary>
+        /// <param name="title"></param>
+        /// <returns></returns>
+        public Task<Recipe> GetByName(string title);
+        
+        /// <summary>
+        /// Fetch a specific recipe from the database.
         /// </summary>
         /// <param name="recipe"></param>
         /// <returns></returns>
         public Task<Recipe> GetOne(Recipe recipe);
-
+        
         /// <summary>
-        /// Fetch a specific category from the database.
+        /// Fetch a specific recipe from the database.
         /// </summary>
         /// <param name="recipe"></param>
         /// <param name="options"></param>

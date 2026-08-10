@@ -75,7 +75,16 @@ export class RecipesService {
       .pipe(catchError(this.handleError)).toPromise();
   }
 
-  /** Gets a single recipe by id.  */
+   /** Gets a single recipe by name.  */
+   async GetRecipeByName(name: string) {
+    console.info("Call GET in the api recipe Controller");
+    let url: string = AppSettings.API_RECIPE + name;
+    console.info(url);
+    return await this.http.get<Recipe>(url)
+      .pipe(catchError(this.handleError)).toPromise();
+  }
+
+  /** Gets a single recipe's ingredients by recipe id.  */
   async GetRecipeIngredients(id: number) {
     console.info("Call GET in the api ingredient Controller");
     let url: string = AppSettings.API_RECIPE_INGREDIENTS + id;

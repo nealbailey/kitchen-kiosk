@@ -1,0 +1,23 @@
+{
+  "name": "kitchen-kiosk",
+  "version": "1.0.0",
+  "description": "Modern Next-Generation Recipe Management",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nealbailey/kitchen-kiosk.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nealbailey/kitchen-kiosk/issues"
+  },
+  "homepage": "https://github.com/nealbailey/kitchen-kiosk#readme",
+  "dependencies": {
+    "@angular/cli": "^13.2.3"
+  }
+}

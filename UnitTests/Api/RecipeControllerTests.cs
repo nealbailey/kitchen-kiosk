@@ -109,7 +109,7 @@ namespace UnitTests.Api
             //
             // Test #1: Fully expanded Recipe object
             //
-            var id = 1058;
+            var id = 940;
             var requestTask = _httpClient.GetAsync($"api/recipe/{id}?expand=true");
             var response = requestTask.Result;
 

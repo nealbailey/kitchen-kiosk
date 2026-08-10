@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "RepositoryOptions.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 02/02/2022 12:33:00 PM
+// Last Updated: 08/20/2025 11:20:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -38,6 +38,25 @@ namespace Kiosk.Data.Repository
     }
 
     /// <summary>
+    /// The type of search to execute
+    /// </summary>
+    public enum SearchStringType
+    {
+        /// <summary>
+        /// No search string
+        /// </summary>
+        None,
+        /// <summary>
+        /// Search by ingredient name
+        /// </summary>
+        IngredientName,
+        /// <summary>
+        /// Search by recipe name/title
+        /// </summary>
+        RecipeName
+    }
+
+    /// <summary>
     /// Global repository configuration
     /// </summary>
     public class RepositoryOptions
@@ -58,6 +77,11 @@ namespace Kiosk.Data.Repository
         /// The applied filter
         /// </summary>
         public virtual string SearchString { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The type of search to execute
+        /// </summary>
+        public virtual SearchStringType SearchType { get; set; } = SearchStringType.None;
 
         /// <summary>
         /// The sort direction

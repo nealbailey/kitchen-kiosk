@@ -1,0 +1,5 @@
+{
+  "dotnet.defaultSolution": "KitchenKioskNGEN.sln",
+  "omnisharp.useModernNet": true,
+  "omnisharp.path": "latest"
+}

@@ -310,9 +310,14 @@ export class homeComponent implements OnInit, AfterViewInit {
   //#region Create Dialog
 
   /** Called when the user clicks the 'Next' button in the create dialog */
-  onCreateRecipeDialogNextClicked() {
-    if (!this.stateValidator.validateCreateRecipeSteps())
-      return;
+  async onCreateRecipeDialogNextClicked() {
+    let isValid = await this.stateValidator.validateCreateRecipeSteps();
+
+    if (this.stateValidator.errors.length > 0)
+      this.toastService.showError(this.stateValidator.errors.join('\r\n'));
+
+    if (!isValid)
+      return;    
 
     let stepNum: number = this.homePageState.createRecipeDialogCurrentStep;
     if (stepNum === 3)

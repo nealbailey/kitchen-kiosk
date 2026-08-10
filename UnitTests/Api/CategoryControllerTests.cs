@@ -48,7 +48,7 @@ namespace UnitTests.Api
             var requestTask = _httpClient.GetAsync($"api/category/{id}");
             var response = requestTask.Result;
 
-            //Assert
+            // Assert
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             var recipe = response.DeserializeContent<RecipeCategory>();
             Assert.AreEqual(recipe.CatId, 1);
