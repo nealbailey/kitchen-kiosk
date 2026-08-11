@@ -42,7 +42,7 @@ namespace Kiosk.Data.Repository
         /// <returns>A <see cref="bool"/> flag to determine if the operation succeeded or failed.</returns>
         /// <exception cref="System.ArgumentException">The exception that is thrown when one of the arguments provided to a method is not valid.</exception>
         /// <exception cref="System.ArgumentNullException">The exception that is thrown when a null reference (Nothing in Visual Basic) is passed to a method that does not accept it as a valid argument.</exception>
-        public Task<bool> CreateFavorite(Recipe recipe, string userUid);
+        public Task<bool> CreateFavorite(Recipe recipe, System.Guid userUid);
 
         /// <summary>
         /// Unfavorite a specific recipe.
@@ -52,7 +52,7 @@ namespace Kiosk.Data.Repository
         /// <returns>A <see cref="bool"/> flag to determine if the operation succeeded or failed.</returns>
         /// <exception cref="System.ArgumentException">The exception that is thrown when one of the arguments provided to a method is not valid.</exception>
         /// <exception cref="System.ArgumentNullException">The exception that is thrown when a null reference (Nothing in Visual Basic) is passed to a method that does not accept it as a valid argument.</exception>
-        public Task<bool> DeleteFavorite(int recId, string userUid);
+        public Task<bool> DeleteFavorite(int recId, System.Guid userUid);
 
         /// <summary>
         /// Delete a recipe.
@@ -73,7 +73,7 @@ namespace Kiosk.Data.Repository
         /// </summary>
         /// <param name="options">Options when fetching recipes.</param>
         /// <returns></returns>
-        public Task<List<Recipe>> Get(RepositoryOptionsRecipe options, string requestingUid = null);
+        public Task<List<Recipe>> Get(RepositoryOptionsRecipe options, System.Guid? requestingUid = null);
 
         /// <summary>
         /// Fetch a specific recipe from the database by its name.

@@ -48,7 +48,7 @@ namespace Kiosk.Data.Repository
         public virtual bool IncludeUser { get; set; } = true;
         public virtual bool IncludePrimaryCategory { get; set; } = false;
         public virtual int CategoryId { get; set; } = 0;
-        public virtual string UserUid { get; set; } = string.Empty;
+        public virtual System.Guid? UserUid { get; set; } = null;
         public RecipeSortColumn SortColumn = RecipeSortColumn.Title;
         #endregion 
     }

@@ -42,7 +42,7 @@ namespace KioskApi.Controllers
     {
         #region Fields
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly RoleManager<IdentityRole> roleManager;
+        private readonly RoleManager<IdentityRole<Guid>> roleManager;
         private readonly IConfiguration _configuration;
         #endregion
 
@@ -54,7 +54,7 @@ namespace KioskApi.Controllers
         /// <param name="userManager"></param>
         /// <param name="roleManager"></param>
         /// <param name="configuration"></param>
-        public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<Guid>> roleManager, IConfiguration configuration)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
@@ -182,9 +182,9 @@ namespace KioskApi.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
 
             if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+                await roleManager.CreateAsync(new IdentityRole<Guid> { Name = UserRoles.Admin });
             if (!await roleManager.RoleExistsAsync(UserRoles.User))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+                await roleManager.CreateAsync(new IdentityRole<Guid> { Name = UserRoles.User });
 
             if (await roleManager.RoleExistsAsync(UserRoles.Admin))
             {

@@ -10,7 +10,7 @@ namespace KioskApi.Domain.Models
     {
         public int RecId { get; set; }
         public int CatId { get; set; }
-        public string Useruid { get; set; }
+        public Guid Useruid { get; set; }
         public DateTime Date { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }

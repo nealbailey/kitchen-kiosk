@@ -18,6 +18,7 @@
 //-----------------------------------------------------------------------
 namespace KioskApi.Controllers
 {
+    using System;
     using Kiosk.Data.Repository;
     using KioskApi.Domain.Models;
     using KioskApi.Domain.Models.Auth;
@@ -52,7 +53,7 @@ namespace KioskApi.Controllers
         public RecipeController(
             IConfiguration configuration,
             UserManager<ApplicationUser> userManager, 
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<IdentityRole<Guid>> roleManager,
             ILogger<RecipeController> logger,
             IRecipeRepository recipeRepository): base(configuration, userManager, roleManager) 
         {
@@ -151,7 +152,7 @@ namespace KioskApi.Controllers
         {
             try
             {
-                var status = await _recipeRepository.CreateFavorite(recipe, GetAuthenticatedUser()?.Id);
+                var status = await _recipeRepository.CreateFavorite(recipe, GetAuthenticatedUser()?.Id ?? System.Guid.Empty);
                 return Ok(recipe.RecId);
                 //return Ok(new { message = "Added to favorites successfully" });
             }
@@ -195,7 +196,7 @@ namespace KioskApi.Controllers
         {
             try
             {
-                var status = await _recipeRepository.DeleteFavorite(id, GetAuthenticatedUser()?.Id);
+                var status = await _recipeRepository.DeleteFavorite(id, GetAuthenticatedUser()?.Id ?? System.Guid.Empty);
                 return Ok(new { message = "Removed from favorites successfully" });
             }
             catch (System.Exception ex)

@@ -113,16 +113,16 @@ namespace Kiosk.Data.Repository
         /// <returns>A <see cref="bool"/> flag to determine if the operation succeeded or failed.</returns>
         /// <exception cref="System.ArgumentException">The exception that is thrown when one of the arguments provided to a method is not valid.</exception>
         /// <exception cref="System.ArgumentNullException">The exception that is thrown when a null reference (Nothing in Visual Basic) is passed to a method that does not accept it as a valid argument.</exception>
-        public Task<bool> CreateFavorite(Recipe recipe, string userUid)
+        public Task<bool> CreateFavorite(Recipe recipe, System.Guid userUid)
         {
             if (recipe == null)
                 throw new ArgumentNullException("recipe");
             if (recipe.RecId <= 0)
                 throw new ArgumentException("recipe.recId must be greater than 0.");
-            if (string.IsNullOrEmpty(userUid))
+            if (userUid == Guid.Empty)
                 throw new ArgumentNullException("userUid");
 
-            var uid = Guid.Parse(userUid);
+            var uid = userUid;
 
             if (GetFavorite(recipe.RecId, uid).Result != null)
                 return Task.Run(() => true);
@@ -142,14 +142,14 @@ namespace Kiosk.Data.Repository
         /// <returns>A <see cref="bool"/> flag to determine if the operation succeeded or failed.</returns>
         /// <exception cref="System.ArgumentException">The exception that is thrown when one of the arguments provided to a method is not valid.</exception>
         /// <exception cref="System.ArgumentNullException">The exception that is thrown when a null reference (Nothing in Visual Basic) is passed to a method that does not accept it as a valid argument.</exception>
-        public Task<bool> DeleteFavorite(int recId, string userUid)
+        public Task<bool> DeleteFavorite(int recId, System.Guid userUid)
         {
             if (recId <= 0)
                 throw new ArgumentException("recipe.recId must be greater than 0.");
-            if (string.IsNullOrEmpty(userUid))
+            if (userUid == Guid.Empty)
                 throw new ArgumentNullException("userUid");
 
-            var uid = Guid.Parse(userUid);
+            var uid = userUid;
 
             var favorite = GetFavorite(recId, uid).Result;
             if (favorite == null)
@@ -203,13 +203,13 @@ namespace Kiosk.Data.Repository
         /// <param name="options">Options when fetching recipes.</param>
         /// <param name="requestingUid">The uid of the user requesting the recipe list.</param>
         /// <returns></returns>
-        public Task<List<Recipe>> Get(RepositoryOptionsRecipe options, string requestingUid)
+                public Task<List<Recipe>> Get(RepositoryOptionsRecipe options, System.Guid? requestingUid)
         {
             // Fetch all or just favorites (non by-ingredient search)
-            var recipes = (options.FavoritesOnly
-              && !string.IsNullOrEmpty(requestingUid)
-              && options.SearchType != SearchStringType.IngredientName) 
-                ? GetFavorites(requestingUid)
+                        var recipes = (options.FavoritesOnly
+                            && requestingUid.HasValue
+                            && options.SearchType != SearchStringType.IngredientName) 
+                                ? GetFavorites(requestingUid.Value)
                 : GetAll();
             
             // Search filter (by ingredient name)
@@ -238,8 +238,8 @@ namespace Kiosk.Data.Repository
             }
 
             // By user
-            if (!string.IsNullOrEmpty(options.UserUid))
-                recipes = recipes.Where(s => s.Useruid.Equals(options.UserUid));
+            if (options.UserUid.HasValue)
+                recipes = recipes.Where(s => s.Useruid.Equals(options.UserUid.Value));
 
             // By category
             if (options.CategoryId > 0)
@@ -286,13 +286,13 @@ namespace Kiosk.Data.Repository
             }
 
             // If requestor is authenticated, fetch their favorites
-            if (options.IncludeFavoriteFlag && requestingUid != null)
+            if (options.IncludeFavoriteFlag && requestingUid.HasValue)
             {
                 foreach (var r in pagedResult.Result)
                 {
                     var fx = (
                         from fr in _context.RecipeFavorites.Where(
-                            x => x.Useruid.ToString().ToLower() == requestingUid.ToLower() &&
+                            x => x.Useruid == requestingUid.Value &&
                             x.RecId == r.RecId) select fr).SingleOrDefault();
                     if (fx != null)
                         r.IsFavorite = true;
@@ -478,12 +478,12 @@ namespace Kiosk.Data.Repository
         /// </summary>
         /// <param name="userUid">User uid (guid)</param>
         /// <returns></returns>
-        protected internal virtual IQueryable<Recipe> GetFavorites(string userUid)
+        protected internal virtual IQueryable<Recipe> GetFavorites(System.Guid userUid)
         {
             return (from recipe in _context.Recipes
                     join favorites in _context.RecipeFavorites
                     on recipe.RecId equals favorites.RecId
-                    where favorites.Useruid.ToString().ToLower() == userUid.ToLower()
+                where favorites.Useruid == userUid
                     select recipe);
         }
 

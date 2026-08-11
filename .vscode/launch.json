@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/Kiosk.Api/bin/Debug/net6.0/Kiosk.Api.dll",
+            "program": "${workspaceFolder}/Kiosk.Api/bin/Debug/net9.0/linux-x64/Kiosk.Api.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Kiosk.Api",
             "console": "internalConsole",
@@ -29,7 +29,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Kiosk.Api/bin/Debug/net6.0/Kiosk.Api.dll",
+            "program": "${workspaceFolder}/Kiosk.Api/bin/Debug/net9.0/linux-x64/Kiosk.Api.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Kiosk.Api",
             "stopAtEntry": false,

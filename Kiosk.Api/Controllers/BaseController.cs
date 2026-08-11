@@ -16,6 +16,7 @@
 //-----------------------------------------------------------------------
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //----------------------------------------------------------------------- 
+using System;
 using KioskApi.Data;
 using KioskApi.Domain.Models.Auth;
 using Microsoft.AspNetCore.Identity;
@@ -31,7 +32,7 @@ namespace KioskApi.Controllers
     {
         #region Fields
         protected UserManager<ApplicationUser> _userManager;
-        protected RoleManager<IdentityRole> _roleManager;
+        protected RoleManager<IdentityRole<Guid>> _roleManager;
         #endregion
 
         #region Properties
@@ -59,7 +60,7 @@ namespace KioskApi.Controllers
         public BaseController(
             IConfiguration configuration, 
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole<Guid>> roleManager)
         {
             _connectionString = configuration["ConnectionStrings:ConnStr"];
             _context = new KIOSKContext(_connectionString);
@@ -75,7 +76,7 @@ namespace KioskApi.Controllers
         /// </summary>
         /// <param name="userId">The user id Guid string on the record</param>
         /// <returns></returns>
-        protected internal virtual bool IsAdminOrOwner(string userId)
+        protected internal virtual bool IsAdminOrOwner(Guid userId)
         {            
             var user = GetAuthenticatedUser();
             if (user == null)
@@ -84,9 +85,9 @@ namespace KioskApi.Controllers
             var roles = _userManager.GetRolesAsync(user).Result;
 
             if (!roles.Contains("Admin"))
-                if (!userId.Equals(user.Id, System.StringComparison.InvariantCultureIgnoreCase))
+                if (userId != user.Id)
                     return false;
-            
+
             return true;
         }
 
