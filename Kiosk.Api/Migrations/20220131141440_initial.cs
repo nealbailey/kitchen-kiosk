@@ -3,8 +3,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace KioskApi.Migrations
 {
+    /// <summary>
+    /// Represents the initial migration for the database.
+    /// </summary>
+    #pragma warning disable CS8981
     public partial class initial : Migration
     {
+        /// <summary>
+        /// Defines the operations to apply the migration to the database.
+        /// </summary>
+        /// <param name="migrationBuilder"></param>
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -192,6 +200,10 @@ namespace KioskApi.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
         }
 
+        /// <summary>
+        /// Defines the operations to revert the migration from the database.
+        /// </summary>
+        /// <param name="migrationBuilder"></param>
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
@@ -216,4 +228,5 @@ namespace KioskApi.Migrations
                 name: "AspNetUsers");
         }
     }
+    #pragma warning restore CS8981
 }

@@ -9,10 +9,18 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace KioskApi.Migrations
 {
+    /// <summary>
+    /// Represents the initial migration for the database.
+    /// </summary>
+    #pragma warning disable CS8981
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20220131141440_initial")]
     partial class initial
     {
+        /// <summary>
+        /// Builds the target model for the migration.
+        /// </summary>
+        /// <param name="modelBuilder"></param>
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
@@ -256,4 +264,5 @@ namespace KioskApi.Migrations
 #pragma warning restore 612, 618
         }
     }
+    #pragma warning restore CS8981
 }

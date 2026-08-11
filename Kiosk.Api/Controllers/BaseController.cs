@@ -31,12 +31,26 @@ namespace KioskApi.Controllers
     public class BaseController : Controller
     {
         #region Fields
+        /// <summary>
+        /// Gets or sets the user manager.
+        /// </summary>
         protected UserManager<ApplicationUser> _userManager;
+
+        /// <summary>
+        /// Gets or sets the role manager.
+        /// </summary>
         protected RoleManager<IdentityRole<Guid>> _roleManager;
         #endregion
 
         #region Properties
+        /// <summary>
+        /// Gets or sets the KIOSK context.
+        /// </summary>
         protected internal KIOSKContext _context;
+
+        /// <summary>
+        /// Gets or sets the connection string.
+        /// </summary>
         protected internal string _connectionString;
         #endregion
 
