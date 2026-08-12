@@ -170,6 +170,11 @@ namespace Kiosk.Data.Repository
         {
             var recipe = GetOne(new Recipe() { RecId = id }).Result;
 
+            // Remove favorites
+            var favorites = GetFavorites(recipe.RecId).ToList();
+            foreach (var f in favorites)
+                _context.Remove(f);
+
             // Remove mappings
             var rcmap = GetCategoryMaps(recipe).Result;
             foreach (var m in rcmap)
@@ -203,7 +208,7 @@ namespace Kiosk.Data.Repository
         /// <param name="options">Options when fetching recipes.</param>
         /// <param name="requestingUid">The uid of the user requesting the recipe list.</param>
         /// <returns></returns>
-                public Task<List<Recipe>> Get(RepositoryOptionsRecipe options, System.Guid? requestingUid)
+        public Task<List<Recipe>> Get(RepositoryOptionsRecipe options, System.Guid? requestingUid)
         {
             // Fetch all or just favorites (non by-ingredient search)
                         var recipes = (options.FavoritesOnly
@@ -462,19 +467,21 @@ namespace Kiosk.Data.Repository
 
         #region Methods (Non-Public)
         /// <summary>
-        /// Get favorite recipes (from all users).
+        /// Get favorite recipe entities for a specific recipe (from all users).
         /// </summary>        
         /// <returns></returns>
-        protected internal virtual IQueryable<Recipe> GetFavorites()
+        protected internal virtual IQueryable<RecipeFavorite> GetFavorites(int recId)
         {
-            return (from recipe in _context.Recipes
-                    join favorites in _context.RecipeFavorites
-                    on recipe.RecId equals favorites.RecId                    
-                    select recipe);
+            var favorites = _context.RecipeFavorites.Where(p => p.RecId == recId);
+            return favorites;
+            // return (from recipe in _context.Recipes
+            //         join favorites in _context.RecipeFavorites
+            //         on recipe.RecId equals favorites.RecId                    
+            //         select recipe);
         }
 
         /// <summary>
-        /// Get favorite recipes by user uid.
+        /// Get favorite recipe entities by user uid.
         /// </summary>
         /// <param name="userUid">User uid (guid)</param>
         /// <returns></returns>
