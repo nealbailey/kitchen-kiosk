@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "BaseController.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 03/24/2022 11:24:00 PM
+// Last Updated: 08/18/2026 13:45:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -26,7 +26,7 @@ using Microsoft.Extensions.Configuration;
 namespace KioskApi.Controllers
 {
     /// <summary>
-    /// 
+    /// Represents the base controller for the API.
     /// </summary>
     public class BaseController : Controller
     {
@@ -52,6 +52,11 @@ namespace KioskApi.Controllers
         /// Gets or sets the connection string.
         /// </summary>
         protected internal string _connectionString;
+
+        /// <summary>
+        /// Gets or sets the path to the photos directory.
+        /// </summary>
+        protected internal string _photosPath;
         #endregion
 
         #region Constructors
@@ -62,6 +67,7 @@ namespace KioskApi.Controllers
         public BaseController(IConfiguration configuration)
         {
             _connectionString = configuration["ConnectionStrings:ConnStr"];
+            _photosPath = configuration["AppSettings:photosPath"];
             _context = new KIOSKContext(_connectionString);
         }
 
@@ -77,6 +83,7 @@ namespace KioskApi.Controllers
             RoleManager<IdentityRole<Guid>> roleManager)
         {
             _connectionString = configuration["ConnectionStrings:ConnStr"];
+            _photosPath = configuration["AppSettings:photosPath"];
             _context = new KIOSKContext(_connectionString);
             _userManager = userManager;
             _roleManager = roleManager;
@@ -118,6 +125,30 @@ namespace KioskApi.Controllers
 
             return user;
         }
+
+        /// <summary>
+        /// Gets the path to the photos directory for a single recipe.
+        /// </summary>
+        /// <param name="recId">The recipe ID.</param>
+        /// <param name="path">Out. The calculated path to the photos for the recipe.</param>
+        /// <returns>A boolean indicating whether the path was found.</returns>
+        protected internal virtual bool GetFullPhotosPath(int recId, out string path)
+        {
+            path = string.Empty;
+            if (string.IsNullOrEmpty(_photosPath))
+                return false;            
+
+            // _photosPath is the root path to the photos directory. 
+            // The format will be: {_photosPath}/{recId} - {RecipeName}
+            // Search for the directory that starts with 'recId -' and return that path, or the first match.            
+            string[] dirs = System.IO.Directory.GetDirectories(_photosPath, $"{recId} *");
+            if (dirs.Length == 0)
+                return false;            
+
+            path = dirs[0];
+            return true;
+        }
+        
 
         #endregion
     }

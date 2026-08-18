@@ -77,7 +77,7 @@ namespace KioskApi.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>        
-        [HttpGet("{id}", Name = "getById")]
+        [HttpGet("{id}", Name = "CategoryGetById")]
         public async Task<IActionResult> GetById(string id)
         {
             _logger.LogDebug($"Received get request for /category/{id}");
