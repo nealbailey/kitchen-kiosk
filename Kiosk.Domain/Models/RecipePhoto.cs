@@ -33,6 +33,11 @@ namespace KioskApi.Domain.Models
         public string ImageUrl { get; set; }
 
         /// <summary>
+        /// Gets or sets the image thumbnail URL of the photo. The URL for the thumbnail version of the image.
+        /// </summary>
+        public string ImageThumbUrl { get; set; }
+
+        /// <summary>
         /// Returns a string representation of the RecipePhoto object, which is the full path of the file.
         /// If the full path is null, it returns the default string representation of the object.
         /// </summary>

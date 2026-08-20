@@ -78,6 +78,9 @@ namespace KioskApi.Controllers
         [HttpGet("{id}/{fileName}")]        
         public async Task<IActionResult> GetPhoto(int id, string fileName)
         {   
+            if (System.IO.Path.GetFileName(fileName) != fileName)
+                return BadRequest("Invalid file name.");
+
             base.GetFullPhotosPath(id, out string photosPath);
             var imagePath = System.IO.Path.Combine(photosPath, fileName);
 
@@ -96,25 +99,34 @@ namespace KioskApi.Controllers
             }
         }
 
-         /// <summary>
+        /// <summary>
         /// Get a specific photo for a specific recipe.
         /// </summary>
         /// <param name="id">The recipe id.</param>
         /// <param name="fileName">The file name of the photo.</param>
+        /// <param name="width">The width of the thumbnail image (optional). Default is 150px.</param>
         /// <returns></returns>
-        [HttpGet("thumb/{id}/{fileName}")]        
-        public async Task<IActionResult> GetPhotoThumb(int id, string fileName)
+        [HttpGet("{id}/thumb/{fileName}")]        
+        public async Task<IActionResult> GetPhotoThumb(int id, string fileName, [FromQuery] int width = 150)
         {   
+            if (System.IO.Path.GetFileName(fileName) != fileName)
+                return BadRequest("Invalid file name.");
+
             base.GetFullPhotosPath(id, out string photosPath);
             var imagePath = System.IO.Path.Combine(photosPath, fileName);
 
             if (!System.IO.File.Exists(imagePath))            
                 return NotFound();
+
+            if (width < 50 || width > 2000)
+                return BadRequest("Image width must be between 50 and 2000 pixels.");
             
             try
             {
                 var imageBytes = await System.IO.File.ReadAllBytesAsync(imagePath);
-                return File(imageBytes, "image/jpeg");
+                // Resize the image to a thumbnail size (e.g., 150x150 pixels)
+                var resizedImageBytes = Kiosk.Data.Helpers.ImagesHelper.ResizeImage(imageBytes, width);
+                return File(resizedImageBytes, "image/jpeg");
             }
             catch (System.Exception ex)
             {

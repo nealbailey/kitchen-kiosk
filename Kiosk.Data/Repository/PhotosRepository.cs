@@ -19,12 +19,10 @@
 namespace Kiosk.Data.Repository
 {
     using KioskApi.Data;
-    using KioskApi.Domain.Models;
-    using Microsoft.EntityFrameworkCore;
+    using KioskApi.Domain.Models;    
     using Microsoft.Extensions.Logging;
     using System.Collections.Generic;
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
 
     public class PhotosRepository : BaseRepository, IPhotosRepository
@@ -65,8 +63,7 @@ namespace Kiosk.Data.Repository
                     {
                         RecipeId = recipeId,
                         FileName = "No photos available",
-                        FilePath = photosPath,
-                        ImageUrl = null
+                        FilePath = photosPath                        
                     });
                     return Task.FromResult(photos); 
                 }
@@ -81,7 +78,8 @@ namespace Kiosk.Data.Repository
                         RecipeId = recipeId,
                         FileName = fileName,
                         FilePath = System.IO.Path.GetDirectoryName(file),
-                        ImageUrl = $"/api/photos/{recipeId}/{fileName}"
+                        ImageUrl = $"/api/photos/{recipeId}/{fileName}",
+                        ImageThumbUrl = $"/api/photos/{recipeId}/thumb/{fileName}"
                     };
                     photos.Add(photo);
                 }
