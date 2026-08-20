@@ -28,6 +28,11 @@ namespace KioskApi.Domain.Models
         public string FileFullPath { get { return GetFileFullPath(); }}
 
         /// <summary>
+        /// Gets or sets the image URL of the photo. The URL for the full-size image.
+        /// </summary>
+        public string ImageUrl { get; set; }
+
+        /// <summary>
         /// Returns a string representation of the RecipePhoto object, which is the full path of the file.
         /// If the full path is null, it returns the default string representation of the object.
         /// </summary>

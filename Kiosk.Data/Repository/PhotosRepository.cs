@@ -65,7 +65,8 @@ namespace Kiosk.Data.Repository
                     {
                         RecipeId = recipeId,
                         FileName = "No photos available",
-                        FilePath = photosPath
+                        FilePath = photosPath,
+                        ImageUrl = null
                     });
                     return Task.FromResult(photos); 
                 }
@@ -74,11 +75,13 @@ namespace Kiosk.Data.Repository
                 var files = System.IO.Directory.GetFiles(photosPath);
                 foreach (var file in files)
                 {
+                    var fileName = System.IO.Path.GetFileName(file);
                     var photo = new RecipePhoto
                     {
                         RecipeId = recipeId,
-                        FileName = System.IO.Path.GetFileName(file),
-                        FilePath = System.IO.Path.GetDirectoryName(file)
+                        FileName = fileName,
+                        FilePath = System.IO.Path.GetDirectoryName(file),
+                        ImageUrl = $"/api/photos/{recipeId}/{fileName}"
                     };
                     photos.Add(photo);
                 }
