@@ -20,8 +20,10 @@ import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/co
 import { ActivatedRoute, Router } from '@angular/router';
 import { formatHelper } from 'src/helpers/format.helper';
 import { Recipe } from 'src/models/recipe.model';
+import { Photo } from 'src/models/photo.model';
 import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
+import { AppSettings } from 'src/appSettings';
  
 @Component({ 
     encapsulation: ViewEncapsulation.None, 
@@ -31,6 +33,8 @@ import { RecipesService } from 'src/services/recipes.service';
 }) 
 export class recipeComponent implements OnInit, AfterViewInit { 
   recipe: Recipe;
+  photos: Photo[] = [];
+  baseUrl: string = AppSettings.API_URL;
  
   // #region Properties
   // #endregion
@@ -87,8 +91,11 @@ export class recipeComponent implements OnInit, AfterViewInit {
     try {
       this.recipe = await this.recipeService.GetRecipe(
         +this.route.snapshot.params['id']);
+      this.photos = await this.recipeService.GetRecipePhotos(
+        +this.route.snapshot.params['id']);
 
       console.log(this.router.url);
+      console.log(this.baseUrl);      
 
       // when data is retrieved, set this.loadingPage to false.
       this.homePageState.pageIsLoading = false;

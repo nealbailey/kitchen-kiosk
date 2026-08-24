@@ -61,9 +61,7 @@ namespace Kiosk.Data.Repository
                     _logger.LogWarning($"Photos path does not exist: {photosPath}");
                     photos.Add(new RecipePhoto
                     {
-                        RecipeId = recipeId,
-                        FileName = "No photos available",
-                        FilePath = photosPath                        
+                        RecipeId = recipeId
                     });
                     return Task.FromResult(photos); 
                 }

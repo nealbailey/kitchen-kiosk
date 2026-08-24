@@ -19,16 +19,23 @@
       </div>
     </div>
     <div class="body-copy w-richtext">
-      <p>
-        {{recipe?.description}}
-        <h2>Ingredients</h2>
-        <blockquote>
-          <div *ngFor="let i of this.recipe.ingredients">
-            <ul role="list">
-              <li>{{i.ingredient}}</li>
-            </ul>
-          </div>
-        </blockquote>
+     <p>{{recipe?.description}}</p>
+    <div *ngIf="photos.length > 0" class="recipe-photos">
+      <div *ngFor="let photo of photos | slice:0:5" class="recipe-photo">
+        <a [href]="baseUrl + photo.imageUrl" target="_blank">
+          <img [src]="baseUrl + photo.imageThumbUrl" [alt]="photo.fileName ?? ''" />
+        </a>
+      </div>
+    </div>
+        
+    <h2>Ingredients</h2>
+    <blockquote>
+      <div *ngFor="let i of this.recipe.ingredients">
+        <ul role="list">
+          <li>{{i.ingredient}}</li>
+        </ul>
+      </div>
+    </blockquote>
       <p>
         <h2>Instructions</h2>
         <div>
