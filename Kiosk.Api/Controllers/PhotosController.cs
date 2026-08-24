@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "PhotosController.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 02/02/2022 12:33:00 PM
+// Last Updated: 08/24/2026 12:00:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -19,6 +19,7 @@
 namespace KioskApi.Controllers
 {
     using Kiosk.Data.Repository;
+    using Kiosk.Data.Helpers;
     using KioskApi.Domain.Models;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
@@ -35,6 +36,12 @@ namespace KioskApi.Controllers
         #region Fields
         private readonly ILogger _logger;
         private readonly IPhotosRepository _photosRepository;
+
+        /// <summary>Gets or sets the path to the photos directory.</summary>
+        protected internal string _photosBasePath;
+
+        /// <summary>Gets or sets the width of the photo thumbnails.</summary>
+        protected internal short _photosThumbWidth;
         #endregion
 
         #region Constructors
@@ -51,6 +58,8 @@ namespace KioskApi.Controllers
         {
             _logger = logger;
             _photosRepository = photosRepository;
+            _photosBasePath = configuration["AppSettings:photosPath"];
+            _photosThumbWidth = short.Parse(configuration["AppSettings:photosThumbWidth"]);
         }
         #endregion
 
@@ -64,7 +73,7 @@ namespace KioskApi.Controllers
         [HttpGet("{id}")]        
         public async Task<IActionResult> GetById(int id)
         {   
-            base.GetFullPhotosPath(id, out string photosPath);
+            ImagesHelper.GetFullPhotosPath(id, _photosBasePath, out string photosPath);
             var dbphotos = await _photosRepository.GetByRecipeId(id, photosPath);
             return Ok(dbphotos);
         }
@@ -81,7 +90,7 @@ namespace KioskApi.Controllers
             if (System.IO.Path.GetFileName(fileName) != fileName)
                 return BadRequest("Invalid file name.");
 
-            base.GetFullPhotosPath(id, out string photosPath);
+            ImagesHelper.GetFullPhotosPath(id, _photosBasePath, out string photosPath);
             var imagePath = System.IO.Path.Combine(photosPath, fileName);
 
             if (!System.IO.File.Exists(imagePath))            
@@ -103,29 +112,28 @@ namespace KioskApi.Controllers
         /// Get a specific photo for a specific recipe.
         /// </summary>
         /// <param name="id">The recipe id.</param>
-        /// <param name="fileName">The file name of the photo.</param>
-        /// <param name="width">The width of the thumbnail image (optional). Default is 150px.</param>
+        /// <param name="fileName">The file name of the photo.</param>        
         /// <returns></returns>
         [HttpGet("{id}/thumb/{fileName}")]        
-        public async Task<IActionResult> GetPhotoThumb(int id, string fileName, [FromQuery] int width = 150)
+        public async Task<IActionResult> GetPhotoThumb(int id, string fileName)
         {   
             if (System.IO.Path.GetFileName(fileName) != fileName)
                 return BadRequest("Invalid file name.");
 
-            base.GetFullPhotosPath(id, out string photosPath);
+            ImagesHelper.GetFullPhotosPath(id, _photosBasePath, out string photosPath);
             var imagePath = System.IO.Path.Combine(photosPath, fileName);
 
-            if (!System.IO.File.Exists(imagePath))            
+            if (!System.IO.File.Exists(imagePath))
                 return NotFound();
 
-            if (width < 50 || width > 2000)
+            if (_photosThumbWidth < 50 || _photosThumbWidth > 2000)
                 return BadRequest("Image width must be between 50 and 2000 pixels.");
             
             try
             {
                 var imageBytes = await System.IO.File.ReadAllBytesAsync(imagePath);
                 // Resize the image to a thumbnail size (e.g., 150x150 pixels)
-                var resizedImageBytes = Kiosk.Data.Helpers.ImagesHelper.ResizeImage(imageBytes, width);
+                var resizedImageBytes = Kiosk.Data.Helpers.ImagesHelper.ResizeImage(imageBytes, _photosThumbWidth);
                 return File(resizedImageBytes, "image/jpeg");
             }
             catch (System.Exception ex)

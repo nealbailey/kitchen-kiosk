@@ -67,5 +67,32 @@ namespace Kiosk.Data.Helpers
             }
             return resizedImageBytes;
         }
+
+        /// <summary>
+        /// Gets the full path to the photos directory for a single recipe.
+        /// </summary>
+        /// <param name="recId">The recipe ID.</param>
+        /// <param name="imagesFolder">The root folder containing all recipe photos.</param>
+        /// <param name="path">Out. The calculated path to the photos for the specific recipe.</param>
+        /// <returns>A boolean indicating whether the path was found.</returns>
+        public static bool GetFullPhotosPath(int recId, string imagesFolder, out string path)
+        {
+            path = string.Empty;
+            if (string.IsNullOrEmpty(imagesFolder))
+                return false;            
+
+            if (!Directory.Exists(imagesFolder))
+                return false;
+
+            // _photosPath is the root path to the photos directory. 
+            // The format will be: {_photosPath}/{recId} - {RecipeName}
+            // Search for the directory that starts with 'recId -' and return that path, or the first match.            
+            string[] dirs = Directory.GetDirectories(imagesFolder, $"{recId} *");
+            if (dirs.Length == 0)
+                return false;            
+
+            path = dirs[0];
+            return true;
+        }
     }
 }
