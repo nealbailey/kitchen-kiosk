@@ -21,6 +21,7 @@ import { ConfirmationService } from 'primeng/api';
 import { formatHelper } from 'src/helpers/format.helper';
 import { Ingredient } from 'src/models/ingredient.model';
 import { Recipe } from 'src/models/recipe.model';
+import { Category } from 'src/models/category.model';
 import { CategoriesService } from 'src/services/categories.service';
 import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
@@ -182,7 +183,7 @@ export class homeComponent implements OnInit, AfterViewInit {
    * @param categoryId the category id (catId)
    * @param categoryName the category friendly name
    */
-  async onCategoryClicked(categoryId: number, categoryName) {
+  async onCategoryClicked(categoryId: number, categoryName: string) {
     if (categoryId > 0) {
       if (this.homePageState.pagingData.categoryId != categoryId) {
         this.homePageState.pagingData.pageNumber = 1;
@@ -285,7 +286,7 @@ export class homeComponent implements OnInit, AfterViewInit {
   * User removed a chip
   * @param id the chip html id 
   */
-  async onRemoveChip(id) {
+  async onRemoveChip(id: string) {
     console.log(id);
     switch (id) {
       case 'chipSearch':
@@ -294,6 +295,7 @@ export class homeComponent implements OnInit, AfterViewInit {
       case 'chipCategory':
         this.homePageState.pagingData.categoryId = 0;
         this.homePageState.pagingData.category = '';
+        this.homePageState.selectedCategory = new Category();
         break;
       case 'chipUser':
         this.homePageState.pagingData.userId = '';
