@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "AuthenticateController.cs"
 // Create Date:  01/31/2022 12:33:00 PM
-// Last Updated: 01/31/2022 12:33:00 PM
+// Last Updated: 08/26/2026 12:11:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -95,7 +95,9 @@ namespace KioskApi.Controllers
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
+            var isAdmin = false;
             var user = await userManager.FindByNameAsync(model.Username);
+            
             if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
             {
                 var userRoles = await userManager.GetRolesAsync(user);
@@ -109,6 +111,8 @@ namespace KioskApi.Controllers
                 foreach (var userRole in userRoles)
                 {
                     authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                    if (userRole == UserRoles.Admin)
+                        isAdmin = true;
                 }
 
                 var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
@@ -125,7 +129,8 @@ namespace KioskApi.Controllers
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token),
                     expiration = token.ValidTo,
-                    id = user.Id
+                    id = user.Id,
+                    isAdmin = isAdmin
                 }); 
             }
             return Unauthorized();
