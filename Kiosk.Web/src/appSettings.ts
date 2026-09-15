@@ -23,8 +23,9 @@ export class AppSettings {
   // #region Constants
   readonly DEVL_WIN_URL = 'https://localhost:44389'; //Windows
   readonly DEVL_LIN_URL = 'http://localhost:5000'; //Linux
-  readonly APACHE_URL = 'http://192.168.2.1:8001'; //Apache
+  readonly APACHE_URL = 'https://baileyfs02.baileysoft.lan/kioskapi'; //Apache
   readonly APACHE_URL_1 = 'http://baileyfs02.baileysoft.lan:8001'; //Apache
+  readonly APACHE_URL_2 = 'http://192.168.2.1:8001'; //Apache
   readonly PROD_URL = 'https://kiosk-data.azurewebsites.net'; //Azure
   // #endregion
 
