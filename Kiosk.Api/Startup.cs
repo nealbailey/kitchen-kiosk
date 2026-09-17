@@ -106,9 +106,10 @@ namespace KioskApi
             services.AddSingleton(Configuration);
 
             services.AddScoped<IAspNetUserRepository, AspNetUserRepository>();
+            services.AddScoped<IPhotosRepository, PhotosRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IIngredientRepository, IngredientRepository>();
-            services.AddScoped<IRecipeRepository, RecipeRepository>();
+            services.AddScoped<IRecipeRepository, RecipeRepository>();            
         }
 
         /// <summary>

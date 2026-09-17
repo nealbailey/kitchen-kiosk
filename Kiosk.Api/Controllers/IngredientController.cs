@@ -46,7 +46,7 @@ namespace KioskApi.Controllers
         /// <param name="ingredientRepository"></param>
         public IngredientController(
             IConfiguration configuration,
-            ILogger<CategoryController> logger,
+            ILogger<IngredientController> logger,
             IIngredientRepository ingredientRepository) : base(configuration)
         {
             _logger = logger;

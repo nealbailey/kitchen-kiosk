@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "BaseController.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 03/24/2022 11:24:00 PM
+// Last Updated: 08/18/2026 13:45:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -26,7 +26,7 @@ using Microsoft.Extensions.Configuration;
 namespace KioskApi.Controllers
 {
     /// <summary>
-    /// 
+    /// Represents the base controller for the API.
     /// </summary>
     public class BaseController : Controller
     {
@@ -52,6 +52,7 @@ namespace KioskApi.Controllers
         /// Gets or sets the connection string.
         /// </summary>
         protected internal string _connectionString;
+        
         #endregion
 
         #region Constructors
@@ -61,7 +62,7 @@ namespace KioskApi.Controllers
         /// <param name="configuration"></param>
         public BaseController(IConfiguration configuration)
         {
-            _connectionString = configuration["ConnectionStrings:ConnStr"];
+            _connectionString = configuration["ConnectionStrings:ConnStr"];            
             _context = new KIOSKContext(_connectionString);
         }
 
@@ -76,7 +77,7 @@ namespace KioskApi.Controllers
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole<Guid>> roleManager)
         {
-            _connectionString = configuration["ConnectionStrings:ConnStr"];
+            _connectionString = configuration["ConnectionStrings:ConnStr"];            
             _context = new KIOSKContext(_connectionString);
             _userManager = userManager;
             _roleManager = roleManager;
