@@ -24,7 +24,8 @@ import { AppSettings } from 'src/appSettings';
 import { Ingredient } from '../models/ingredient.model';
 import { Recipe } from '../models/recipe.model';
 import { HomePageState } from './home.state';
-
+import { Photo } from '../models/photo.model';
+    
 @Injectable()
 export class RecipesService {
   constructor(
@@ -90,6 +91,15 @@ export class RecipesService {
     let url: string = AppSettings.API_RECIPE_INGREDIENTS + id;
     console.info(url);
     return await this.http.get<Ingredient[]>(url)
+      .pipe(catchError(this.handleError)).toPromise();
+  }
+
+  /** Gets a single recipe's photos by recipe id.  */
+  async GetRecipePhotos(id: number) {
+    console.info("Call GET in the api photo Controller");
+    let url: string = AppSettings.API_RECIPE_PHOTOS + id;
+    console.info(url);
+    return await this.http.get<Photo[]>(url)
       .pipe(catchError(this.handleError)).toPromise();
   }
 

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // Source File:  "userSession.service.ts"
 // Create Date:  03/17/2021 01:33:00 PM
-// Last Updated: 02/19/2022 07:13:00 AM
+// Last Updated: 08/26/2026 12:11:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -61,6 +61,19 @@ export class UserSessionService {
       return false;
 
     return this.validateUserSession();
+  }
+  
+  /** 
+   * Checks if the logged in user is the owner of a recipe 
+   * @param userName the username of the recipe owner.
+   * @returns true if the logged in user is the owner or an admin, false otherwise.
+   */
+  userIsRecipeOwnerOrAdmin(userName: string): boolean {
+    let userSession: UserSession = this.getUserSession();
+    if (!userSession)
+      return false;
+
+    return (userSession.username === userName || userSession.isAdmin);
   }
 
   /** Automatically logs the user off if the token is expired. */

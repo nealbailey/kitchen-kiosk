@@ -29,7 +29,7 @@ namespace Kiosk.Data.Repository
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public Task<AspNetUser> GetById(string userId);
+        public Task<AspNetUser> GetById(System.Guid userId);
 
         /// <summary>
         /// Get users.

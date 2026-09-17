@@ -8,4 +8,14 @@
  
    Omitting the file's extension will automatically load filename.scss, filename.sass, or filename.css 
 */ 
+.recipe-photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.recipe-photo img {
+  display: block;
+}
  

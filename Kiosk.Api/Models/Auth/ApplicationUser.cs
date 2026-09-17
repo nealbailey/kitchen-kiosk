@@ -18,11 +18,13 @@
 //-----------------------------------------------------------------------  
 namespace KioskApi.Domain.Models.Auth
 {
+    using System;
     using Microsoft.AspNetCore.Identity;
 
     /// <summary>
     /// Identity user extension
     /// </summary>
-    public class ApplicationUser : IdentityUser { 
+    public class ApplicationUser : IdentityUser<Guid>
+    {
     }
 }

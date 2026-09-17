@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // Source File:  "users.service.ts"
 // Create Date:  02/04/2022 10:18:00 PM
-// Last Updated: 02/14/2022 10:35:00 AM
+// Last Updated: 08/26/2026 12:11:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -34,7 +34,7 @@ export class UsersService {
 
   /** Gets a collection of Category records.  */
   async GetUsers() {
-    console.info("Call GET in the api categories Controller");
+    console.info("Call GET in the users Controller");
     let url: string = AppSettings.API_USERS;
     console.info(url);
     return await this.http.get<User[]>(url)

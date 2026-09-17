@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Kiosk.Api/Properties/ServiceDependencies/kiosk-data - Web Deploy/profile.arm.json
+
+# Functional test plan
+testplan.txt

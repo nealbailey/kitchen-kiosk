@@ -52,9 +52,9 @@ namespace Kiosk.Data.Repository
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public Task<AspNetUser> GetById(string userId)
+        public Task<AspNetUser> GetById(System.Guid userId)
         {
-            var user = _context.AspNetUsers.Where(p => p.Id.Equals(userId)).SingleOrDefaultAsync().Result;
+            var user = _context.AspNetUsers.Where(p => p.Id == userId).SingleOrDefaultAsync().Result;
             return Task.Run(() => user);
         }
 

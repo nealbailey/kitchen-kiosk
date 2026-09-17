@@ -149,7 +149,6 @@ namespace KioskApi.Data
 
                 entity.Property(e => e.Useruid)
                     .IsRequired()
-                    .HasMaxLength(450)
                     .HasColumnName("useruid");
 
                 entity.HasOne(d => d.PrimaryCategory)

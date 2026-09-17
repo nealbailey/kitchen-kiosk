@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Microsoft.OpenApi.Models;
 using System;
 using System.IO;
@@ -66,15 +67,15 @@ namespace KioskApi
             });
             
             // For Entity Framework              
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ConnStr")));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(Configuration.GetConnectionString("ConnStr"), ServerVersion.AutoDetect(Configuration.GetConnectionString("ConnStr"))));
             services.AddDbContext<KIOSKContext>(opt =>
             {
-                opt.UseSqlServer(Configuration.GetConnectionString("ConnStr"));
+                opt.UseMySql(Configuration.GetConnectionString("ConnStr"), ServerVersion.AutoDetect(Configuration.GetConnectionString("ConnStr")));
                 opt.EnableSensitiveDataLogging();
             });
 
             // For Identity  
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -105,9 +106,10 @@ namespace KioskApi
             services.AddSingleton(Configuration);
 
             services.AddScoped<IAspNetUserRepository, AspNetUserRepository>();
+            services.AddScoped<IPhotosRepository, PhotosRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IIngredientRepository, IngredientRepository>();
-            services.AddScoped<IRecipeRepository, RecipeRepository>();
+            services.AddScoped<IRecipeRepository, RecipeRepository>();            
         }
 
         /// <summary>

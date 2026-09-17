@@ -1,5 +1,7 @@
 ﻿#nullable disable
 
+using System;
+
 namespace KioskApi.Domain.Models
 {
     public partial class RecipeUser
@@ -8,7 +10,7 @@ namespace KioskApi.Domain.Models
         {
         }
 
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }        
     }

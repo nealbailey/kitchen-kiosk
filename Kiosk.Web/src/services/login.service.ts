@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // Source File:  "login.service.ts"
 // Create Date:  01/28/2021 01:25:00 PM
-// Last Updated: 02/17/2022 06:51:00 AM
+// Last Updated: 08/26/2026 12:11:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -30,6 +30,7 @@ export interface LoginResponse {
   token: string;
   expiration: Date;
   id: string;
+  isAdmin: boolean;
 }
 
 /**
@@ -90,6 +91,7 @@ export class LoginService {
     userSession.token = response.token;
     userSession.expiration = response.expiration;
     userSession.id = response.id;
+    userSession.isAdmin = response.isAdmin;
 
     // Serialize the token data
     userSession.password = ''; // do NOT serialize password

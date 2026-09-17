@@ -41,6 +41,9 @@ export class HomePageState {
   /** All the categories */
   public categories: Category[] = [];
 
+  /** The currently selected category */
+  public selectedCategory: Category = new Category();
+
   /** All the users */
   public users: User[] = [];
 
@@ -48,16 +51,16 @@ export class HomePageState {
   public searchString: string = '';
 
   /** The recipe fetch criteria */
-  public pagingData: PagingData;
+  public pagingData: PagingData = new PagingData();
 
   /** The user session */
-  public userSession: UserSession;
+  public userSession: UserSession = new UserSession();
 
   /** Indicates if the create wizard is visible on the screen */
-  public createRecipeDialogIsVisible: boolean;
+  public createRecipeDialogIsVisible: boolean = false;
 
   /** The current position of the wizard */
-  public createRecipeDialogCurrentStep = 1;
+  public createRecipeDialogCurrentStep: number = 1;
   
   //#endregion
 

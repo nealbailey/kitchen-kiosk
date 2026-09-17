@@ -21,6 +21,7 @@
 namespace KioskApi.Data
 {
     using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
     /// <summary>
     /// Database context
@@ -60,7 +61,7 @@ namespace KioskApi.Data
                 }
                 else
                 {
-                    optionsBuilder.UseSqlServer(_connectionString);
+                    optionsBuilder.UseMySql(_connectionString, ServerVersion.AutoDetect(_connectionString));
                 }
             }
         }

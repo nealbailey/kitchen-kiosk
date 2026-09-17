@@ -2654,6 +2654,16 @@ figcaption {
   }
 }
 
+@media screen and (max-width: 767px) {
+  #topnavDiv.topnav {
+    display: none;
+  }
+
+  .menu-button.w-nav-button {
+    display: none !important; // overrides the Webflow rule that shows it below 991px
+  }
+}
+
 @media screen and (max-width: 479px) {
   .nav-link {
     margin-top: 4px;

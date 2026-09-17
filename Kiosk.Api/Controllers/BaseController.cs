@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "BaseController.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 03/24/2022 11:24:00 PM
+// Last Updated: 08/18/2026 13:45:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -16,6 +16,7 @@
 //-----------------------------------------------------------------------
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //----------------------------------------------------------------------- 
+using System;
 using KioskApi.Data;
 using KioskApi.Domain.Models.Auth;
 using Microsoft.AspNetCore.Identity;
@@ -25,18 +26,33 @@ using Microsoft.Extensions.Configuration;
 namespace KioskApi.Controllers
 {
     /// <summary>
-    /// 
+    /// Represents the base controller for the API.
     /// </summary>
     public class BaseController : Controller
     {
         #region Fields
+        /// <summary>
+        /// Gets or sets the user manager.
+        /// </summary>
         protected UserManager<ApplicationUser> _userManager;
-        protected RoleManager<IdentityRole> _roleManager;
+
+        /// <summary>
+        /// Gets or sets the role manager.
+        /// </summary>
+        protected RoleManager<IdentityRole<Guid>> _roleManager;
         #endregion
 
         #region Properties
+        /// <summary>
+        /// Gets or sets the KIOSK context.
+        /// </summary>
         protected internal KIOSKContext _context;
+
+        /// <summary>
+        /// Gets or sets the connection string.
+        /// </summary>
         protected internal string _connectionString;
+        
         #endregion
 
         #region Constructors
@@ -46,7 +62,7 @@ namespace KioskApi.Controllers
         /// <param name="configuration"></param>
         public BaseController(IConfiguration configuration)
         {
-            _connectionString = configuration["ConnectionStrings:ConnStr"];
+            _connectionString = configuration["ConnectionStrings:ConnStr"];            
             _context = new KIOSKContext(_connectionString);
         }
 
@@ -59,9 +75,9 @@ namespace KioskApi.Controllers
         public BaseController(
             IConfiguration configuration, 
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole<Guid>> roleManager)
         {
-            _connectionString = configuration["ConnectionStrings:ConnStr"];
+            _connectionString = configuration["ConnectionStrings:ConnStr"];            
             _context = new KIOSKContext(_connectionString);
             _userManager = userManager;
             _roleManager = roleManager;
@@ -75,7 +91,7 @@ namespace KioskApi.Controllers
         /// </summary>
         /// <param name="userId">The user id Guid string on the record</param>
         /// <returns></returns>
-        protected internal virtual bool IsAdminOrOwner(string userId)
+        protected internal virtual bool IsAdminOrOwner(Guid userId)
         {            
             var user = GetAuthenticatedUser();
             if (user == null)
@@ -84,9 +100,9 @@ namespace KioskApi.Controllers
             var roles = _userManager.GetRolesAsync(user).Result;
 
             if (!roles.Contains("Admin"))
-                if (!userId.Equals(user.Id, System.StringComparison.InvariantCultureIgnoreCase))
+                if (userId != user.Id)
                     return false;
-            
+
             return true;
         }
 

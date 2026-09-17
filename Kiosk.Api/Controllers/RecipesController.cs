@@ -53,7 +53,7 @@ namespace KioskApi.Controllers
         public RecipesController(
             IConfiguration configuration,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<IdentityRole<Guid>> roleManager,
             ILogger<RecipesController> logger,
             IRecipeRepository recipeRepository) : base(configuration, userManager, roleManager)
         {
@@ -101,7 +101,7 @@ namespace KioskApi.Controllers
                     SearchString = searchstring,                    
                     SearchType = SearchStringType.None,
                     CategoryId = categoryId,
-                    UserUid = userId,
+                    UserUid = string.IsNullOrEmpty(userId) ? (System.Guid?)null : System.Guid.Parse(userId),
                     SortColumn = RecipeSortColumn.Title,
                     SortOrder = SortOrder.None,
                     IncludeCategories = (expand),

@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using System;
 using System.Linq;
 using System.Text;
@@ -51,13 +52,13 @@ namespace UnitTests
             else
             {
                 services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlServer(_connectionString));
+                    options.UseMySql(_connectionString, ServerVersion.AutoDetect(_connectionString)));
                 services.AddDbContext<KIOSKContext>(options =>
-                    options.UseSqlServer(_connectionString));
+                    options.UseMySql(_connectionString, ServerVersion.AutoDetect(_connectionString)));
             }
 
             // For Identity  
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -136,12 +137,12 @@ namespace UnitTests
             context.SaveChanges();
 
             // Seed users and roles
-            var adminRole = new IdentityRole { Id = "admin-role", Name = "Admin", NormalizedName = "ADMIN" };
+            var adminRole = new IdentityRole<Guid> { Id = Guid.NewGuid(), Name = "Admin", NormalizedName = "ADMIN" };
             authContext.Roles.Add(adminRole);
 
             var testUser = new ApplicationUser
             {
-                Id = "test",
+                Id = Guid.NewGuid(),
                 UserName = "test",
                 NormalizedUserName = "TEST",
                 Email = "test@gmail.com",
@@ -149,7 +150,7 @@ namespace UnitTests
                 EmailConfirmed = true
             };
             authContext.Users.Add(testUser);
-            authContext.UserRoles.Add(new IdentityUserRole<string>
+            authContext.UserRoles.Add(new IdentityUserRole<Guid>
             {
                 RoleId = adminRole.Id,
                 UserId = testUser.Id
@@ -157,7 +158,7 @@ namespace UnitTests
 
             var ownerUser = new ApplicationUser
             {
-                Id = "abc4bbf1-5bb4-43df-8c1b-ca5b1c85883d",
+                Id = Guid.Parse("abc4bbf1-5bb4-43df-8c1b-ca5b1c85883d"),
                 UserName = "nealbailey",
                 NormalizedUserName = "NEALBAILEY",
                 Email = "nealbailey@example.com",

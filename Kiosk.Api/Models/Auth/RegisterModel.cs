@@ -27,13 +27,22 @@ namespace KioskApi.Domain.Models.Auth
     {
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the username.
+        /// </summary>  
         [Required(ErrorMessage = "User Name is required")]
         public string Username { get; set; }
 
+        /// <summary>
+        /// Gets or sets the email.
+        /// </summary>
         [EmailAddress]
         [Required(ErrorMessage = "Email is required")]
         public string Email { get; set; }
 
+        /// <summary>
+        /// Gets or sets the password.
+        /// </summary>
         [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; }
 
