@@ -11,10 +11,10 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { InputTextarea } from 'primeng/inputtextarea';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { SlideMenuModule } from 'primeng/slidemenu';
+import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 
 // Routes
@@ -31,6 +31,8 @@ import { RecipesService } from 'src/services/recipes.service';
 import { UsersService } from 'src/services/users.service';
 import { ToastService } from 'src/services/toast.service';
 import { MessageService } from 'primeng/api';
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeng/themes/aura';
 
 //Components
 import { AppComponent } from './app.component';
@@ -64,9 +66,9 @@ import { RouterModule } from '@angular/router';
     InputTextModule,
     ToastModule,
     DropdownModule,
-    InputTextareaModule,
+    InputTextarea,
     ConfirmDialogModule,
-    SlideMenuModule,
+    MenuModule,
   ],
   providers: [
     AuthenticationInterceptorService,
@@ -80,6 +82,7 @@ import { RouterModule } from '@angular/router';
     CategoriesService,
     UsersService,
     MessageService,
+    providePrimeNG({ theme: { preset: Aura } }),
     { provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptorService, multi: true }
   ],
   bootstrap: [AppComponent]

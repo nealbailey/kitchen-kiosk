@@ -23,7 +23,7 @@
         <div class="divider"></div>
 
         <button #btn type="button" pButton icon="pi pi-bars" label="Recipes" (click)="menu.toggle($event)" class="p-button-secondary"></button>
-        <p-slideMenu #menu [model]="sidebarMenuItems" [popup]="true" [viewportHeight]="250" appendTo="body"></p-slideMenu>
+        <p-menu #menu [model]="sidebarMenuItems" [popup]="true" appendTo="body"></p-menu>
 
         <!-- Social button bar -->
         <!--
