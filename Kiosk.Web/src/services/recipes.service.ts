@@ -18,7 +18,7 @@
 //-----------------------------------------------------------------------
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AppSettings } from 'src/appSettings';
 import { Ingredient } from '../models/ingredient.model';
@@ -125,17 +125,16 @@ export class RecipesService {
   * Error processing.
   * @param caught The caught error information.
   */
-  private handleError(caught: any) {
+  private handleError(caught: any): Observable<never> {
     if (caught) {
       if (caught.error) {
         return throwError(caught.error);
         //console.error(caught.error.message);
         //return throwError(caught.error.message);
       }
-    }
-    if (caught) {
       return throwError(caught);
     }
+    return throwError(new Error('An unknown error occurred.'));
   }
 
   // #endregion
