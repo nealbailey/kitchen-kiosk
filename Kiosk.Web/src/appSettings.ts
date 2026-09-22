@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // Source File:  "AppSettings.ts"
 // Create Date:  02/04/2021 10:18:00 PM
-// Last Updated: 02/11/2022 10:35:00 AM
+// Last Updated: 09/22/2022 12:19:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -16,6 +16,18 @@
 //-----------------------------------------------------------------------
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
+
+/** Shape of the external, deployable src/assets/config/app-settings.json file. */
+export interface AppSettingsConfig {
+  API_URL?: string;
+  API_LOGIN_ENDPOINT?: string;
+  API_CATEGORIES?: string;
+  API_USERS?: string;
+  API_RECIPES?: string;
+  API_RECIPE?: string;
+  API_RECIPE_INGREDIENTS?: string;
+  API_RECIPE_PHOTOS?: string;
+}
 
 /** Public shared global constant string literals. */
 export class AppSettings {
@@ -37,32 +49,53 @@ export class AppSettings {
   // #region Properties (Static)
 
   /** WebAPI remote url. */
-  public static API_URL = new AppSettings().getApiUrl();
-    
+  public static API_URL: string;
+
   /** Controller endpoint for generating a bearer token. */
-  public static API_LOGIN_ENDPOINT = AppSettings.API_URL + '/api/authenticate/login';
+  public static API_LOGIN_ENDPOINT: string;
 
   /** Controller endpoint for fetching categories. */
-  public static API_CATEGORIES = AppSettings.API_URL + '/api/categories';
+  public static API_CATEGORIES: string;
 
   /** Controller endpoint for fetching users. */
-  public static API_USERS = AppSettings.API_URL + '/api/users';
+  public static API_USERS: string;
 
   /** Controller endpoint for fetching recipes. */
-  public static API_RECIPES = AppSettings.API_URL + '/api/recipes';
+  public static API_RECIPES: string;
 
   /** Controller endpoint for a single recipe. */
-  public static API_RECIPE = AppSettings.API_URL + '/api/recipe/';
+  public static API_RECIPE: string;
 
   /** Controller endpoint for a recipe ingredients. */
-  public static API_RECIPE_INGREDIENTS = AppSettings.API_URL + '/api/ingredient/';
+  public static API_RECIPE_INGREDIENTS: string;
 
   /** Controller endpoint for fetching photos of a recipe. */
-  public static API_RECIPE_PHOTOS = AppSettings.API_URL + '/api/photos/';
+  public static API_RECIPE_PHOTOS: string;
 
   // #endregion
 
   // #region Methods
+
+  /**
+   * Initialize the static settings/endpoints. Called once at app bootstrap
+   * (see main.ts) after the external app-settings.json config has been loaded.
+   * Any blank/missing value in the config falls back to the built-in default.
+   * @param config Overrides from the external config file, if any.
+   */
+  public static init(config?: AppSettingsConfig): void {
+    const value = (configured: string | undefined, fallback: string) =>
+      configured && configured.trim().length > 0 ? configured.trim() : fallback;
+
+    AppSettings.API_URL = value(config?.API_URL, new AppSettings().getApiUrl());
+
+    AppSettings.API_LOGIN_ENDPOINT = value(config?.API_LOGIN_ENDPOINT, AppSettings.API_URL + '/api/authenticate/login');
+    AppSettings.API_CATEGORIES = value(config?.API_CATEGORIES, AppSettings.API_URL + '/api/categories');
+    AppSettings.API_USERS = value(config?.API_USERS, AppSettings.API_URL + '/api/users');
+    AppSettings.API_RECIPES = value(config?.API_RECIPES, AppSettings.API_URL + '/api/recipes');
+    AppSettings.API_RECIPE = value(config?.API_RECIPE, AppSettings.API_URL + '/api/recipe/');
+    AppSettings.API_RECIPE_INGREDIENTS = value(config?.API_RECIPE_INGREDIENTS, AppSettings.API_URL + '/api/ingredient/');
+    AppSettings.API_RECIPE_PHOTOS = value(config?.API_RECIPE_PHOTOS, AppSettings.API_URL + '/api/photos/');
+  }
 
   /** Get the webapi to use. */
   protected getApiUrl(): string {

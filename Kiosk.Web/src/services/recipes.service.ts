@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // Source File:  "recipes.service.ts"
 // Create Date:  02/04/2021 10:18:00 PM
-// Last Updated: 02/11/2022 10:35:00 AM
+// Last Updated: 09/22/2022 12:21:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -20,7 +20,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { AppSettings } from 'src/appSettings';
+import { AppSettings, AppSettingsConfig } from 'src/appSettings';
 import { Ingredient } from '../models/ingredient.model';
 import { Recipe } from '../models/recipe.model';
 import { HomePageState } from './home.state';
