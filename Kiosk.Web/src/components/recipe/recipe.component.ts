@@ -115,11 +115,12 @@ export class recipeComponent implements OnInit, AfterViewInit {
  
   // #region Methods
   /**
-  * Converts date string from the database to friendly date-time
+  * Converts date string from the database to a friendly date, optionally including the time
   * @param the_date the date you need to convert 
+  * @param includeTime whether to include the time portion (default false)
   */
-  public getLocalDateString(the_date: any) {
-    return new formatHelper().getLocalDateString(the_date);
+  public getLocalDateString(the_date: any, includeTime: boolean = false) {
+    return new formatHelper().getLocalDateString(the_date, includeTime);
   }
   // #endregion
 

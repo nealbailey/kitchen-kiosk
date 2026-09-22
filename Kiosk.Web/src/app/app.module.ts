@@ -33,6 +33,26 @@ import { ToastService } from 'src/services/toast.service';
 import { MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
+import { definePreset } from '@primeng/themes';
+
+// Warm, kitchen-inspired accent replacing PrimeNG's default blue.
+const KioskPreset = definePreset(Aura, {
+  semantic: {
+    primary: {
+      50: '{orange.50}',
+      100: '{orange.100}',
+      200: '{orange.200}',
+      300: '{orange.300}',
+      400: '{orange.400}',
+      500: '#e2622a',
+      600: '#c94f1e',
+      700: '#a63e17',
+      800: '{orange.800}',
+      900: '{orange.900}',
+      950: '{orange.950}'
+    }
+  }
+});
 
 //Components
 import { AppComponent } from './app.component';
@@ -82,7 +102,7 @@ import { RouterModule } from '@angular/router';
     CategoriesService,
     UsersService,
     MessageService,
-    providePrimeNG({ theme: { preset: Aura } }),
+    providePrimeNG({ theme: { preset: KioskPreset, options: { darkModeSelector: '.app-dark', cssLayer: false } } }),
     { provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptorService, multi: true }
   ],
   bootstrap: [AppComponent]

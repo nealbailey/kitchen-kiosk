@@ -7,7 +7,7 @@
     <div class="post-title-section">
       <h1>{{recipe?.title}}</h1>
       <div class="post-info-wrapper">
-        <div class="post-info">{{getLocalDateString(recipe?.date)}}</div>
+        <div class="post-info">{{getLocalDateString(recipe?.date, true)}}</div>
         <div class="post-info">|</div>
         <a routerLink="/home"
            class="post-info when-link"

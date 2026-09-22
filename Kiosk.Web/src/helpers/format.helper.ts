@@ -21,10 +21,11 @@
 export class formatHelper {
 
   /**
-  * Converts date string from the database to friendly date-time
+  * Converts date string from the database to a friendly date, optionally including the time
   * @param the_date the date you need to convert 
+  * @param includeTime whether to include the time portion (default false)
   */
-  public getLocalDateString(the_date: any) {
+  public getLocalDateString(the_date: any, includeTime: boolean = false) {
     if ((the_date == undefined) || (the_date == null))
       return the_date;
 
@@ -33,7 +34,9 @@ export class formatHelper {
     if (!regex.test(the_date)) {
       return the_date;
     }
-    return new Date(the_date).toLocaleString();
+
+    const date = new Date(the_date);
+    return includeTime ? date.toLocaleString() : date.toLocaleDateString();
   }
 
 }

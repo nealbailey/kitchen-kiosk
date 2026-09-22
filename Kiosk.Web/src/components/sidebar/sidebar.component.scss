@@ -8,4 +8,11 @@
  
    Omitting the file's extension will automatically load filename.scss, filename.sass, or filename.css 
 */ 
+
+/* Without an explicit width, the search input falls back to the browser's default input
+   size instead of respecting the sidebar's padding, causing it to overflow/clip. */
+.sidebar-column input[pInputText] {
+  width: 100%;
+  box-sizing: border-box;
+}
  

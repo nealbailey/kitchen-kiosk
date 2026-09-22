@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { formatHelper } from 'src/helpers/format.helper';
 import { Ingredient } from 'src/models/ingredient.model';
@@ -35,13 +35,16 @@ import { StateValidator } from 'src/services/stateValidator.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class homeComponent implements OnInit, AfterViewInit, OnDestroy {
+export class homeComponent implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {
 
   // #region Properties
   @ViewChild('infiniteScrollTrigger') infiniteScrollTrigger: ElementRef;
 
   private infiniteScrollObserver: IntersectionObserver;
   private viewInitialized: boolean = false;
+
+  /** Recipe count last observed, used to detect data changes made outside this component (e.g. sidebar filters). */
+  private lastObservedRecipeCount: number = -1;
   // #endregion
 
   // #region Constructor
@@ -90,7 +93,21 @@ export class homeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.restoreScrollPosition();
 
     console.log('homeComponent:ngAfterViewInit()');
-  } 
+  }
+
+  /** Re-arms the scroll observer whenever the recipe count changes, since the card grid may not
+   *  leave the sentinel's viewport visibility state each time (sidebar filters bypass this component). */
+  ngAfterViewChecked(): void {
+    if (!this.viewInitialized || !this.infiniteScrollTrigger)
+      return;
+
+    const currentRecipeCount = this.homePageState.recipes.length;
+
+    if (currentRecipeCount !== this.lastObservedRecipeCount) {
+      this.lastObservedRecipeCount = currentRecipeCount;
+      this.reattachInfiniteScrollObserver();
+    }
+  }
 
   /** Saves the list position and releases the scroll observer. */
   ngOnDestroy(): void {
@@ -143,6 +160,19 @@ export class homeComponent implements OnInit, AfterViewInit, OnDestroy {
   private initializeInfiniteScroll() {
     if (this.infiniteScrollObserver || !this.infiniteScrollTrigger)
       return;
+
+    this.lastObservedRecipeCount = this.homePageState.recipes.length;
+    this.reattachInfiniteScrollObserver();
+  }
+
+  /** Recreates the observer so it re-evaluates the sentinel's current visibility.
+   *  IntersectionObserver only reports visibility *changes*, so a fresh instance is required to detect
+   *  "still visible after the list shrank/grew" cases that a persistent observer would silently miss. */
+  private reattachInfiniteScrollObserver() {
+    if (!this.infiniteScrollTrigger)
+      return;
+
+    this.infiniteScrollObserver?.disconnect();
 
     this.infiniteScrollObserver = new IntersectionObserver(entries => {
       if (entries.some(entry => entry.isIntersecting))
@@ -205,11 +235,12 @@ export class homeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-  * Converts date string from the database to friendly date-time
+  * Converts date string from the database to a friendly date, optionally including the time
   * @param the_date the date you need to convert 
+  * @param includeTime whether to include the time portion (default false)
   */
-  public getLocalDateString(the_date: any) {
-    return new formatHelper().getLocalDateString(the_date);
+  public getLocalDateString(the_date: any, includeTime: boolean = false) {
+    return new formatHelper().getLocalDateString(the_date, includeTime);
   }
   // #endregion
 
@@ -225,12 +256,12 @@ export class homeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.homePageState.pagingData.searchString = input.value;
 
-    if (input.value.length == 0) {
-      this.homePageState.resetRecipes();
-      await this.getData();
-      window.scrollTo(0, 0);
-      return;
-    }
+    // if (input.value.length == 0) {
+    //   this.homePageState.resetRecipes();
+    //   await this.getData();
+    //   window.scrollTo(0, 0);
+    //   return;
+    // }
 
     if (input.value.length < 4)
       return;

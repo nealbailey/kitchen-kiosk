@@ -1989,13 +1989,57 @@ textarea.w-input, textarea.w-select {
 }
 
 /* ==========================================================================
+   Kiosk Design Tokens (light + dark)
+   ========================================================================== */
+:root {
+  --app-font: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --app-serif-font: 'Lora', Georgia, serif;
+
+  --app-bg: #f4f5f7;
+  --app-surface: #ffffff;
+  --app-surface-muted: #f0f1f4;
+  --app-border: #e2e4e9;
+  --app-text: #262a33;
+  --app-text-muted: #6b7280;
+  --app-accent: #e2622a;
+  --app-accent-dark: #c94f1e;
+  --app-shadow: 0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.06);
+  --app-shadow-hover: 0 8px 20px rgba(16, 24, 40, 0.12);
+
+  --app-sidebar-bg: #1f2430;
+  --app-sidebar-text: #c7cbd4;
+  --app-sidebar-text-strong: #ffffff;
+  --app-sidebar-width: 280px;
+  --app-radius: 10px;
+}
+
+.app-dark {
+  --app-bg: #14161c;
+  --app-surface: #1c1f27;
+  --app-surface-muted: #23262f;
+  --app-border: #2d313c;
+  --app-text: #e7e9ed;
+  --app-text-muted: #9aa0ab;
+  --app-accent: #f0885a;
+  --app-accent-dark: #e2622a;
+  --app-shadow: 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.35);
+  --app-shadow-hover: 0 10px 24px rgba(0, 0, 0, 0.5);
+
+  --app-sidebar-bg: #10121a;
+  --app-sidebar-text: #a9adb8;
+  --app-sidebar-text-strong: #ffffff;
+}
+
+/* ==========================================================================
    Start of CSS
    ========================================================================== */
 body {
-  font-family: 'Open Sans', sans-serif;
-  color: #333;
+  font-family: var(--app-font);
+  background-color: var(--app-bg);
+  color: var(--app-text);
   font-size: 16px;
   line-height: 135%;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 h1 {
@@ -2054,7 +2098,7 @@ p {
 }
 
 a {
-  color: #24a7ff;
+  color: var(--app-accent-dark);
   text-decoration: underline;
 }
 
@@ -2280,7 +2324,7 @@ figcaption {
 .post-info {
   display: inline-block;
   margin-right: 8px;
-  color: #969696;
+  color: var(--app-text-muted);
   font-size: 13px;
   line-height: 125%;
   /*letter-spacing: 1px;*/
@@ -2293,19 +2337,19 @@ figcaption {
 }
 
 .post-info.when-link:hover {
-  color: #333;
+  color: var(--app-accent-dark);
 }
 
 .blog-title-link {
   display: block;
   -webkit-transition: opacity 200ms ease;
   transition: opacity 200ms ease;
-  color: #333;
+  color: var(--app-text);
   text-decoration: none;
 }
 
 .blog-title-link:hover {
-  opacity: 0.61;
+  opacity: 0.75;
 }
 
 .body-copy img {
@@ -2400,19 +2444,19 @@ figcaption {
 
 .button-round {
   padding: 5px 12px;
-  border: 1px solid #d3d3d3;
+  border: 1px solid var(--app-border);
   border-radius: 20px;
-  background-color: #fff;
+  background-color: var(--app-surface);
   -webkit-transition: border 200ms ease, color 200ms ease;
   transition: border 200ms ease, color 200ms ease;
-  color: #333;
+  color: var(--app-text);
   font-size: 14px;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .button-round:hover {
-  border-color: #333;
-  color: #333;
+  border-color: var(--app-accent);
+  color: var(--app-accent-dark);
 }
 
 .post-info-wrapper {
@@ -2422,9 +2466,10 @@ figcaption {
 }
 
 .content {
-  width: 75%;
-  margin-left: 20%;
+  margin-left: var(--app-sidebar-width);
   padding: 50px;
+  background-color: var(--app-bg);
+  min-height: 100vh;
 }
 
 .post-title-section {
@@ -2434,17 +2479,18 @@ figcaption {
   text-align: center;
 }
 
-/* Add a black background color to the top navigation */
+/* Top navigation bar */
 .topnav {
-  background-color: #333;
+  background-color: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
   overflow: hidden;
-  margin-left: 13.4%;
+  margin-left: var(--app-sidebar-width);
 }
 
 /* Style the links inside the navigation bar */
 .topnav a {
   float: left;
-  color: #f2f2f2;
+  color: var(--app-text);
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
@@ -2453,13 +2499,13 @@ figcaption {
 
 /* Change the color of links on hover */
 .topnav a:hover {
-  background-color: #ddd;
-  color: black;
+  background-color: var(--app-surface-muted);
+  color: var(--app-accent-dark);
 }
 
 /* Add a color to the active/current link */
 .topnav a.active {
-  background-color: #04AA6D;
+  background-color: var(--app-accent);
   color: white;
 }
 
@@ -2474,21 +2520,23 @@ figcaption {
   left: 0px;
   top: 0px;
   bottom: 0px;
-  width: 25%;
+  width: var(--app-sidebar-width);
   height: 100%;
   padding: 50px 40px;
-  background-color: #333;
-  color: #9b9b9b;
+  background-color: var(--app-sidebar-bg);
+  color: var(--app-sidebar-text);
+  overflow-y: auto;
 }
 
 .logo-text {
   margin-top: 0px;
   margin-bottom: 0px;
-  font-family: 'Open Sans', sans-serif;
-  color: #f0f0f0;
+  font-family: var(--app-font);
+  color: var(--app-sidebar-text-strong);
   font-size: 28px;
   line-height: 120%;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .logo-link {
@@ -2501,7 +2549,7 @@ figcaption {
   height: 1px;
   margin-top: 20px;
   margin-bottom: 20px;
-  background-color: #5e5e5e;
+  background-color: rgba(255, 255, 255, 0.12);
 }
 
 .blog-list {
@@ -2562,6 +2610,10 @@ figcaption {
     width: 100%;
     margin-left: 0%;
     padding: 30px 20px;
+  }
+
+  .topnav {
+    margin-left: 0;
   }
 
   .sidebar-column {
