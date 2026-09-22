@@ -15,7 +15,7 @@
 
   <div id="divFilters">
     <button pButton pRipple type="button" icon="pi pi-search" class="p-button-rounded p-button-success p-button-outlined" style="height: 2.5rem;width: 2.5rem; color: #808080;" (click)="onSearchClicked();"></button>
-    &nbsp;<p-chip *ngIf="!homePageState.pageIsLoading" icon="pi pi-file" [label]="'Page: ' + this.homePageState?.pagingData.pageNumber" styleClass="mr-2"></p-chip>
+    &nbsp;<p-chip *ngIf="!homePageState.pageIsLoading" icon="pi pi-file" [label]="this.homePageState.recipes.length + ' recipes'" styleClass="mr-2"></p-chip>
     <p-chip *ngIf="this.homePageState?.pagingData.searchString" icon="pi pi-search" [label]="this.homePageState?.pagingData.searchString" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipSearch')"></p-chip>
     <p-chip *ngIf="this.homePageState?.pagingData.favoritesOnly === true" icon="pi pi-heart" label="My Favorites" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipFavorites')"></p-chip>
     <p-chip *ngIf="this.homePageState?.pagingData.categoryId > 0" icon="pi pi-book" [label]="this.homePageState?.pagingData.category" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipCategory')"></p-chip>
@@ -33,7 +33,7 @@
       <!-- Start Posts Area -->
       <div role="listitem" class="w-dyn-item">
         <div class="post-wrapper" *ngFor="let recipe of this.homePageState.recipes">
-          <a routerLink="/recipe/{{recipe.recId}}" class="blog-title-link w-inline-block">
+          <a routerLink="/recipe/{{recipe.recId}}" class="blog-title-link w-inline-block" (click)="onRecipeClicked()">
             <h1 class="blog-title">{{recipe.title}} <i *ngIf="recipe.isRecommended" class="pi pi-thumbs-up" style="font-size: 1.2rem"></i></h1> 
           </a>
           <div class="post-info-wrapper">
@@ -65,9 +65,9 @@
 
     </div>
   </div>
-  <div class="button-wrapper">
-    <a *ngIf="this.homePageState.pagingData.pageNumber !== 1" class="button w-button" (click)="onPrevPageClicked()">←&nbsp;Prev Page&nbsp;</a>&nbsp;&nbsp;
-    <a *ngIf="this.homePageState.recipes.length >= this.homePageState.pagingData.pageSize" class="button w-button" (click)="onNextPageClicked()">Next Page&nbsp;→</a>
+  <div #infiniteScrollTrigger class="infinite-scroll-trigger" aria-hidden="true"></div>
+  <div *ngIf="homePageState.isLoadingMoreRecipes" class="infinite-scroll-loading" role="status" aria-label="Loading more recipes">
+    <p-progressSpinner [style]="{width: '36px', height: '36px'}" strokeWidth="6" fill="transparent" animationDuration=".5s"></p-progressSpinner>
   </div>
 
   <!--

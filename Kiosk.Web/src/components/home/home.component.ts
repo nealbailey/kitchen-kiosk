@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
-import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { formatHelper } from 'src/helpers/format.helper';
 import { Ingredient } from 'src/models/ingredient.model';
@@ -35,9 +35,13 @@ import { StateValidator } from 'src/services/stateValidator.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class homeComponent implements OnInit, AfterViewInit {
+export class homeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // #region Properties
+  @ViewChild('infiniteScrollTrigger') infiniteScrollTrigger: ElementRef;
+
+  private infiniteScrollObserver: IntersectionObserver;
+  private viewInitialized: boolean = false;
   // #endregion
 
   // #region Constructor
@@ -66,21 +70,33 @@ export class homeComponent implements OnInit, AfterViewInit {
 
   /** Occurs upon component initialization */
   async ngOnInit(): Promise<void> { 
-    // obtain data for the page 
-    this.getData();
+    if (!this.homePageState.recipesInitialized)
+      await this.getData();
 
     console.log('homeComponent:ngOnInit()');
   } 
  
   /** Occurs after view initialization */ 
   ngAfterViewInit(): void { 
+    this.viewInitialized = true;
+
     // allow ngAfterViewInit() to complete before setting control states
     // otherwise a non-fatal exception is thrown
     setTimeout(() => {
       this.setControlStates();
     }, 10);
+
+    if (this.homePageState.recipesInitialized)
+      this.restoreScrollPosition();
+
     console.log('homeComponent:ngAfterViewInit()');
   } 
+
+  /** Saves the list position and releases the scroll observer. */
+  ngOnDestroy(): void {
+    this.homePageState.scrollPosition = window.scrollY;
+    this.infiniteScrollObserver?.disconnect();
+  }
  
   /** Sets control states based upon permissions/current data values. */
   setControlStates() {
@@ -93,26 +109,78 @@ export class homeComponent implements OnInit, AfterViewInit {
   // #region Data Acquisition 
 
   /** Retrieves all necessary data for this component. */ 
-  async getData() { 
-    // start the progress bar/spinner or display a skeleton.
-    this.homePageState.pageIsLoading = true;
+  async getData(append: boolean = false): Promise<boolean> {
+    if (!append)
+      this.homePageState.pageIsLoading = true;
  
     try {
-      this.homePageState.recipes = await this.recipeService.GetRecipes(this.homePageState);      
-      this.homePageState.pageIsLoading = false;
+      const recipes = await this.recipeService.GetRecipes(this.homePageState);
 
+      if (append)
+        this.homePageState.appendRecipes(recipes);
+      else
+        this.homePageState.setRecipes(recipes);
+
+      return true;
     } catch (message: any) {
-      this.homePageState.pageIsLoading = false;
       this.toastService.showError(message);
+      return false;
     }
     finally {
       this.homePageState.pageIsLoading = false;
+      this.homePageState.isLoadingMoreRecipes = false;
+
+      if (this.viewInitialized && this.homePageState.recipesInitialized)
+        this.initializeInfiniteScroll();
     }
   }
 
   // #endregion
  
   // #region Methods
+
+  /** Observes a marker below the list and loads another page as it approaches. */
+  private initializeInfiniteScroll() {
+    if (this.infiniteScrollObserver || !this.infiniteScrollTrigger)
+      return;
+
+    this.infiniteScrollObserver = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting))
+        this.loadNextPage();
+    }, { rootMargin: '200px 0px' });
+
+    this.infiniteScrollObserver.observe(this.infiniteScrollTrigger.nativeElement);
+  }
+
+  /** Restores the home list after its existing records have rendered. */
+  private restoreScrollPosition() {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, this.homePageState.scrollPosition);
+        this.initializeInfiniteScroll();
+      });
+    });
+  }
+
+  /** Fetches and appends the next recipe page. */
+  async loadNextPage() {
+    if (this.homePageState.pageIsLoading ||
+        this.homePageState.isLoadingMoreRecipes ||
+        !this.homePageState.hasMoreRecipes)
+      return;
+
+    const previousPage = this.homePageState.pagingData.pageNumber;
+    this.homePageState.pagingData.pageNumber = previousPage + 1;
+    this.homePageState.isLoadingMoreRecipes = true;
+
+    if (!await this.getData(true))
+      this.homePageState.pagingData.pageNumber = previousPage;
+  }
+
+  /** Saves the current list position before opening a recipe. */
+  onRecipeClicked() {
+    this.homePageState.scrollPosition = window.scrollY;
+  }
 
   /**
   * Deletes the selected recipe
@@ -123,6 +191,7 @@ export class homeComponent implements OnInit, AfterViewInit {
       this.homePageState.pageIsLoading = true;      
       await this.recipeService.DeleteRecipe(recipeId);
       this.toastService.showSuccess('Recipe deleted successfully');
+      this.homePageState.resetRecipes();
       await this.getData();
     }
     catch (e) {
@@ -154,11 +223,14 @@ export class homeComponent implements OnInit, AfterViewInit {
     if (!input)
       return;
 
-    this.homePageState.pagingData.pageNumber = 1;
     this.homePageState.pagingData.searchString = input.value;
 
-    if (input.value.length == 0)
+    if (input.value.length == 0) {
+      this.homePageState.resetRecipes();
       await this.getData();
+      window.scrollTo(0, 0);
+      return;
+    }
 
     if (input.value.length < 4)
       return;
@@ -168,7 +240,9 @@ export class homeComponent implements OnInit, AfterViewInit {
       console.log("Search: " + input.value)
     }, 1250);
 
+    this.homePageState.resetRecipes();
     await this.getData();
+    window.scrollTo(0, 0);
   }
 
   /**
@@ -186,9 +260,9 @@ export class homeComponent implements OnInit, AfterViewInit {
   async onCategoryClicked(categoryId: number, categoryName: string) {
     if (categoryId > 0) {
       if (this.homePageState.pagingData.categoryId != categoryId) {
-        this.homePageState.pagingData.pageNumber = 1;
         this.homePageState.pagingData.categoryId = categoryId;
-        this.homePageState.pagingData.category = categoryName;        
+        this.homePageState.pagingData.category = categoryName;
+        this.homePageState.resetRecipes();
         await this.getData();
 
         window.scrollTo(0, 0);
@@ -204,9 +278,9 @@ export class homeComponent implements OnInit, AfterViewInit {
   async onUserClicked(id: string, userName: string) {
     if (id) {
       if (this.homePageState.pagingData.userId != id) {
-        this.homePageState.pagingData.pageNumber = 1;
         this.homePageState.pagingData.userId = id;
         this.homePageState.pagingData.userName = userName;
+        this.homePageState.resetRecipes();
         await this.getData();
 
         window.scrollTo(0, 0);
@@ -266,22 +340,6 @@ export class homeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  /** User clicked on the Next Page button */
-  async onNextPageClicked() {
-    this.homePageState.pagingData.pageNumber = (this.homePageState.pagingData.pageNumber + 1);
-    await this.getData();
-    window.scrollTo(0, 0);
-  }
-
-  /** User clicked on the Previous Page button */
-  async onPrevPageClicked() {
-    if (this.homePageState.pagingData.pageNumber <= 1)
-      return;
-    this.homePageState.pagingData.pageNumber = (this.homePageState.pagingData.pageNumber -1);
-    await this.getData();
-    window.scrollTo(0, 0);
-  }
-
   /**
   * User removed a chip
   * @param id the chip html id 
@@ -305,8 +363,9 @@ export class homeComponent implements OnInit, AfterViewInit {
         this.homePageState.pagingData.favoritesOnly = false;
         break;
     }
-    this.homePageState.pagingData.pageNumber = 1;
+    this.homePageState.resetRecipes();
     await this.getData();
+    window.scrollTo(0, 0);
   }
 
   //#region Create Dialog
@@ -366,7 +425,8 @@ export class homeComponent implements OnInit, AfterViewInit {
         this.homePageState.pageIsLoading = true;
         await this.recipeService.UpdateRecipe(this.homePageState.selectedRecipe);
         this.toastService.showSuccess('Recipe updated successfully');
-      }      
+      }
+      this.homePageState.resetRecipes();
       await this.getData();
     } catch (message: any) {
       this.toastService.showError(message);

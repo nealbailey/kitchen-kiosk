@@ -25,3 +25,14 @@
   opacity: 0.4;
   margin-bottom: 1.5em;
 }
+
+.infinite-scroll-trigger {
+  height: 1px;
+}
+
+.infinite-scroll-loading {
+  align-items: center;
+  display: flex;
+  height: 60px;
+  justify-content: center;
+}

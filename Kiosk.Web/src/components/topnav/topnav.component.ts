@@ -130,7 +130,9 @@ export class topnavComponent implements OnInit, AfterViewInit {
         //this.onSuccessfulLogin.emit();
 
         // Refresh data so favorites are accurate
-        this.homePageState.recipes = await this.recipesService.GetRecipes(this.homePageState);
+        this.homePageState.resetRecipes();
+        const recipes = await this.recipesService.GetRecipes(this.homePageState);
+        this.homePageState.setRecipes(recipes);
       }
     }
     catch (strError) {

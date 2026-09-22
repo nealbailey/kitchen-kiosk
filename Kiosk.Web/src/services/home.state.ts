@@ -35,6 +35,18 @@ export class HomePageState {
   /** All the recipes that the user has access to */
   public recipes: Recipe[] = [];
 
+  /** The recipe collection has been loaded at least once */
+  public recipesInitialized: boolean = false;
+
+  /** More recipe pages may be available */
+  public hasMoreRecipes: boolean = true;
+
+  /** The next recipe page is currently being loaded */
+  public isLoadingMoreRecipes: boolean = false;
+
+  /** The home page's last vertical scroll position */
+  public scrollPosition: number = 0;
+
   /** Recipe being edited/created */
   public selectedRecipe: Recipe = new Recipe();
 
@@ -72,6 +84,32 @@ export class HomePageState {
   //#endregion
 
   //#region Methods
+
+  /** Clears the recipe collection before applying new filters or refreshing it. */
+  public resetRecipes() {
+    this.recipes = [];
+    this.pagingData.pageNumber = 1;
+    this.recipesInitialized = false;
+    this.hasMoreRecipes = true;
+    this.isLoadingMoreRecipes = false;
+    this.scrollPosition = 0;
+  }
+
+  /** Replaces the current recipe collection with a fetched page. */
+  public setRecipes(recipes: Recipe[]) {
+    this.recipes = recipes;
+    this.recipesInitialized = true;
+    this.hasMoreRecipes = recipes.length >= this.pagingData.pageSize;
+  }
+
+  /** Adds a fetched page to the current recipe collection. */
+  public appendRecipes(recipes: Recipe[]) {
+    const existingIds = new Set(this.recipes.map(recipe => recipe.recId));
+    this.recipes = this.recipes.concat(
+      recipes.filter(recipe => !existingIds.has(recipe.recId)));
+    this.recipesInitialized = true;
+    this.hasMoreRecipes = recipes.length >= this.pagingData.pageSize;
+  }
 
   //#endregion
 }

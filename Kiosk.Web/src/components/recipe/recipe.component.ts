@@ -17,6 +17,7 @@
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { formatHelper } from 'src/helpers/format.helper';
 import { Recipe } from 'src/models/recipe.model';
@@ -50,6 +51,7 @@ export class recipeComponent implements OnInit, AfterViewInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private location: Location,
     private recipeService: RecipesService,
     public homePageState: HomePageState) {
     this.recipe = new Recipe();
@@ -122,6 +124,11 @@ export class recipeComponent implements OnInit, AfterViewInit {
   // #endregion
 
   // #region Event Handlers 
+  /** Returns to the previous route so Angular can restore the home list state. */
+  onBackClicked() {
+    this.location.back();
+  }
+
   /**
   * User selected a category
   * @param categoryId the category id (catId)
@@ -130,9 +137,9 @@ export class recipeComponent implements OnInit, AfterViewInit {
   async onCategoryClicked(categoryId: number, categoryName) {
     if (categoryId > 0) {
       if (this.homePageState.pagingData.categoryId != categoryId) {
-        this.homePageState.pagingData.pageNumber = 1;
         this.homePageState.pagingData.categoryId = categoryId;
         this.homePageState.pagingData.category = categoryName;
+        this.homePageState.resetRecipes();
       }
     }
   }
@@ -145,9 +152,9 @@ export class recipeComponent implements OnInit, AfterViewInit {
   async onUserClicked(id: string, userName: string) {
     if (id) {
       if (this.homePageState.pagingData.userId != id) {
-        this.homePageState.pagingData.pageNumber = 1;
         this.homePageState.pagingData.userId = id;
         this.homePageState.pagingData.userName = userName;
+        this.homePageState.resetRecipes();
       }
     }
   }

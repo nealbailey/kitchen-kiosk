@@ -69,8 +69,8 @@ export class sidebarComponent implements OnInit, AfterViewInit {
 
   /** Occurs upon component initialization */
   async ngOnInit(): Promise<void> { 
-    // obtain data for the page 
-    this.getData();
+    // Recipe data is owned by the routed home component.
+    this.getData(false);
   } 
  
   /** Occurs after view initialization */ 
@@ -93,10 +93,14 @@ export class sidebarComponent implements OnInit, AfterViewInit {
   // #region Data Acquisition 
 
   /** Retrieves all necessary data for this component. */
-  async getData() {
+  async getData(loadRecipes: boolean = true) {
     try {
       this.isLoading = true;
-      this.homePageState.recipes = await this.recipesService.GetRecipes(this.homePageState);
+      if (loadRecipes) {
+        this.homePageState.pageIsLoading = true;
+        const recipes = await this.recipesService.GetRecipes(this.homePageState);
+        this.homePageState.setRecipes(recipes);
+      }
 
       if (this.homePageState.categories.length == 0)
         this.homePageState.categories = await this.categoriesService.GetCategories();
@@ -111,6 +115,8 @@ export class sidebarComponent implements OnInit, AfterViewInit {
     }
     finally {
       this.isLoading = false;
+      if (loadRecipes)
+        this.homePageState.pageIsLoading = false;
     }
   }
 
@@ -175,11 +181,12 @@ export class sidebarComponent implements OnInit, AfterViewInit {
     if (!input)
       return;
 
-    this.homePageState.pagingData.pageNumber = 1;
     this.homePageState.pagingData.searchString = input.value;
 
-    if (input.value.length == 0)
+    if (input.value.length == 0) {
+      this.homePageState.resetRecipes();
       await this.getData();
+    }
 
     if (input.value.length < 4)
       return;
@@ -196,13 +203,14 @@ export class sidebarComponent implements OnInit, AfterViewInit {
       }, 500);
     }
 
+    this.homePageState.resetRecipes();
     await this.getData();
   }
 
   /** User clicked the My Favorites link */
   async onFavoritesClicked() {
-    this.homePageState.pagingData.pageNumber = 1;
     this.homePageState.pagingData.favoritesOnly = true;
+    this.homePageState.resetRecipes();
     this.homePageState.pageIsLoading = this.isLoading;
     await this.getData();
     this.homePageState.pageIsLoading = this.isLoading;
@@ -210,8 +218,8 @@ export class sidebarComponent implements OnInit, AfterViewInit {
 
   /** User clicked the Home link */
   async onHomeClicked() {
-    this.homePageState.pagingData.pageNumber = 1;
     this.homePageState.pagingData.favoritesOnly = false;
+    this.homePageState.resetRecipes();
     await this.getData();
   }
 
@@ -237,16 +245,16 @@ export class sidebarComponent implements OnInit, AfterViewInit {
   async onTieredMenuItemClick(event: any, type: string) {
     this.homePageState.pageIsLoading = this.isLoading;
     if (type == 'category') {
-      this.homePageState.pagingData.pageNumber = 1;
       this.homePageState.pagingData.categoryId = event.item.id;
       this.homePageState.pagingData.category = event.item.label;
+      this.homePageState.resetRecipes();
       await this.getData();
     }
 
     if (type == 'user') {
-      this.homePageState.pagingData.pageNumber = 1;
       this.homePageState.pagingData.userId = event.item.id;
       this.homePageState.pagingData.userName = event.item.label;
+      this.homePageState.resetRecipes();
       await this.getData();
     }
     this.homePageState.pageIsLoading = this.isLoading;
