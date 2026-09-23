@@ -37,6 +37,77 @@
   justify-content: center;
 }
 
+/* Expanded search/category/author/sort filter panel, shown via the hourglass toggle */
+.filter-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1.25rem;
+  background-color: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.filter-group-search {
+  flex: 1 1 320px;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--app-text-muted);
+}
+
+.filter-search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-search-row input[pInputText] {
+  flex: 1 1 180px;
+}
+
+@media screen and (max-width: 767px) {
+  .filter-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* flex-basis: 320px is meant to set a *width* in the row layout above; once the panel
+     stacks into a column it would otherwise be read as a min-height, leaving a huge gap. */
+  .filter-group-search {
+    flex-basis: auto;
+  }
+
+  .filter-search-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-search-row input[pInputText] {
+    flex-basis: auto;
+  }
+
+  .filter-search-row .p-selectbutton {
+    display: flex;
+  }
+
+  .filter-search-row .p-selectbutton .p-button {
+    flex: 1;
+  }
+}
+
 /* Recipe card grid replaces the old HR-separated blog list */
 .recipe-grid {
   display: grid;

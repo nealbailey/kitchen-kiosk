@@ -59,6 +59,9 @@ export class HomePageState {
   /** All the users */
   public users: User[] = [];
 
+  /** The currently selected author/user filter */
+  public selectedUser: User = new User();
+
   /** The search criteria */
   public searchString: string = '';
 

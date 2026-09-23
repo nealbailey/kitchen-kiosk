@@ -22,6 +22,7 @@ import { formatHelper } from 'src/helpers/format.helper';
 import { Ingredient } from 'src/models/ingredient.model';
 import { Recipe } from 'src/models/recipe.model';
 import { Category } from 'src/models/category.model';
+import { User } from 'src/models/user.model';
 import { CategoriesService } from 'src/services/categories.service';
 import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
@@ -242,6 +243,46 @@ export class homeComponent implements OnInit, AfterViewInit, AfterViewChecked, O
   public getLocalDateString(the_date: any, includeTime: boolean = false) {
     return new formatHelper().getLocalDateString(the_date, includeTime);
   }
+
+  /** Options for the search-type toggle (recipe title vs. ingredient).
+   *  Declared as a stable reference so PrimeNG's [options] binding doesn't see a "new" array every check. */
+  readonly searchTypeOptions = [
+    { label: 'Title', value: 'recipe' },
+    { label: 'Ingredient', value: 'ingredient' }
+  ];
+
+  /** Options for the sort-column toggle (stable reference, see searchTypeOptions). */
+  readonly sortColumnOptions = [
+    { label: 'Date', value: 'date' },
+    { label: 'Title', value: 'title' }
+  ];
+
+  private readonly sortOrderOptionsByDate = [{ label: 'Newest first', value: 'desc' }, { label: 'Oldest first', value: 'asc' }];
+  private readonly sortOrderOptionsByTitle = [{ label: 'A \u2192 Z', value: 'asc' }, { label: 'Z \u2192 A', value: 'desc' }];
+
+  /** Options for the sort-order toggle, labeled contextually for the active sort column.
+   *  Returns one of two pre-built arrays (never a fresh literal) to keep the reference stable. */
+  get sortOrderOptions() {
+    return this.homePageState.pagingData.sortColumn === 'title'
+      ? this.sortOrderOptionsByTitle
+      : this.sortOrderOptionsByDate;
+  }
+
+  /** Label for the always-visible sort chip. */
+  get sortChipLabel(): string {
+    const isTitle = this.homePageState.pagingData.sortColumn === 'title';
+    const isDesc = this.homePageState.pagingData.sortOrder === 'desc';
+
+    if (isTitle)
+      return isDesc ? 'Title, Z \u2192 A' : 'Title, A \u2192 Z';
+
+    return isDesc ? 'Date, newest first' : 'Date, oldest first';
+  }
+
+  /** Icon for the always-visible sort chip. */
+  get sortChipIcon(): string {
+    return this.homePageState.pagingData.sortOrder === 'desc' ? 'pi pi-sort-amount-down' : 'pi pi-sort-amount-up';
+  }
   // #endregion
 
   // #region Event Handlers
@@ -319,6 +360,23 @@ export class homeComponent implements OnInit, AfterViewInit, AfterViewChecked, O
     }
   }
 
+  /** User toggled between searching by recipe title or by ingredient. */
+  async onSearchTypeChanged() {
+    if (!this.homePageState.pagingData.searchString)
+      return;
+
+    this.homePageState.resetRecipes();
+    await this.getData();
+    window.scrollTo(0, 0);
+  }
+
+  /** User changed the sort column or sort order. */
+  async onSortChanged() {
+    this.homePageState.resetRecipes();
+    await this.getData();
+    window.scrollTo(0, 0);
+  }
+
   /**
    * User clicked the Delete button on a recipe record
    * @param recipeId the id of the record to delete
@@ -380,6 +438,7 @@ export class homeComponent implements OnInit, AfterViewInit, AfterViewChecked, O
     switch (id) {
       case 'chipSearch':
         this.homePageState.pagingData.searchString = '';
+        this.homePageState.pagingData.searchType = 'recipe';
         break;
       case 'chipCategory':
         this.homePageState.pagingData.categoryId = 0;
@@ -389,6 +448,7 @@ export class homeComponent implements OnInit, AfterViewInit, AfterViewChecked, O
       case 'chipUser':
         this.homePageState.pagingData.userId = '';
         this.homePageState.pagingData.userName = '';
+        this.homePageState.selectedUser = new User();
         break;
       case 'chipFavorites':
         this.homePageState.pagingData.favoritesOnly = false;

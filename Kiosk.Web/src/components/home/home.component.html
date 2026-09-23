@@ -16,15 +16,42 @@
   <div id="divFilters">
     <button pButton pRipple type="button" icon="pi pi-search" class="p-button-rounded p-button-success p-button-outlined" style="height: 2.5rem;width: 2.5rem; color: #808080;" (click)="onSearchClicked();"></button>
     &nbsp;<p-chip *ngIf="!homePageState.pageIsLoading" icon="pi pi-file" [label]="'Recipes: ' + this.homePageState.recipes.length" styleClass="mr-2"></p-chip>
-    <p-chip icon="pi pi-sort-amount-down" label="Date" styleClass="mr-2"></p-chip>
-    <p-chip *ngIf="this.homePageState?.pagingData.searchString" icon="pi pi-search" [label]="this.homePageState?.pagingData.searchString" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipSearch')"></p-chip>
+    <p-chip [icon]="sortChipIcon" [label]="sortChipLabel" styleClass="mr-2"></p-chip>
+    <p-chip *ngIf="this.homePageState?.pagingData.searchString" icon="pi pi-search" [label]="(this.homePageState.pagingData.searchType === 'ingredient' ? 'Ingredient: ' : '') + this.homePageState?.pagingData.searchString" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipSearch')"></p-chip>
     <p-chip *ngIf="this.homePageState?.pagingData.favoritesOnly === true" icon="pi pi-heart" label="My Favorites" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipFavorites')"></p-chip>
     <p-chip *ngIf="this.homePageState?.pagingData.categoryId > 0" icon="pi pi-book" [label]="this.homePageState?.pagingData.category" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipCategory')"></p-chip>
     <p-chip *ngIf="this.homePageState?.pagingData.userId" icon="pi pi-user" [label]="this.homePageState?.pagingData.userName" styleClass="mr-2" [removable]="true" (onRemove)="onRemoveChip('chipUser')"></p-chip>
   </div>
   <br/>
-  <input #txtHomeSearch id="txtHomeSearch" placeholder="search" type="text" pInputText maxlength="50" style="width: 60%;" [(ngModel)]="this.homePageState?.pagingData.searchString" (input)="searchEntered($event.target)" *ngIf="this.homePageState.searchBarIsVisible">&nbsp;
-  <p-dropdown #ddlCategory id="ddlCategory" autoWidth="true" [options]="homePageState.categories" optionLabel="category" [style]="{'width':'35%'}" placeholder="categories" [(ngModel)]="homePageState.selectedCategory" (onChange)="onCategoryClicked($event.value.catId, $event.value.category)" *ngIf="this.homePageState.searchBarIsVisible"></p-dropdown>
+  <div class="filter-panel" *ngIf="this.homePageState.searchBarIsVisible">
+    <div class="filter-group filter-group-search">
+      <label class="filter-label">Search</label>
+      <div class="filter-search-row">
+        <input #txtHomeSearch id="txtHomeSearch" placeholder="search recipes" type="text" pInputText maxlength="50" [(ngModel)]="homePageState.pagingData.searchString" (input)="searchEntered($event.target)">
+        <p-selectButton [options]="searchTypeOptions" optionLabel="label" optionValue="value" [(ngModel)]="homePageState.pagingData.searchType" (onChange)="onSearchTypeChanged()"></p-selectButton>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label class="filter-label">Category</label>
+      <p-dropdown #ddlCategory id="ddlCategory" [options]="homePageState.categories" optionLabel="category" placeholder="All categories" [(ngModel)]="homePageState.selectedCategory" (onChange)="onCategoryClicked($event.value.catId, $event.value.category)"></p-dropdown>
+    </div>
+
+    <div class="filter-group">
+      <label class="filter-label">Author</label>
+      <p-dropdown #ddlUser id="ddlUser" [options]="homePageState.users" optionLabel="userName" placeholder="All authors" [(ngModel)]="homePageState.selectedUser" (onChange)="onUserClicked($event.value.id, $event.value.userName)"></p-dropdown>
+    </div>
+
+    <div class="filter-group">
+      <label class="filter-label">Sort by</label>
+      <p-selectButton [options]="sortColumnOptions" optionLabel="label" optionValue="value" [(ngModel)]="homePageState.pagingData.sortColumn" (onChange)="onSortChanged()"></p-selectButton>
+    </div>
+
+    <div class="filter-group">
+      <label class="filter-label">Order</label>
+      <p-selectButton [options]="sortOrderOptions" optionLabel="label" optionValue="value" [(ngModel)]="homePageState.pagingData.sortOrder" (onChange)="onSortChanged()"></p-selectButton>
+    </div>
+  </div>
 
   <p-confirmDialog header="Warning" icon="pi pi-exclamation-triangle"></p-confirmDialog>
 

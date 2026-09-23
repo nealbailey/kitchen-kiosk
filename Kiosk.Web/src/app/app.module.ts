@@ -11,6 +11,7 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { InputTextarea } from 'primeng/inputtextarea';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -86,6 +87,7 @@ import { RouterModule } from '@angular/router';
     InputTextModule,
     ToastModule,
     DropdownModule,
+    SelectButtonModule,
     InputTextarea,
     ConfirmDialogModule,
     MenuModule,
