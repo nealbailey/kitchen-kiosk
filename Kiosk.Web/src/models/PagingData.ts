@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // Source File:  "PagingData.ts"
 // Create Date:  02/04/2021 10:18:00 PM
-// Last Updated: 02/11/2022 10:35:00 AM
+// Last Updated: 09/23/2022 09:15:00 AM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -22,6 +22,7 @@ export class PagingData {
   public sortColumn: string = 'date';
   public sortOrder: string = 'desc';
   public searchString: string = '';
+  public searchType: string = 'recipe';
   public pageSize: number = 12;
   public pageNumber: number = 1;
   public categoryId: number = 0;
@@ -49,6 +50,7 @@ export class PagingData {
     pageNumber?: number,
     pageSize?: number,
     searchString?: string,
+    searchType?: string,
     sortOrder?: string,
     sortColumn?: string,
     categoryId?: number,
@@ -58,7 +60,8 @@ export class PagingData {
     favoritesOnly?: boolean) {
     if ((pageNumber !== undefined) && (pageNumber !== null)) this.pageNumber = pageNumber;
     if ((pageSize !== undefined) && (pageSize !== null)) this.pageSize = pageSize;
-    if ((searchString !== undefined) && (searchString !== null)) this.searchString = searchString;    
+    if ((searchString !== undefined) && (searchString !== null)) this.searchString = searchString;
+    if ((searchType !== undefined) && (searchType !== null)) this.searchType = searchType;
     if ((sortOrder !== undefined) && (sortOrder !== null)) this.sortOrder = sortOrder;
     if ((sortColumn !== undefined) && (sortColumn !== null)) this.sortColumn = sortColumn;
     if ((categoryId !== undefined) && (categoryId !== null)) this.categoryId = categoryId;
@@ -73,6 +76,8 @@ export class PagingData {
     let q = '?';
     if (this.searchString)
       q += "searchString=" + this.searchString + '&';
+    if (this.searchType)
+      q += "searchType=" + this.searchType + '&';
     if (this.sortColumn)
       q += "sortcolumn=" + this.sortColumn + '&';
     if (this.sortOrder)
