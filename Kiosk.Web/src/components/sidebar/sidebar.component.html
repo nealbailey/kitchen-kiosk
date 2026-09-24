@@ -1,4 +1,4 @@
-<div class="sidebar-column">
+<div class="sidebar-column" [class.sidebar-banner-hidden-mobile]="isRecipeDetailRoute">
   <div data-collapse="medium" data-animation="default" data-duration="400" data-easing="ease" data-easing2="ease" role="banner" class="navigation-bar w-nav">
     <div class="w-container">
       <p-confirmDialog header="Access" icon="pi pi-id-card"></p-confirmDialog>
@@ -19,11 +19,7 @@
         <a *ngIf="!userSessionService.userIsLoggedIn()" style="cursor: pointer" class="nav-link w-nav-link" (click)="onRequestAccessClicked()">Request Access</a>
 
         <div class="divider"></div>
-        <input #txtSearch id="txtSearch" placeholder="search" type="text" pInputText maxlength="50" [(ngModel)]="this.homePageState?.pagingData.searchString" (input)="searchEntered($event.target)">
-        <div class="divider"></div>
-
-        <button #btn type="button" pButton icon="pi pi-bars" label="Recipes" (click)="menu.toggle($event)" class="p-button-secondary"></button>
-        <p-menu #menu [model]="sidebarMenuItems" [popup]="true" appendTo="body"></p-menu>
+        <input #txtSearch id="txtSearch" placeholder="quick search" type="text" pInputText maxlength="50" [(ngModel)]="this.homePageState?.pagingData.searchString" (input)="searchEntered($event.target)">
 
         <!-- Social button bar -->
         <!--
@@ -49,9 +45,6 @@
   </div>
   -->
       </nav>
-      <div class="menu-button w-nav-button">
-        <div class="w-icon-nav-menu"></div>
-      </div>
     </div>
   </div>
   

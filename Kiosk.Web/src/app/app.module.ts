@@ -15,8 +15,6 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { InputTextarea } from 'primeng/inputtextarea';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { MenuModule } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
 
 // Routes
 import { appRoutes } from '../routes'
@@ -90,7 +88,6 @@ import { RouterModule } from '@angular/router';
     SelectButtonModule,
     InputTextarea,
     ConfirmDialogModule,
-    MenuModule,
   ],
   providers: [
     AuthenticationInterceptorService,

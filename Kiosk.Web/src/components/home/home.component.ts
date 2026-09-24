@@ -257,7 +257,7 @@ export class homeComponent implements OnInit, AfterViewInit, AfterViewChecked, O
     { label: 'Title', value: 'title' }
   ];
 
-  private readonly sortOrderOptionsByDate = [{ label: 'Newest first', value: 'desc' }, { label: 'Oldest first', value: 'asc' }];
+  private readonly sortOrderOptionsByDate = [{ label: 'Newest', value: 'desc' }, { label: 'Oldest', value: 'asc' }];
   private readonly sortOrderOptionsByTitle = [{ label: 'A \u2192 Z', value: 'asc' }, { label: 'Z \u2192 A', value: 'desc' }];
 
   /** Options for the sort-order toggle, labeled contextually for the active sort column.
@@ -276,7 +276,8 @@ export class homeComponent implements OnInit, AfterViewInit, AfterViewChecked, O
     if (isTitle)
       return isDesc ? 'Title, Z \u2192 A' : 'Title, A \u2192 Z';
 
-    return isDesc ? 'Date, newest first' : 'Date, oldest first';
+    //return isDesc ? 'Date, newest' : 'Date, oldest';
+    return 'Date';
   }
 
   /** Icon for the always-visible sort chip. */

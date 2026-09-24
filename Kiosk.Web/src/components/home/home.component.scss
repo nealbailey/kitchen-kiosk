@@ -41,7 +41,9 @@
 .filter-panel {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  /* flex-end would bottom-align groups, so shorter groups (Category/Author/Sort) drift
+     down to match the taller Search group's bottom edge instead of lining up labels. */
+  align-items: flex-start;
   gap: 1.25rem;
   background-color: var(--app-surface);
   border: 1px solid var(--app-border);
@@ -57,7 +59,11 @@
 }
 
 .filter-group-search {
-  flex: 1 1 320px;
+  /* flex-grow: 0 (not 1) so this group only claims the width its own controls need,
+     instead of greedily eating the rest of the row and pushing Category/Author down
+     to the next line even when there's still room for them. */
+  flex: 0 1 320px;
+  min-width: 260px;
 }
 
 .filter-label {

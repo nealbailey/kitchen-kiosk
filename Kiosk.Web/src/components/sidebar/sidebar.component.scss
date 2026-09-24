@@ -15,4 +15,31 @@
   width: 100%;
   box-sizing: border-box;
 }
+
+@media screen and (max-width: 991px) {
+  /* The nav-menu itself is already collapsed/inaccessible at this width (legacy Webflow
+     behavior with no toggle wired up), so on the recipe detail page just hide the whole
+     banner rather than leave a dead, unstyled strip at the top of the screen. */
+  .sidebar-banner-hidden-mobile {
+    display: none;
+  }
+
+  /* When the banner IS shown on mobile/tablet (home page), present it as its own clean,
+     centered card instead of a leftover fragment of the desktop sidebar. */
+  .sidebar-column .logo-link {
+    display: block;
+    float: none;
+    text-align: center;
+    padding: 0.75rem 1.25rem;
+    margin: 0 auto 0.75rem;
+    max-width: 320px;
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius);
+    background-color: var(--app-surface-muted);
+  }
+
+  .sidebar-column .logo-text {
+    margin: 0;
+  }
+}
  
