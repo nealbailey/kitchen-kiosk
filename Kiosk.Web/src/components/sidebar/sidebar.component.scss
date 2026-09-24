@@ -16,7 +16,35 @@
   box-sizing: border-box;
 }
 
+/* Decorative apple watermark layered behind the wordmark/nav; sits in the same
+   stacking context as the nav so it needs its own z-index to stay visually behind it. */
+.sidebar-watermark {
+  position: absolute;
+  top: -20px;
+  right: -10px;
+  width: 220px;
+  height: 280px;
+  z-index: 0;
+  opacity: 0.09;
+  pointer-events: none;
+  transform: rotate(8deg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 220'%3E%3Cpath fill='%23ffffff' d='M100 55C90 30 60 25 40 45C15 70 15 110 35 140C55 168 80 185 100 195C120 185 145 168 165 140C185 110 185 70 160 45C140 25 110 30 100 55Z'/%3E%3Cpath fill='%23ffffff' d='M97 55C93 40 98 24 110 16C107 28 103 44 103 56Z'/%3E%3Cellipse fill='%23ffffff' cx='118' cy='28' rx='14' ry='7' transform='rotate(-35 118 28)'/%3E%3C/svg%3E");
+}
+
+.navigation-bar {
+  position: relative;
+  z-index: 1;
+}
+
 @media screen and (max-width: 991px) {
+  /* .sidebar-column becomes position:static here, so the absolutely-positioned watermark
+     would anchor to the wrong ancestor; simplest to just hide it at this compact size. */
+  .sidebar-watermark {
+    display: none;
+  }
+
   /* The nav-menu itself is already collapsed/inaccessible at this width (legacy Webflow
      behavior with no toggle wired up), so on the recipe detail page just hide the whole
      banner rather than leave a dead, unstyled strip at the top of the screen. */

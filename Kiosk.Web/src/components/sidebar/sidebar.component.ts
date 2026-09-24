@@ -204,11 +204,27 @@ export class sidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   /** User clicked the Request Access button */
   onRequestAccessClicked() {
     this.confirmationService.confirm({
+      header: 'Access',
+      icon: 'pi pi-id-card',
       message: '&nbsp;This site is for a limited private audience.&nbsp;&nbsp;&nbsp;<br/>&nbsp;To request access send an email to nealbailey@hotmail.com&nbsp;&nbsp;&nbsp;',
+      acceptLabel: 'Ok',
+      rejectVisible: false,
       accept: () => {
         this.requestAccess();
-      },
-      reject: () => {
+      }
+    });
+    return;
+  }
+
+  /** User clicked the Admin link */
+  onAdminClicked() {
+    this.confirmationService.confirm({
+      header: 'Administration',
+      icon: 'pi pi-shield',
+      message: '&nbsp;Administration Panel Coming Soon&nbsp;&nbsp;&nbsp;',
+      acceptLabel: 'Ok',
+      rejectVisible: false,
+      accept: () => {
         this.confirmationService.close();
       }
     });

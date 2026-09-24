@@ -1,4 +1,5 @@
 <div class="sidebar-column" [class.sidebar-banner-hidden-mobile]="isRecipeDetailRoute">
+  <div class="sidebar-watermark" aria-hidden="true"></div>
   <div data-collapse="medium" data-animation="default" data-duration="400" data-easing="ease" data-easing2="ease" role="banner" class="navigation-bar w-nav">
     <div class="w-container">
       <p-confirmDialog header="Access" icon="pi pi-id-card"></p-confirmDialog>
@@ -13,10 +14,11 @@
         <div class="divider w-hidden-medium w-hidden-small w-hidden-tiny"></div>
 
         <!-- Sidebar nav -->
-        <a routerLink="/home" aria-current="page" class="nav-link w-nav-link w--current" (click)="onHomeClicked()">Home</a>
-        <a *ngIf="userSessionService.userIsLoggedIn()" routerLink="/home" aria-current="page" class="nav-link w-nav-link w--current" (click)="onFavoritesClicked()">My Favorites</a>
+        <a routerLink="/home" aria-current="page" class="nav-link w-nav-link w--current" (click)="onHomeClicked()"><i class="pi pi-home" aria-hidden="true"></i>Home</a>
+        <a *ngIf="userSessionService.userIsLoggedIn()" routerLink="/home" aria-current="page" class="nav-link w-nav-link w--current" (click)="onFavoritesClicked()"><i class="pi pi-heart" aria-hidden="true"></i>My Favorites</a>
         <!--<a href="#" *ngIf="userSessionService.userIsLoggedIn()" class="nav-link w-nav-link">My Favorites</a>-->
-        <a *ngIf="!userSessionService.userIsLoggedIn()" style="cursor: pointer" class="nav-link w-nav-link" (click)="onRequestAccessClicked()">Request Access</a>
+        <a *ngIf="!userSessionService.userIsLoggedIn()" style="cursor: pointer" class="nav-link w-nav-link" (click)="onRequestAccessClicked()"><i class="pi pi-key" aria-hidden="true"></i>Request Access</a>
+        <a style="cursor: pointer" class="nav-link w-nav-link" (click)="onAdminClicked()"><i class="pi pi-shield" aria-hidden="true"></i>Admin</a>
 
         <div class="divider"></div>
         <input #txtSearch id="txtSearch" placeholder="quick search" type="text" pInputText maxlength="50" [(ngModel)]="this.homePageState?.pagingData.searchString" (input)="searchEntered($event.target)">
