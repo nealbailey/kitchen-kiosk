@@ -32,6 +32,13 @@ namespace Kiosk.Data.Repository
         public Task<RecipeCategory> Create(RecipeCategory category);
 
         /// <summary>
+        /// Delete category.
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        public Task<bool> Delete(RecipeCategory category);
+        
+        /// <summary>
         /// Fetch a specific category from the database.
         /// </summary>
         /// <param name="category"></param>

@@ -25,6 +25,7 @@ namespace KioskApi.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
+    using System;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -65,11 +66,31 @@ namespace KioskApi.Controllers
         /// <param name="category"></param>
         /// <returns></returns>
         [Authorize(Roles = UserRoles.Admin)]
-        [HttpPost( Name = "AddCategory")]
+        [HttpPost("AddCategory", Name = "AddCategory")]
         public async Task<IActionResult> AddCategory([FromBody] RecipeCategory category)
         {            
             var new_category = await _categoryRepository.Create(category);
             return Ok(new_category);
+        }
+
+        /// <summary>
+        /// Delete category.
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        [Authorize(Roles = UserRoles.Admin)]
+        [HttpPost("DeleteCategory", Name = "DeleteCategory")]
+        public async Task<IActionResult> DeleteCategory([FromBody] RecipeCategory category)
+        {
+            try
+            {
+                var result = await _categoryRepository.Delete(category);
+                return Ok(new Response { Status = "Success", Message = "Category deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response { Status = "Failed", Message = $"{ex.Message}" });
+            }
         }
 
         /// <summary>
