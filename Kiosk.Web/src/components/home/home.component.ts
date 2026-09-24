@@ -17,6 +17,7 @@
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
 import { AfterViewChecked, AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 import { formatHelper } from 'src/helpers/format.helper';
 import { Ingredient } from 'src/models/ingredient.model';
@@ -66,7 +67,8 @@ export class homeComponent implements OnInit, AfterViewInit, AfterViewChecked, O
     private recipeService: RecipesService,
     private categoriesService: CategoriesService,
     private toastService: ToastService,
-    private confirmationService: ConfirmationService) {
+    private confirmationService: ConfirmationService,
+    private router: Router) {
   }
   // #endregion
  
@@ -211,6 +213,14 @@ export class homeComponent implements OnInit, AfterViewInit, AfterViewChecked, O
   /** Saves the current list position before opening a recipe. */
   onRecipeClicked() {
     this.homePageState.scrollPosition = window.scrollY;
+  }
+
+  /** Navigates to a recipe when the card itself (not one of its inner buttons) is clicked.
+   *  On touch devices the browser only fires `click` for a genuine tap, not a scroll/swipe,
+   *  so this doesn't need any manual swipe-detection logic. */
+  onRecipeCardClicked(recipe: Recipe) {
+    this.onRecipeClicked();
+    this.router.navigate(['/recipe', recipe.recId]);
   }
 
   /**

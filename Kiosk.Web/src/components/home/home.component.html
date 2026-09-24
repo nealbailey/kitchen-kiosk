@@ -56,8 +56,8 @@
   <p-confirmDialog header="Warning" icon="pi pi-exclamation-triangle"></p-confirmDialog>
 
   <div class="recipe-grid">
-    <article class="recipe-card" *ngFor="let recipe of this.homePageState.recipes">
-      <a routerLink="/recipe/{{recipe.recId}}" class="recipe-card-title-link" (click)="onRecipeClicked()">
+    <article class="recipe-card" *ngFor="let recipe of this.homePageState.recipes" (click)="onRecipeCardClicked(recipe)">
+      <a routerLink="/recipe/{{recipe.recId}}" class="recipe-card-title-link" (click)="onRecipeClicked(); $event.stopPropagation()">
         <h2 class="recipe-card-title">
           {{recipe.title}}
           <i *ngIf="recipe.isRecommended" class="pi pi-thumbs-up recipe-card-recommended" title="Recommended"></i>
@@ -65,20 +65,20 @@
       </a>
       <div class="recipe-card-meta">
         <span class="recipe-card-date">{{getLocalDateString(recipe.date)}}</span>
-        <button pButton pRipple type="button" label="{{recipe.primaryCategory.category}}" class="p-button-warning p-button-text p-button-sm" (click)="onCategoryClicked(recipe.primaryCategory.catId, recipe.primaryCategory.category)"></button>
-        <button pButton pRipple type="button" label="{{recipe.user.userName}}" class="p-button-secondary p-button-text p-button-sm" (click)="onUserClicked(recipe.user.id, recipe.user.userName)"></button>
+        <button pButton pRipple type="button" label="{{recipe.primaryCategory.category}}" class="p-button-warning p-button-text p-button-sm" (click)="onCategoryClicked(recipe.primaryCategory.catId, recipe.primaryCategory.category); $event.stopPropagation()"></button>
+        <button pButton pRipple type="button" label="{{recipe.user.userName}}" class="p-button-secondary p-button-text p-button-sm" (click)="onUserClicked(recipe.user.id, recipe.user.userName); $event.stopPropagation()"></button>
       </div>
       <p class="recipe-card-summary">
         {{recipe.description}}
       </p>
       <div class="recipe-card-actions" *ngIf="userSessionService.userIsLoggedIn()">
         <span [ngSwitch]="recipe.isFavorite">
-          <button *ngSwitchCase="true" pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-sm" (click)="onRecipeFavoriteClicked(recipe);"></button>
-          <button *ngSwitchCase="false" pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-outlined p-button-sm" (click)="onRecipeFavoriteClicked(recipe);"></button>
+          <button *ngSwitchCase="true" pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-sm" (click)="onRecipeFavoriteClicked(recipe); $event.stopPropagation()"></button>
+          <button *ngSwitchCase="false" pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-outlined p-button-sm" (click)="onRecipeFavoriteClicked(recipe); $event.stopPropagation()"></button>
         </span>
         <span *ngIf="userSessionService.userIsRecipeOwnerOrAdmin(recipe.user.userName)">
-          <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-success p-button-outlined p-button-sm" (click)="onRecipeEditClicked(recipe);"></button>
-          <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-outlined p-button-sm" (click)="onRecipeDeleteClicked(recipe.recId);"></button>
+          <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-success p-button-outlined p-button-sm" (click)="onRecipeEditClicked(recipe); $event.stopPropagation()"></button>
+          <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-outlined p-button-sm" (click)="onRecipeDeleteClicked(recipe.recId); $event.stopPropagation()"></button>
         </span>
       </div>
     </article>
