@@ -194,9 +194,22 @@
 .recipe-card-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.4rem;
   padding-top: 0.5rem;
   border-top: 1px solid var(--app-border);
+}
+
+.recipe-card-action-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background-color: var(--app-surface-muted);
+}
+
+.recipe-card-action-group > span {
+  display: contents;
 }
 
 @media screen and (max-width: 767px) {

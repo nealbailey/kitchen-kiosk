@@ -72,14 +72,16 @@
         {{recipe.description}}
       </p>
       <div class="recipe-card-actions" *ngIf="userSessionService.userIsLoggedIn()">
-        <span [ngSwitch]="recipe.isFavorite">
-          <button *ngSwitchCase="true" pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-sm" (click)="onRecipeFavoriteClicked(recipe); $event.stopPropagation()"></button>
-          <button *ngSwitchCase="false" pButton pRipple type="button" icon="pi pi-heart" class="p-button-rounded p-button-help p-button-outlined p-button-sm" (click)="onRecipeFavoriteClicked(recipe); $event.stopPropagation()"></button>
-        </span>
-        <span *ngIf="userSessionService.userIsRecipeOwnerOrAdmin(recipe.user.userName)">
-          <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-success p-button-outlined p-button-sm" (click)="onRecipeEditClicked(recipe); $event.stopPropagation()"></button>
-          <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-outlined p-button-sm" (click)="onRecipeDeleteClicked(recipe.recId); $event.stopPropagation()"></button>
-        </span>
+        <div class="recipe-card-action-group">
+          <span [ngSwitch]="recipe.isFavorite">
+            <button *ngSwitchCase="true" pButton pRipple type="button" icon="pi pi-heart" aria-label="Remove from favorites" class="p-button-rounded p-button-help p-button-sm" (click)="onRecipeFavoriteClicked(recipe); $event.stopPropagation()"></button>
+            <button *ngSwitchCase="false" pButton pRipple type="button" icon="pi pi-heart" aria-label="Add to favorites" class="p-button-rounded p-button-help p-button-outlined p-button-sm" (click)="onRecipeFavoriteClicked(recipe); $event.stopPropagation()"></button>
+          </span>
+          <span *ngIf="userSessionService.userIsRecipeOwnerOrAdmin(recipe.user.userName)">
+            <button pButton pRipple type="button" icon="pi pi-pencil" aria-label="Edit recipe" class="p-button-rounded p-button-success p-button-outlined p-button-sm" (click)="onRecipeEditClicked(recipe); $event.stopPropagation()"></button>
+            <button pButton pRipple type="button" icon="pi pi-times" aria-label="Delete recipe" class="p-button-rounded p-button-danger p-button-outlined p-button-sm" (click)="onRecipeDeleteClicked(recipe.recId); $event.stopPropagation()"></button>
+          </span>
+        </div>
       </div>
     </article>
   </div>
