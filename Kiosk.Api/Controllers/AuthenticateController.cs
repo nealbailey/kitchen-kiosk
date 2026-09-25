@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "AuthenticateController.cs"
 // Create Date:  01/31/2022 12:33:00 PM
-// Last Updated: 08/26/2026 12:11:00 PM
+// Last Updated: 09/26/2026 10:19:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -30,6 +30,7 @@ namespace KioskApi.Controllers
     using System;
     using System.Collections.Generic;
     using System.IdentityModel.Tokens.Jwt;
+    using System.Linq;
     using System.Security.Claims;
     using System.Text;
     using System.Threading.Tasks;
@@ -72,6 +73,39 @@ namespace KioskApi.Controllers
         #endregion
 
         #region Action Endpoints
+
+        /// <summary>
+        /// Change the password for the currently logged-in user.
+        /// </summary>
+        /// <param name="model">The <see cref="ChangePasswordModel"/> containing the current and new passwords.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the password change operation.</returns>
+        [Authorize]
+        [HttpPost]
+        [Route("changePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel model)
+        {
+            // Only logged in users can change their own password.
+            if (!User.Identity.IsAuthenticated)
+                return StatusCode(StatusCodes.Status401Unauthorized, new Response { Status = "Error", Message = "User must be logged in to change password." });
+
+            var loggedInUserName = User.Identity.Name;
+            var user = await userManager.FindByNameAsync(loggedInUserName);
+            if (user == null)
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = $"User '{loggedInUserName}' not found." });
+
+            var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+            if (!result.Succeeded)
+            {
+                // get the errors from the result
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    new Response { 
+                        Status = "Error", 
+                        Message = $"Password change failed for user '{loggedInUserName}'. Errors: {errors}" });
+            }
+
+            return Ok(new Response { Status = "Success", Message = $"Password changed successfully for user '{model.Username}'." });
+        }
 
         /// <summary>
         /// Delete a user 
@@ -183,7 +217,7 @@ namespace KioskApi.Controllers
         /// <returns></returns>
         [Authorize(Roles = UserRoles.Admin)]
         [HttpPost]
-        [Route("register-admin")]
+        [Route("registerAdmin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
@@ -215,5 +249,7 @@ namespace KioskApi.Controllers
 
         #endregion
     }
+
+    
 }
 
