@@ -1,7 +1,11 @@
 {
-  "API_URL": "",
+  "API_URL": "https://baileyfs02.baileysoft.lan/kioskapi",
   "API_LOGIN_ENDPOINT": "",
+  "API_CREATE_USER": "",
+  "API_DELETE_USER": "",
   "API_CATEGORIES": "",
+  "API_CREATE_CATEGORY": "",
+  "API_DELETE_CATEGORY": "",
   "API_USERS": "",
   "API_RECIPES": "",
   "API_RECIPE": "",

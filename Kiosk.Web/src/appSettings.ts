@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // Source File:  "AppSettings.ts"
 // Create Date:  02/04/2021 10:18:00 PM
-// Last Updated: 09/22/2022 12:19:00 PM
+// Last Updated: 09/25/2022 11:24:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -21,7 +21,12 @@
 export interface AppSettingsConfig {
   API_URL?: string;
   API_LOGIN_ENDPOINT?: string;
+  API_CREATE_USER?: string;
+  API_DELETE_USER?: string;
+  API_CHANGE_PASSWORD?: string;
   API_CATEGORIES?: string;
+  API_CREATE_CATEGORY?: string;
+  API_DELETE_CATEGORY?: string;
   API_USERS?: string;
   API_RECIPES?: string;
   API_RECIPE?: string;
@@ -54,8 +59,23 @@ export class AppSettings {
   /** Controller endpoint for generating a bearer token. */
   public static API_LOGIN_ENDPOINT: string;
 
+  /** Controller endpoint for creating a new user. */
+  public static API_CREATE_USER: string;
+
+  /** Controller endpoint for deleting a user. */
+  public static API_DELETE_USER: string;
+
+  /** Controller endpoint for changing a user's password. */
+  public static API_CHANGE_PASSWORD: string;
+
   /** Controller endpoint for fetching categories. */
   public static API_CATEGORIES: string;
+
+  /** Controller endpoint for creating a new category. */
+  public static API_CREATE_CATEGORY: string;
+
+  /** Controller endpoint for deleting a category. */
+  public static API_DELETE_CATEGORY: string;
 
   /** Controller endpoint for fetching users. */
   public static API_USERS: string;
@@ -90,7 +110,12 @@ export class AppSettings {
 
     AppSettings.API_LOGIN_ENDPOINT = value(config?.API_LOGIN_ENDPOINT, AppSettings.API_URL + '/api/authenticate/login');
     AppSettings.API_CATEGORIES = value(config?.API_CATEGORIES, AppSettings.API_URL + '/api/categories');
+    AppSettings.API_CREATE_CATEGORY = value(config?.API_CREATE_CATEGORY, AppSettings.API_URL + '/api/category/AddCategory');
+    AppSettings.API_DELETE_CATEGORY = value(config?.API_DELETE_CATEGORY, AppSettings.API_URL + '/api/category/DeleteCategory');
     AppSettings.API_USERS = value(config?.API_USERS, AppSettings.API_URL + '/api/users');
+    AppSettings.API_DELETE_USER = value(config?.API_DELETE_USER, AppSettings.API_URL + '/api/authenticate/delete');
+    AppSettings.API_CREATE_USER = value(config?.API_CREATE_USER, AppSettings.API_URL + '/api/authenticate/register');
+    AppSettings.API_CHANGE_PASSWORD = value(config?.API_CHANGE_PASSWORD, AppSettings.API_URL + '/api/authenticate/changePassword');
     AppSettings.API_RECIPES = value(config?.API_RECIPES, AppSettings.API_URL + '/api/recipes');
     AppSettings.API_RECIPE = value(config?.API_RECIPE, AppSettings.API_URL + '/api/recipe/');
     AppSettings.API_RECIPE_INGREDIENTS = value(config?.API_RECIPE_INGREDIENTS, AppSettings.API_URL + '/api/ingredient/');
