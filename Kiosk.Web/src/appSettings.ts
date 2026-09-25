@@ -22,6 +22,7 @@ export interface AppSettingsConfig {
   API_URL?: string;
   API_LOGIN_ENDPOINT?: string;
   API_CREATE_USER?: string;
+  API_CREATE_ADMIN?: string;
   API_DELETE_USER?: string;
   API_CHANGE_PASSWORD?: string;
   API_CATEGORIES?: string;
@@ -61,6 +62,9 @@ export class AppSettings {
 
   /** Controller endpoint for creating a new user. */
   public static API_CREATE_USER: string;
+
+  /** Controller endpoint for creating a new administrator. */
+  public static API_CREATE_ADMIN: string;
 
   /** Controller endpoint for deleting a user. */
   public static API_DELETE_USER: string;
@@ -115,6 +119,7 @@ export class AppSettings {
     AppSettings.API_USERS = value(config?.API_USERS, AppSettings.API_URL + '/api/users');
     AppSettings.API_DELETE_USER = value(config?.API_DELETE_USER, AppSettings.API_URL + '/api/authenticate/delete');
     AppSettings.API_CREATE_USER = value(config?.API_CREATE_USER, AppSettings.API_URL + '/api/authenticate/register');
+    AppSettings.API_CREATE_ADMIN = value(config?.API_CREATE_ADMIN, AppSettings.API_URL + '/api/authenticate/registerAdmin');
     AppSettings.API_CHANGE_PASSWORD = value(config?.API_CHANGE_PASSWORD, AppSettings.API_URL + '/api/authenticate/changePassword');
     AppSettings.API_RECIPES = value(config?.API_RECIPES, AppSettings.API_URL + '/api/recipes');
     AppSettings.API_RECIPE = value(config?.API_RECIPE, AppSettings.API_URL + '/api/recipe/');

@@ -189,6 +189,7 @@ namespace KioskApi.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
+        [Authorize(Roles = UserRoles.Admin)]
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
@@ -205,7 +206,11 @@ namespace KioskApi.Controllers
             };
             var result = await userManager.CreateAsync(user, model.Password);            
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation " + result.ToString()  });
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new Response { Status = "Error", Message = $"User creation failed: {errors}" });
+            }
 
             return Ok(new Response { Status = "Success", Message = $"User '{model.Username}' created successfully!" });
         }
@@ -232,7 +237,11 @@ namespace KioskApi.Controllers
             };
             var result = await userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = $"User '{model.Username}' creation failed! Please check user details and try again." });
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new Response { Status = "Error", Message = $"User '{model.Username}' creation failed: {errors}" });
+            }
 
             if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
                 await roleManager.CreateAsync(new IdentityRole<Guid> { Name = UserRoles.Admin });

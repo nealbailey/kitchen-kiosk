@@ -79,7 +79,7 @@ namespace KioskApi.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response
                 {
-                    Status = "Failed",
+                    Status = "Error",
                     Message = $"AddCategory failed: {ex.Message}"
                 });                
             }
@@ -103,7 +103,7 @@ namespace KioskApi.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response
                 {
-                    Status = "Failed",
+                    Status = "Error",
                     Message = $"DeleteCategory failed: {ex.Message}"
                 });                
             }
@@ -129,7 +129,7 @@ namespace KioskApi.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response
                 {
-                    Status = "Failed",
+                    Status = "Error",
                     Message = $"CategoryGetById failed: {ex.Message}"
                 });                
             }                        
@@ -157,7 +157,7 @@ namespace KioskApi.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response
                 {
-                    Status = "Failed",
+                    Status = "Error",
                     Message = $"GetCategory failed: {ex.Message}"
                 });                
             }

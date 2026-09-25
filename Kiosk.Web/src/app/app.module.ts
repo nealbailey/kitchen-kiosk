@@ -28,6 +28,7 @@ import { StateValidator } from 'src/services/stateValidator.service';
 import { CategoriesService } from 'src/services/categories.service';
 import { RecipesService } from 'src/services/recipes.service';
 import { UsersService } from 'src/services/users.service';
+import { AdminService } from 'src/services/admin.service';
 import { ToastService } from 'src/services/toast.service';
 import { MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
@@ -59,6 +60,7 @@ import { topnavComponent } from 'src/components/topnav/topnav.component';
 import { sidebarComponent } from 'src/components/sidebar/sidebar.component';
 import { homeComponent } from 'src/components/home/home.component';
 import { recipeComponent } from 'src/components/recipe/recipe.component';
+import { adminComponent } from 'src/components/admin/admin.component';
 import { createRecipeDialogComponent } from 'src/components/recipe/createRecipeDialog.component'
 import { RouterModule } from '@angular/router';
 
@@ -69,6 +71,7 @@ import { RouterModule } from '@angular/router';
     sidebarComponent,
     homeComponent,
     recipeComponent,
+    adminComponent,
     createRecipeDialogComponent,
   ],
   imports: [
@@ -100,6 +103,7 @@ import { RouterModule } from '@angular/router';
     RecipesService,
     CategoriesService,
     UsersService,
+    AdminService,
     MessageService,
     providePrimeNG({ theme: { preset: KioskPreset, options: { darkModeSelector: '.app-dark', cssLayer: false } } }),
     { provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptorService, multi: true }

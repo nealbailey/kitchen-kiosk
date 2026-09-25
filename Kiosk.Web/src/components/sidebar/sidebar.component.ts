@@ -204,6 +204,7 @@ export class sidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   /** User clicked the Request Access button */
   onRequestAccessClicked() {
     this.confirmationService.confirm({
+      key: 'sidebarConfirm',
       header: 'Access',
       icon: 'pi pi-id-card',
       message: '&nbsp;This site is for a limited private audience.&nbsp;&nbsp;&nbsp;<br/>&nbsp;To request access send an email to nealbailey@hotmail.com&nbsp;&nbsp;&nbsp;',
@@ -218,10 +219,16 @@ export class sidebarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** User clicked the Admin link */
   onAdminClicked() {
+    if (this.userSessionService.userIsLoggedIn()) {
+      this.router.navigateByUrl('/admin');
+      return;
+    }
+
     this.confirmationService.confirm({
-      header: 'Administration',
-      icon: 'pi pi-shield',
-      message: '&nbsp;Administration Panel Coming Soon&nbsp;&nbsp;&nbsp;',
+      key: 'sidebarConfirm',
+      header: 'Login Required',
+      icon: 'pi pi-lock',
+      message: 'You must log in to use administration features.',
       acceptLabel: 'Ok',
       rejectVisible: false,
       accept: () => {
