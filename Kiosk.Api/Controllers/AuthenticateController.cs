@@ -18,6 +18,7 @@
 //----------------------------------------------------------------------- 
 namespace KioskApi.Controllers
 {
+    using Kiosk.Data.Repository;
     using KioskApi.Domain.Models;
     using KioskApi.Domain.Models.Auth;
     using Microsoft.AspNetCore.Authorization;
@@ -38,11 +39,12 @@ namespace KioskApi.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthenticateController : ControllerBase
+    public class AuthenticateController : BaseController
     {
         #region Fields
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole<Guid>> roleManager;
+        private readonly IAspNetUserRepository userRepository;
         private readonly IConfiguration _configuration;
         #endregion
 
@@ -51,13 +53,19 @@ namespace KioskApi.Controllers
         /// <summary>
         /// Constructors
         /// </summary>
-        /// <param name="userManager"></param>
-        /// <param name="roleManager"></param>
-        /// <param name="configuration"></param>
-        public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<Guid>> roleManager, IConfiguration configuration)
+        /// <param name="userManager">The user manager for managing application users.</param>
+        /// <param name="roleManager">The role manager for managing application roles.</param>
+        /// <param name="aspNetUserRepository">The repository for managing users.</param>        
+        /// <param name="configuration">The application configuration.</param>
+        public AuthenticateController(
+            UserManager<ApplicationUser> userManager, 
+            RoleManager<IdentityRole<Guid>> roleManager,
+            IAspNetUserRepository aspNetUserRepository,
+            IConfiguration configuration) : base(configuration)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
+            this.userRepository = aspNetUserRepository;
             _configuration = configuration;
         }
 
@@ -77,7 +85,13 @@ namespace KioskApi.Controllers
         {
             var user = await userManager.FindByNameAsync(model.Username);
             if (user != null)
-            {                
+            {
+                // Do not allow user to be deleted if they have associated recipes
+                var hasAssociatedRecipes = await userRepository.UserHasRecipesAsync(user.Id); // Replace with actual check for associated recipes
+                if (hasAssociatedRecipes)
+                    return StatusCode(StatusCodes.Status400BadRequest, 
+                        new Response { Status = "Error", Message = $"User '{user.UserName}' cannot be deleted because they have associated recipes." });
+
                 var result = await userManager.DeleteAsync(user);
                 if (!result.Succeeded)
                     return StatusCode(StatusCodes.Status500InternalServerError, 
@@ -147,7 +161,7 @@ namespace KioskApi.Controllers
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
             if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = $"User '{model.Username}' already exists!" });
 
             ApplicationUser user = new ApplicationUser()
             {
@@ -159,7 +173,7 @@ namespace KioskApi.Controllers
             if (!result.Succeeded)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation " + result.ToString()  });
 
-            return Ok(new Response { Status = "Success", Message = "User created successfully!" });
+            return Ok(new Response { Status = "Success", Message = $"User '{model.Username}' created successfully!" });
         }
 
         /// <summary>
@@ -174,7 +188,7 @@ namespace KioskApi.Controllers
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
             if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = $"User '{model.Username}' already exists!" });
 
             ApplicationUser user = new ApplicationUser()
             {
@@ -184,7 +198,7 @@ namespace KioskApi.Controllers
             };
             var result = await userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = $"User '{model.Username}' creation failed! Please check user details and try again." });
 
             if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
                 await roleManager.CreateAsync(new IdentityRole<Guid> { Name = UserRoles.Admin });
@@ -196,7 +210,7 @@ namespace KioskApi.Controllers
                 await userManager.AddToRoleAsync(user, UserRoles.Admin);
             }
 
-            return Ok(new Response { Status = "Success", Message = "User created successfully!" });
+            return Ok(new Response { Status = "Success", Message = $"User [Administrator] '{model.Username}' created successfully!" });
         }
 
         #endregion

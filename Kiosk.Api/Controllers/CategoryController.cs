@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // Source File:  "CategoryController.cs"
 // Create Date:  02/02/2022 12:33:00 PM
-// Last Updated: 02/02/2022 12:33:00 PM
+// Last Updated: 09/25/2022 09:07:00 PM
 // Authors(s):   Neal Bailey <nealbailey@hotmail.com>
 //-----------------------------------------------------------------------
 // COMMERCIAL USE RIGHTS - PROHIBITED PUBLIC DISTRIBUTION
@@ -22,6 +22,7 @@ namespace KioskApi.Controllers
     using KioskApi.Domain.Models;
     using KioskApi.Domain.Models.Auth;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
@@ -61,23 +62,34 @@ namespace KioskApi.Controllers
         #region Http Action Endpoints
 
         /// <summary>
-        /// 
+        /// Creates a new category.
         /// </summary>
-        /// <param name="category"></param>
-        /// <returns></returns>
+        /// <param name="category">The category to create.</param>
+        /// <returns>A response indicating the success or failure of the operation.</returns>
         [Authorize(Roles = UserRoles.Admin)]
         [HttpPost("AddCategory", Name = "AddCategory")]
         public async Task<IActionResult> AddCategory([FromBody] RecipeCategory category)
-        {            
-            var new_category = await _categoryRepository.Create(category);
-            return Ok(new_category);
+        {
+            try
+            {
+                var new_category = await _categoryRepository.Create(category);
+                return Ok(new Response { Status = "Success", Message = $"Category '{category.Category}' ({new_category.CatId}) added successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response
+                {
+                    Status = "Failed",
+                    Message = $"AddCategory failed: {ex.Message}"
+                });                
+            }
         }
 
         /// <summary>
         /// Delete category.
         /// </summary>
-        /// <param name="category"></param>
-        /// <returns></returns>
+        /// <param name="category">The category to delete.</param>
+        /// <returns>A response indicating the success or failure of the operation.</returns>
         [Authorize(Roles = UserRoles.Admin)]
         [HttpPost("DeleteCategory", Name = "DeleteCategory")]
         public async Task<IActionResult> DeleteCategory([FromBody] RecipeCategory category)
@@ -89,40 +101,66 @@ namespace KioskApi.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new Response { Status = "Failed", Message = $"{ex.Message}" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response
+                {
+                    Status = "Failed",
+                    Message = $"DeleteCategory failed: {ex.Message}"
+                });                
             }
         }
 
         /// <summary>
-        /// 
+        /// Gets a category by its ID.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>        
+        /// <param name="id">The ID of the category to retrieve.</param>
+        /// <returns>The category with the specified ID.</returns>        
         [HttpGet("{id}", Name = "CategoryGetById")]
         public async Task<IActionResult> GetById(string id)
         {
             _logger.LogDebug($"Received get request for /category/{id}");
 
-            var httpCategory = new RecipeCategory() { CatId = int.Parse(id) };
-            var dbCategory = await _categoryRepository.Get(httpCategory);
-            return Ok(dbCategory);
+            try
+            {
+                var httpCategory = new RecipeCategory() { CatId = int.Parse(id) };
+                var dbCategory = await _categoryRepository.Get(httpCategory);
+                return Ok(dbCategory);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response
+                {
+                    Status = "Failed",
+                    Message = $"CategoryGetById failed: {ex.Message}"
+                });                
+            }                        
         }
 
         /// <summary>
-        /// 
+        /// Gets a category by its ID and/or name.
         /// </summary>
-        /// <param name="catId"></param>
-        /// <param name="name"></param>
-        /// <returns></returns>
+        /// <param name="catId">The ID of the category to retrieve (optional).</param>
+        /// <param name="name">The name of the category to retrieve (optional).</param>
+        /// <returns>The category matching the specified ID and/or name.</returns>
         [HttpGet]
         [Route("GetCategory")]
         public async Task<IActionResult> GetCategory(int catId, string name)
         {
             _logger.LogDebug($"Received get request for /category/GetCategory?catId={catId}&name={name}");
 
-            var httpCategory = new RecipeCategory() { CatId = catId, Category = name };
-            var dbCategory = await _categoryRepository.Get(httpCategory);
-            return Ok(dbCategory);
+            try
+            {
+                var httpCategory = new RecipeCategory() { CatId = catId, Category = name };
+                var dbCategory = await _categoryRepository.Get(httpCategory);
+                return Ok(dbCategory);    
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response
+                {
+                    Status = "Failed",
+                    Message = $"GetCategory failed: {ex.Message}"
+                });                
+            }
         }
 
         #endregion

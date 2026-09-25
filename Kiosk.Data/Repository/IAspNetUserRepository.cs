@@ -21,6 +21,7 @@ namespace Kiosk.Data.Repository
     using KioskApi.Domain.Models;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using System;
 
     public interface IAspNetUserRepository
     {
@@ -36,5 +37,12 @@ namespace Kiosk.Data.Repository
         /// </summary>
         /// <returns></returns>
         public Task<List<AspNetUser>> Get();
+
+        /// <summary>
+        /// Determine if a user has any associated recipes.
+        /// </summary>
+        /// <param name="id">The unique identifier of the user.</param>
+        /// <returns>A boolean flag indicating whether the user has any associated recipes.</returns>
+        public Task<bool> UserHasRecipesAsync(Guid id);
     }
 }
