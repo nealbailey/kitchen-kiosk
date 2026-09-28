@@ -13,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { InputTextarea } from 'primeng/inputtextarea';
+import { EditorModule } from 'primeng/editor';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 
@@ -90,6 +91,7 @@ import { RouterModule } from '@angular/router';
     DropdownModule,
     SelectButtonModule,
     InputTextarea,
+    EditorModule,
     ConfirmDialogModule,
   ],
   providers: [

@@ -99,13 +99,13 @@
   <p-dialog #createRecipeDialog [(visible)]="homePageState.createRecipeDialogIsVisible"
             [resizable]="false" [modal]="true"
             [style]="{'width': '45.5em','font-weight': '700'}">
-    <p-header>
-      <i class="pi pi-list" style="font-size:1.3rem; margin-right:0.5rem;"></i>
-      <span class="dialog-head">{{ homePageState.selectedRecipe.recId > 0 ? 'Edit Recipe' : 'Create Recipe' }}</span>
-    </p-header>
-    <hr class="card-hr" />
-    <createRecipeDialog-root></createRecipeDialog-root>
-    <!--<hr class="card-hr" />-->
+    <ng-template pTemplate="header">
+      <span style="display:flex; align-items:center;">
+        <i class="pi pi-list" style="font-size:1.3rem; margin-right:0.5rem;"></i>
+        <span class="dialog-head">{{ homePageState.selectedRecipe.recId > 0 ? 'Edit Recipe' : 'Create Recipe' }}</span></span>        
+    </ng-template>
+    <!-- <hr class="card-hr" />  -->
+    <createRecipeDialog-root></createRecipeDialog-root>    
     <ng-template pTemplate="footer">
       <p-button label="Back" icon="pi pi-angle-left" styleClass="p-button-secondary" (click)="onCreateRecipeDialogPrevClicked()" [hidden]="this.homePageState.createRecipeDialogCurrentStep==1"></p-button>
       <p-button label="Next" icon="pi pi-angle-right" iconPos="right" (click)="onCreateRecipeDialogNextClicked()" [hidden]="this.homePageState.createRecipeDialogCurrentStep==3"></p-button>

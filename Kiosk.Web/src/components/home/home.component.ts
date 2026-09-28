@@ -417,7 +417,6 @@ export class homeComponent implements OnInit, AfterViewInit, AfterViewChecked, O
     }      
 
     this.homePageState.selectedRecipe = recipe;
-    this.homePageState.selectedRecipe.instructions = recipe.instructions.split("<br />").join("\n");
     this.homePageState.selectedRecipe.strIngredients = recipe.ingredients.map(o => o.ingredient).join("\n");
     this.homePageState.selectedRecipe.primaryCategory =
       this.homePageState.categories.find(
@@ -506,6 +505,10 @@ export class homeComponent implements OnInit, AfterViewInit, AfterViewChecked, O
 
     if (!this.stateValidator.validateCreateRecipeSteps())
       return;
+
+    // Quill 2's getSemanticHTML emits &nbsp; for every space, which prevents word wrap.
+    this.homePageState.selectedRecipe.instructions =
+      this.homePageState.selectedRecipe.instructions?.replace(/&nbsp;/g, ' ');
 
     // Populate ingredient array
     var i = this.homePageState.selectedRecipe.strIngredients.split("\n");

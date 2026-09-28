@@ -93,6 +93,9 @@ export class recipeComponent implements OnInit, AfterViewInit {
     try {
       this.recipe = await this.recipeService.GetRecipe(
         +this.route.snapshot.params['id']);
+      // Recipes saved before the &nbsp; fix in onCreateRecipeSaveClicked won't wrap otherwise.
+      if (this.recipe?.instructions)
+        this.recipe.instructions = this.recipe.instructions.replace(/&nbsp;/g, ' ');
       this.photos = await this.recipeService.GetRecipePhotos(
         +this.route.snapshot.params['id']);
 

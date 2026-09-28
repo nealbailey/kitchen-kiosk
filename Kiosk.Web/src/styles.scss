@@ -2119,6 +2119,26 @@ li {
   font-weight: 300;
 }
 
+// Default "bolder" only reaches 400 inside the 300-weight p/li text above.
+strong, b {
+  font-weight: 700;
+}
+
+// PrimeNG's editor CSS targets Quill 1; Quill 2 renders bullet lists as <ol><li data-list="bullet">.
+.ql-editor ol li[data-list='bullet'] {
+  counter-increment: none;
+}
+
+.ql-editor ol li[data-list='bullet']::before {
+  content: '\2022';
+}
+
+// Match the PrimeNG textareas instead of Quill's 13px Helvetica default.
+p-editor .ql-container {
+  font-family: inherit;
+  font-size: 1rem;
+}
+
 img {
   display: inline-block;
   max-width: 100%;
