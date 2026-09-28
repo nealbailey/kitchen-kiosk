@@ -59,6 +59,7 @@ export class homeComponent implements OnInit, AfterViewInit, AfterViewChecked, O
    * @param categoriesService service required for working with categories.
    * @param toastService service for dispatching toast notices.
    * @param confirmationService service for dispatching comfirm dialogs.
+   * @param router The Angular Router service for navigation.
    */ 
   constructor(
     public homePageState: HomePageState,    
