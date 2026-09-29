@@ -11,11 +11,11 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { InputTextarea } from 'primeng/inputtextarea';
+import { EditorModule } from 'primeng/editor';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { MenuModule } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
 
 // Routes
 import { appRoutes } from '../routes'
@@ -29,10 +29,31 @@ import { StateValidator } from 'src/services/stateValidator.service';
 import { CategoriesService } from 'src/services/categories.service';
 import { RecipesService } from 'src/services/recipes.service';
 import { UsersService } from 'src/services/users.service';
+import { AdminService } from 'src/services/admin.service';
 import { ToastService } from 'src/services/toast.service';
 import { MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
+import { definePreset } from '@primeng/themes';
+
+// Warm, kitchen-inspired accent replacing PrimeNG's default blue.
+const KioskPreset = definePreset(Aura, {
+  semantic: {
+    primary: {
+      50: '{orange.50}',
+      100: '{orange.100}',
+      200: '{orange.200}',
+      300: '{orange.300}',
+      400: '{orange.400}',
+      500: '#e2622a',
+      600: '#c94f1e',
+      700: '#a63e17',
+      800: '{orange.800}',
+      900: '{orange.900}',
+      950: '{orange.950}'
+    }
+  }
+});
 
 //Components
 import { AppComponent } from './app.component';
@@ -40,6 +61,7 @@ import { topnavComponent } from 'src/components/topnav/topnav.component';
 import { sidebarComponent } from 'src/components/sidebar/sidebar.component';
 import { homeComponent } from 'src/components/home/home.component';
 import { recipeComponent } from 'src/components/recipe/recipe.component';
+import { adminComponent } from 'src/components/admin/admin.component';
 import { createRecipeDialogComponent } from 'src/components/recipe/createRecipeDialog.component'
 import { RouterModule } from '@angular/router';
 
@@ -50,6 +72,7 @@ import { RouterModule } from '@angular/router';
     sidebarComponent,
     homeComponent,
     recipeComponent,
+    adminComponent,
     createRecipeDialogComponent,
   ],
   imports: [
@@ -66,9 +89,10 @@ import { RouterModule } from '@angular/router';
     InputTextModule,
     ToastModule,
     DropdownModule,
+    SelectButtonModule,
     InputTextarea,
+    EditorModule,
     ConfirmDialogModule,
-    MenuModule,
   ],
   providers: [
     AuthenticationInterceptorService,
@@ -81,8 +105,9 @@ import { RouterModule } from '@angular/router';
     RecipesService,
     CategoriesService,
     UsersService,
+    AdminService,
     MessageService,
-    providePrimeNG({ theme: { preset: Aura } }),
+    providePrimeNG({ theme: { preset: KioskPreset, options: { darkModeSelector: '.app-dark', cssLayer: false } } }),
     { provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptorService, multi: true }
   ],
   bootstrap: [AppComponent]

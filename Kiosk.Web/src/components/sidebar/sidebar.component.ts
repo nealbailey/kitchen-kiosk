@@ -16,9 +16,11 @@
 //-----------------------------------------------------------------------
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
-import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { Router } from '@angular/router';
-import { ConfirmationService, MenuItem } from 'primeng/api';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { ConfirmationService } from 'primeng/api';
 import { PagingData } from 'src/models/PagingData';
 import { CategoriesService } from 'src/services/categories.service';
 import { HomePageState } from 'src/services/home.state';
@@ -32,11 +34,15 @@ import { UserSessionService } from 'src/services/userSession.service';
     templateUrl: './sidebar.component.html', 
     styleUrls: ['./sidebar.component.scss'] 
 }) 
-export class sidebarComponent implements OnInit, AfterViewInit { 
+export class sidebarComponent implements OnInit, AfterViewInit, OnDestroy { 
   
   // #region Properties
-  sidebarMenuItems: MenuItem[];
   isLoading: boolean;
+
+  /** True while viewing a single recipe, used to hide the banner on mobile/tablet. */
+  isRecipeDetailRoute: boolean = false;
+
+  private routerSubscription: Subscription;
   // #endregion
 
   // #region Constructor
@@ -69,10 +75,22 @@ export class sidebarComponent implements OnInit, AfterViewInit {
 
   /** Occurs upon component initialization */
   async ngOnInit(): Promise<void> { 
-    // obtain data for the page 
-    this.getData();
+    // Recipe data is owned by the routed home component.
+    this.getData(false);
+
+    this.isRecipeDetailRoute = this.router.url.startsWith('/recipe/');
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.isRecipeDetailRoute = event.urlAfterRedirects.startsWith('/recipe/');
+      });
   } 
  
+  /** Releases the router subscription. */
+  ngOnDestroy(): void {
+    this.routerSubscription?.unsubscribe();
+  }
+
   /** Occurs after view initialization */ 
   ngAfterViewInit(): void { 
     // allow ngAfterViewInit() to complete before setting control states
@@ -93,69 +111,35 @@ export class sidebarComponent implements OnInit, AfterViewInit {
   // #region Data Acquisition 
 
   /** Retrieves all necessary data for this component. */
-  async getData() {
+  async getData(loadRecipes: boolean = true) {
     try {
       this.isLoading = true;
-      this.homePageState.recipes = await this.recipesService.GetRecipes(this.homePageState);
+      if (loadRecipes) {
+        this.homePageState.pageIsLoading = true;
+        const recipes = await this.recipesService.GetRecipes(this.homePageState);
+        this.homePageState.setRecipes(recipes);
+      }
 
+      // Shared with home.component's Category/Author filter dropdowns - not just this component.
       if (this.homePageState.categories.length == 0)
         this.homePageState.categories = await this.categoriesService.GetCategories();
 
       if (this.homePageState.users.length == 0)
         this.homePageState.users = await this.usersService.GetUsers();
 
-      this.getTieredMenu();
-
     } catch (message: any) {
       console.log(message);
     }
     finally {
       this.isLoading = false;
+      if (loadRecipes)
+        this.homePageState.pageIsLoading = false;
     }
   }
 
   // #endregion
  
   // #region Methods
-
-  /** Build the sidebar navigation menu */
-  getTieredMenu() {
-    let catMenuItems: MenuItem[] = [];
-    let userMenuItems: MenuItem[] = [];
-
-    this.homePageState.categories.forEach((category) => {
-      catMenuItems.push({
-        label: category.category,
-        icon: 'pi pi-fw pi-file',
-        id: category.catId.toString(),
-        command: (event) => { this.onTieredMenuItemClick(event, 'category'); }
-      })
-    });
-
-    this.homePageState.users.forEach((usr) => {
-      userMenuItems.push({
-        label: usr.userName,
-        icon: 'pi pi-fw pi-user',
-        id: usr.id.toString(),
-        command: (event) => { this.onTieredMenuItemClick(event, 'user'); }
-      })
-    });
-
-    //ToDo: Users menu
-    this.sidebarMenuItems = [
-      {
-        label: 'Categories',
-        icon: 'pi pi-fw pi-file',
-        items: catMenuItems
-      },
-      {
-        label: 'Users',
-        icon: 'pi pi-users',
-        items: userMenuItems
-      }
-    ];
-  }
-
 
   /** Show request access form */
   requestAccess() {
@@ -175,11 +159,12 @@ export class sidebarComponent implements OnInit, AfterViewInit {
     if (!input)
       return;
 
-    this.homePageState.pagingData.pageNumber = 1;
     this.homePageState.pagingData.searchString = input.value;
 
-    if (input.value.length == 0)
+    if (input.value.length == 0) {
+      this.homePageState.resetRecipes();
       await this.getData();
+    }
 
     if (input.value.length < 4)
       return;
@@ -196,13 +181,14 @@ export class sidebarComponent implements OnInit, AfterViewInit {
       }, 500);
     }
 
+    this.homePageState.resetRecipes();
     await this.getData();
   }
 
   /** User clicked the My Favorites link */
   async onFavoritesClicked() {
-    this.homePageState.pagingData.pageNumber = 1;
     this.homePageState.pagingData.favoritesOnly = true;
+    this.homePageState.resetRecipes();
     this.homePageState.pageIsLoading = this.isLoading;
     await this.getData();
     this.homePageState.pageIsLoading = this.isLoading;
@@ -210,46 +196,46 @@ export class sidebarComponent implements OnInit, AfterViewInit {
 
   /** User clicked the Home link */
   async onHomeClicked() {
-    this.homePageState.pagingData.pageNumber = 1;
     this.homePageState.pagingData.favoritesOnly = false;
+    this.homePageState.resetRecipes();
     await this.getData();
   }
 
   /** User clicked the Request Access button */
   onRequestAccessClicked() {
     this.confirmationService.confirm({
+      key: 'sidebarConfirm',
+      header: 'Access',
+      icon: 'pi pi-id-card',
       message: '&nbsp;This site is for a limited private audience.&nbsp;&nbsp;&nbsp;<br/>&nbsp;To request access send an email to nealbailey@hotmail.com&nbsp;&nbsp;&nbsp;',
+      acceptLabel: 'Ok',
+      rejectVisible: false,
       accept: () => {
         this.requestAccess();
-      },
-      reject: () => {
-        this.confirmationService.close();
       }
     });
     return;
   }
 
-  /**
-  *  Handles the click event of items in tiered menu
-  *  @param event the menuitem that was clicked (event.item)
-  *  @param type the menu type (category or user)
-  */
-  async onTieredMenuItemClick(event: any, type: string) {
-    this.homePageState.pageIsLoading = this.isLoading;
-    if (type == 'category') {
-      this.homePageState.pagingData.pageNumber = 1;
-      this.homePageState.pagingData.categoryId = event.item.id;
-      this.homePageState.pagingData.category = event.item.label;
-      await this.getData();
+  /** User clicked the Admin link */
+  onAdminClicked() {
+    if (this.userSessionService.userIsLoggedIn()) {
+      this.router.navigateByUrl('/admin');
+      return;
     }
 
-    if (type == 'user') {
-      this.homePageState.pagingData.pageNumber = 1;
-      this.homePageState.pagingData.userId = event.item.id;
-      this.homePageState.pagingData.userName = event.item.label;
-      await this.getData();
-    }
-    this.homePageState.pageIsLoading = this.isLoading;
+    this.confirmationService.confirm({
+      key: 'sidebarConfirm',
+      header: 'Login Required',
+      icon: 'pi pi-lock',
+      message: 'You must log in to use administration features.',
+      acceptLabel: 'Ok',
+      rejectVisible: false,
+      accept: () => {
+        this.confirmationService.close();
+      }
+    });
+    return;
   }
 
   // #endregion

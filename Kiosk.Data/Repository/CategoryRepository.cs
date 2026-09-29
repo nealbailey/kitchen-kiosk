@@ -22,6 +22,7 @@ namespace Kiosk.Data.Repository
     using KioskApi.Domain.Models;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -65,6 +66,27 @@ namespace Kiosk.Data.Repository
             _context.SaveChanges();
             _context.Entry(category).GetDatabaseValues();
             return Task.Run(() => category);
+        }
+
+        /// <summary>
+        /// Delete category.
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        public Task<bool> Delete(RecipeCategory category)
+        {
+            var dbcategory = Get(category).Result;
+            if (dbcategory == null)
+                return Task.Run(() => false);
+
+            // Do not allow Category to be deleted if there are any recipes mapped to it in RecipeCategoryMap
+            var hasMappedRecipes = _context.RecipeCategoryMaps.Any(rcm => rcm.CatId.Equals(dbcategory.CatId));
+            if (hasMappedRecipes)
+                throw new InvalidOperationException("Cannot delete category because it has associated recipes. Delete the recipes first and then try again.");
+
+            _context.Remove(dbcategory);
+            _context.SaveChanges();
+            return Task.Run(() => true);
         }
 
         /// <summary>

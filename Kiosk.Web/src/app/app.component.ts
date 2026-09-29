@@ -24,6 +24,7 @@ export class AppComponent {
     public homePageState: HomePageState,
     private userSessionService: UserSessionService ) {
     this.initSharedState();
+    this.watchColorScheme();
   }
 
   // #endregion
@@ -35,6 +36,15 @@ export class AppComponent {
     this.homePageState = new HomePageState();
     this.homePageState.pagingData = new PagingData();
     this.userSessionService.validateUserSession();
+  }
+
+  /** Mirrors the OS light/dark preference onto <html class="app-dark"> for PrimeNG + our own styles. */
+  private watchColorScheme() {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const apply = (isDark: boolean) => document.documentElement.classList.toggle('app-dark', isDark);
+
+    apply(media.matches);
+    media.addEventListener('change', event => apply(event.matches));
   }
 
   // #endregion

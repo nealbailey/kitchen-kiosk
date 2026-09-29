@@ -18,7 +18,7 @@
 //-----------------------------------------------------------------------
 namespace Kiosk.Data.Repository
 {
-    using KioskApi.Domain.Models;
+    using KioskApi.Domain.Models;    
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
@@ -98,10 +98,12 @@ namespace Kiosk.Data.Repository
         public Task<Recipe> GetOne(Recipe recipe, RepositoryOptionsRecipe options);
 
         /// <summary>
-        /// 
+        /// Update a specific recipe in the database.
         /// </summary>
-        /// <param name="recipe"></param>
-        /// <returns></returns>
+        /// <param name="recipe">The recipe to update.</param>
+        /// <returns>A Task representing the asynchronous operation, containing the updated recipe.</returns>
         public Task<Recipe> Update(Recipe recipe);
+
+        
     }
 }

@@ -7,7 +7,7 @@
     <div class="post-title-section">
       <h1>{{recipe?.title}}</h1>
       <div class="post-info-wrapper">
-        <div class="post-info">{{getLocalDateString(recipe?.date)}}</div>
+        <div class="post-info">{{getLocalDateString(recipe?.date, true)}}</div>
         <div class="post-info">|</div>
         <a routerLink="/home"
            class="post-info when-link"
@@ -18,6 +18,7 @@
            (click)="onUserClicked(recipe.user.id, recipe.user.userName)">{{recipe?.user?.userName}}</a>
       </div>
     </div>
+    <div class="section-divider" aria-hidden="true"></div>
     <div class="body-copy w-richtext">
      <p>{{recipe?.description}}</p>
     <div *ngIf="photos.length > 0" class="recipe-photos">
@@ -28,22 +29,17 @@
       </div>
     </div>
         
-    <h2>Ingredients</h2>
-    <blockquote>
-      <div *ngFor="let i of this.recipe.ingredients">
-        <ul role="list">
-          <li>{{i.ingredient}}</li>
-        </ul>
+    <h2 class="section-heading"><i class="pi pi-shopping-cart" aria-hidden="true"></i>Ingredients</h2>
+    <ul class="ingredients-list" role="list">
+      <li *ngFor="let i of this.recipe.ingredients">{{i.ingredient}}</li>
+    </ul>
+      <h2 class="section-heading"><i class="pi pi-book" aria-hidden="true"></i>Instructions</h2>
+      <div class="instructions-copy">
+        <span [innerHtml]="recipe?.instructions"></span>
       </div>
-    </blockquote>
-      <p>
-        <h2>Instructions</h2>
-        <div>
-          <span [innerHtml]="recipe?.instructions"></span>
-        </div>
     </div>
     <div class="button-wrapper">
-      <a routerLink="/home" class="button w-button">←&nbsp;Back</a>
+      <button pButton pRipple type="button" icon="pi pi-arrow-left" label="Back" class="p-button-outlined p-button-secondary recipe-back-button" (click)="onBackClicked()"></button>
     </div>
   </div>
 </div>

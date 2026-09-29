@@ -17,6 +17,7 @@
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Router } from '@angular/router';
 import { Recipe } from 'src/models/recipe.model';
 import { UserSession } from 'src/models/userSession.model';
 import { CategoriesService } from 'src/services/categories.service';
@@ -50,7 +51,8 @@ export class topnavComponent implements OnInit, AfterViewInit {
     private loginService: LoginService,    
     private toastService: ToastService,
     private recipesService: RecipesService,
-    private categoriesService: CategoriesService) {
+    private categoriesService: CategoriesService,
+    private router: Router) {
     if (!this.homePageState.userSession)
       this.homePageState.userSession = new UserSession();
   }
@@ -130,7 +132,9 @@ export class topnavComponent implements OnInit, AfterViewInit {
         //this.onSuccessfulLogin.emit();
 
         // Refresh data so favorites are accurate
-        this.homePageState.recipes = await this.recipesService.GetRecipes(this.homePageState);
+        this.homePageState.resetRecipes();
+        const recipes = await this.recipesService.GetRecipes(this.homePageState);
+        this.homePageState.setRecipes(recipes);
       }
     }
     catch (strError) {
@@ -141,8 +145,12 @@ export class topnavComponent implements OnInit, AfterViewInit {
 
   /** User clicked 'Sign Out' button */
   async onLogoutClicked() {
+    const returnHome = this.router.url.startsWith('/admin');
     await this.userSessionService.logOutUser();
     this.homePageState.userSession = new UserSession();
+
+    if (returnHome)
+      await this.router.navigateByUrl('/home');
   }
   // #endregion
 } 

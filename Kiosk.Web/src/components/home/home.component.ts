@@ -16,12 +16,14 @@
 //-----------------------------------------------------------------------
 // Copyright (c) 2012-2022 Baileysoft Solutions.
 //-----------------------------------------------------------------------
-import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 import { formatHelper } from 'src/helpers/format.helper';
 import { Ingredient } from 'src/models/ingredient.model';
 import { Recipe } from 'src/models/recipe.model';
 import { Category } from 'src/models/category.model';
+import { User } from 'src/models/user.model';
 import { CategoriesService } from 'src/services/categories.service';
 import { HomePageState } from 'src/services/home.state';
 import { RecipesService } from 'src/services/recipes.service';
@@ -35,9 +37,16 @@ import { StateValidator } from 'src/services/stateValidator.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class homeComponent implements OnInit, AfterViewInit {
+export class homeComponent implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {
 
   // #region Properties
+  @ViewChild('infiniteScrollTrigger') infiniteScrollTrigger: ElementRef;
+
+  private infiniteScrollObserver: IntersectionObserver;
+  private viewInitialized: boolean = false;
+
+  /** Recipe count last observed, used to detect data changes made outside this component (e.g. sidebar filters). */
+  private lastObservedRecipeCount: number = -1;
   // #endregion
 
   // #region Constructor
@@ -50,6 +59,7 @@ export class homeComponent implements OnInit, AfterViewInit {
    * @param categoriesService service required for working with categories.
    * @param toastService service for dispatching toast notices.
    * @param confirmationService service for dispatching comfirm dialogs.
+   * @param router The Angular Router service for navigation.
    */ 
   constructor(
     public homePageState: HomePageState,    
@@ -58,7 +68,8 @@ export class homeComponent implements OnInit, AfterViewInit {
     private recipeService: RecipesService,
     private categoriesService: CategoriesService,
     private toastService: ToastService,
-    private confirmationService: ConfirmationService) {
+    private confirmationService: ConfirmationService,
+    private router: Router) {
   }
   // #endregion
  
@@ -66,21 +77,47 @@ export class homeComponent implements OnInit, AfterViewInit {
 
   /** Occurs upon component initialization */
   async ngOnInit(): Promise<void> { 
-    // obtain data for the page 
-    this.getData();
+    if (!this.homePageState.recipesInitialized)
+      await this.getData();
 
     console.log('homeComponent:ngOnInit()');
   } 
  
   /** Occurs after view initialization */ 
   ngAfterViewInit(): void { 
+    this.viewInitialized = true;
+
     // allow ngAfterViewInit() to complete before setting control states
     // otherwise a non-fatal exception is thrown
     setTimeout(() => {
       this.setControlStates();
     }, 10);
+
+    if (this.homePageState.recipesInitialized)
+      this.restoreScrollPosition();
+
     console.log('homeComponent:ngAfterViewInit()');
-  } 
+  }
+
+  /** Re-arms the scroll observer whenever the recipe count changes, since the card grid may not
+   *  leave the sentinel's viewport visibility state each time (sidebar filters bypass this component). */
+  ngAfterViewChecked(): void {
+    if (!this.viewInitialized || !this.infiniteScrollTrigger)
+      return;
+
+    const currentRecipeCount = this.homePageState.recipes.length;
+
+    if (currentRecipeCount !== this.lastObservedRecipeCount) {
+      this.lastObservedRecipeCount = currentRecipeCount;
+      this.reattachInfiniteScrollObserver();
+    }
+  }
+
+  /** Saves the list position and releases the scroll observer. */
+  ngOnDestroy(): void {
+    this.homePageState.scrollPosition = window.scrollY;
+    this.infiniteScrollObserver?.disconnect();
+  }
  
   /** Sets control states based upon permissions/current data values. */
   setControlStates() {
@@ -93,26 +130,99 @@ export class homeComponent implements OnInit, AfterViewInit {
   // #region Data Acquisition 
 
   /** Retrieves all necessary data for this component. */ 
-  async getData() { 
-    // start the progress bar/spinner or display a skeleton.
-    this.homePageState.pageIsLoading = true;
+  async getData(append: boolean = false): Promise<boolean> {
+    if (!append)
+      this.homePageState.pageIsLoading = true;
  
     try {
-      this.homePageState.recipes = await this.recipeService.GetRecipes(this.homePageState);      
-      this.homePageState.pageIsLoading = false;
+      const recipes = await this.recipeService.GetRecipes(this.homePageState);
 
+      if (append)
+        this.homePageState.appendRecipes(recipes);
+      else
+        this.homePageState.setRecipes(recipes);
+
+      return true;
     } catch (message: any) {
-      this.homePageState.pageIsLoading = false;
       this.toastService.showError(message);
+      return false;
     }
     finally {
       this.homePageState.pageIsLoading = false;
+      this.homePageState.isLoadingMoreRecipes = false;
+
+      if (this.viewInitialized && this.homePageState.recipesInitialized)
+        this.initializeInfiniteScroll();
     }
   }
 
   // #endregion
  
   // #region Methods
+
+  /** Observes a marker below the list and loads another page as it approaches. */
+  private initializeInfiniteScroll() {
+    if (this.infiniteScrollObserver || !this.infiniteScrollTrigger)
+      return;
+
+    this.lastObservedRecipeCount = this.homePageState.recipes.length;
+    this.reattachInfiniteScrollObserver();
+  }
+
+  /** Recreates the observer so it re-evaluates the sentinel's current visibility.
+   *  IntersectionObserver only reports visibility *changes*, so a fresh instance is required to detect
+   *  "still visible after the list shrank/grew" cases that a persistent observer would silently miss. */
+  private reattachInfiniteScrollObserver() {
+    if (!this.infiniteScrollTrigger)
+      return;
+
+    this.infiniteScrollObserver?.disconnect();
+
+    this.infiniteScrollObserver = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting))
+        this.loadNextPage();
+    }, { rootMargin: '200px 0px' });
+
+    this.infiniteScrollObserver.observe(this.infiniteScrollTrigger.nativeElement);
+  }
+
+  /** Restores the home list after its existing records have rendered. */
+  private restoreScrollPosition() {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, this.homePageState.scrollPosition);
+        this.initializeInfiniteScroll();
+      });
+    });
+  }
+
+  /** Fetches and appends the next recipe page. */
+  async loadNextPage() {
+    if (this.homePageState.pageIsLoading ||
+        this.homePageState.isLoadingMoreRecipes ||
+        !this.homePageState.hasMoreRecipes)
+      return;
+
+    const previousPage = this.homePageState.pagingData.pageNumber;
+    this.homePageState.pagingData.pageNumber = previousPage + 1;
+    this.homePageState.isLoadingMoreRecipes = true;
+
+    if (!await this.getData(true))
+      this.homePageState.pagingData.pageNumber = previousPage;
+  }
+
+  /** Saves the current list position before opening a recipe. */
+  onRecipeClicked() {
+    this.homePageState.scrollPosition = window.scrollY;
+  }
+
+  /** Navigates to a recipe when the card itself (not one of its inner buttons) is clicked.
+   *  On touch devices the browser only fires `click` for a genuine tap, not a scroll/swipe,
+   *  so this doesn't need any manual swipe-detection logic. */
+  onRecipeCardClicked(recipe: Recipe) {
+    this.onRecipeClicked();
+    this.router.navigate(['/recipe', recipe.recId]);
+  }
 
   /**
   * Deletes the selected recipe
@@ -123,6 +233,7 @@ export class homeComponent implements OnInit, AfterViewInit {
       this.homePageState.pageIsLoading = true;      
       await this.recipeService.DeleteRecipe(recipeId);
       this.toastService.showSuccess('Recipe deleted successfully');
+      this.homePageState.resetRecipes();
       await this.getData();
     }
     catch (e) {
@@ -136,11 +247,53 @@ export class homeComponent implements OnInit, AfterViewInit {
   }
 
   /**
-  * Converts date string from the database to friendly date-time
+  * Converts date string from the database to a friendly date, optionally including the time
   * @param the_date the date you need to convert 
+  * @param includeTime whether to include the time portion (default false)
   */
-  public getLocalDateString(the_date: any) {
-    return new formatHelper().getLocalDateString(the_date);
+  public getLocalDateString(the_date: any, includeTime: boolean = false) {
+    return new formatHelper().getLocalDateString(the_date, includeTime);
+  }
+
+  /** Options for the search-type toggle (recipe title vs. ingredient).
+   *  Declared as a stable reference so PrimeNG's [options] binding doesn't see a "new" array every check. */
+  readonly searchTypeOptions = [
+    { label: 'Title', value: 'recipe' },
+    { label: 'Ingredient', value: 'ingredient' }
+  ];
+
+  /** Options for the sort-column toggle (stable reference, see searchTypeOptions). */
+  readonly sortColumnOptions = [
+    { label: 'Date', value: 'date' },
+    { label: 'Title', value: 'title' }
+  ];
+
+  private readonly sortOrderOptionsByDate = [{ label: 'Newest', value: 'desc' }, { label: 'Oldest', value: 'asc' }];
+  private readonly sortOrderOptionsByTitle = [{ label: 'A \u2192 Z', value: 'asc' }, { label: 'Z \u2192 A', value: 'desc' }];
+
+  /** Options for the sort-order toggle, labeled contextually for the active sort column.
+   *  Returns one of two pre-built arrays (never a fresh literal) to keep the reference stable. */
+  get sortOrderOptions() {
+    return this.homePageState.pagingData.sortColumn === 'title'
+      ? this.sortOrderOptionsByTitle
+      : this.sortOrderOptionsByDate;
+  }
+
+  /** Label for the always-visible sort chip. */
+  get sortChipLabel(): string {
+    const isTitle = this.homePageState.pagingData.sortColumn === 'title';
+    const isDesc = this.homePageState.pagingData.sortOrder === 'desc';
+
+    if (isTitle)
+      return isDesc ? 'Title, Z \u2192 A' : 'Title, A \u2192 Z';
+
+    //return isDesc ? 'Date, newest' : 'Date, oldest';
+    return 'Date';
+  }
+
+  /** Icon for the always-visible sort chip. */
+  get sortChipIcon(): string {
+    return this.homePageState.pagingData.sortOrder === 'desc' ? 'pi pi-sort-amount-down' : 'pi pi-sort-amount-up';
   }
   // #endregion
 
@@ -154,11 +307,14 @@ export class homeComponent implements OnInit, AfterViewInit {
     if (!input)
       return;
 
-    this.homePageState.pagingData.pageNumber = 1;
     this.homePageState.pagingData.searchString = input.value;
 
-    if (input.value.length == 0)
-      await this.getData();
+    // if (input.value.length == 0) {
+    //   this.homePageState.resetRecipes();
+    //   await this.getData();
+    //   window.scrollTo(0, 0);
+    //   return;
+    // }
 
     if (input.value.length < 4)
       return;
@@ -168,7 +324,9 @@ export class homeComponent implements OnInit, AfterViewInit {
       console.log("Search: " + input.value)
     }, 1250);
 
+    this.homePageState.resetRecipes();
     await this.getData();
+    window.scrollTo(0, 0);
   }
 
   /**
@@ -186,9 +344,9 @@ export class homeComponent implements OnInit, AfterViewInit {
   async onCategoryClicked(categoryId: number, categoryName: string) {
     if (categoryId > 0) {
       if (this.homePageState.pagingData.categoryId != categoryId) {
-        this.homePageState.pagingData.pageNumber = 1;
         this.homePageState.pagingData.categoryId = categoryId;
-        this.homePageState.pagingData.category = categoryName;        
+        this.homePageState.pagingData.category = categoryName;
+        this.homePageState.resetRecipes();
         await this.getData();
 
         window.scrollTo(0, 0);
@@ -204,14 +362,31 @@ export class homeComponent implements OnInit, AfterViewInit {
   async onUserClicked(id: string, userName: string) {
     if (id) {
       if (this.homePageState.pagingData.userId != id) {
-        this.homePageState.pagingData.pageNumber = 1;
         this.homePageState.pagingData.userId = id;
         this.homePageState.pagingData.userName = userName;
+        this.homePageState.resetRecipes();
         await this.getData();
 
         window.scrollTo(0, 0);
       }
     }
+  }
+
+  /** User toggled between searching by recipe title or by ingredient. */
+  async onSearchTypeChanged() {
+    if (!this.homePageState.pagingData.searchString)
+      return;
+
+    this.homePageState.resetRecipes();
+    await this.getData();
+    window.scrollTo(0, 0);
+  }
+
+  /** User changed the sort column or sort order. */
+  async onSortChanged() {
+    this.homePageState.resetRecipes();
+    await this.getData();
+    window.scrollTo(0, 0);
   }
 
   /**
@@ -242,7 +417,6 @@ export class homeComponent implements OnInit, AfterViewInit {
     }      
 
     this.homePageState.selectedRecipe = recipe;
-    this.homePageState.selectedRecipe.instructions = recipe.instructions.split("<br />").join("\n");
     this.homePageState.selectedRecipe.strIngredients = recipe.ingredients.map(o => o.ingredient).join("\n");
     this.homePageState.selectedRecipe.primaryCategory =
       this.homePageState.categories.find(
@@ -266,22 +440,6 @@ export class homeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  /** User clicked on the Next Page button */
-  async onNextPageClicked() {
-    this.homePageState.pagingData.pageNumber = (this.homePageState.pagingData.pageNumber + 1);
-    await this.getData();
-    window.scrollTo(0, 0);
-  }
-
-  /** User clicked on the Previous Page button */
-  async onPrevPageClicked() {
-    if (this.homePageState.pagingData.pageNumber <= 1)
-      return;
-    this.homePageState.pagingData.pageNumber = (this.homePageState.pagingData.pageNumber -1);
-    await this.getData();
-    window.scrollTo(0, 0);
-  }
-
   /**
   * User removed a chip
   * @param id the chip html id 
@@ -291,6 +449,7 @@ export class homeComponent implements OnInit, AfterViewInit {
     switch (id) {
       case 'chipSearch':
         this.homePageState.pagingData.searchString = '';
+        this.homePageState.pagingData.searchType = 'recipe';
         break;
       case 'chipCategory':
         this.homePageState.pagingData.categoryId = 0;
@@ -300,13 +459,15 @@ export class homeComponent implements OnInit, AfterViewInit {
       case 'chipUser':
         this.homePageState.pagingData.userId = '';
         this.homePageState.pagingData.userName = '';
+        this.homePageState.selectedUser = new User();
         break;
       case 'chipFavorites':
         this.homePageState.pagingData.favoritesOnly = false;
         break;
     }
-    this.homePageState.pagingData.pageNumber = 1;
+    this.homePageState.resetRecipes();
     await this.getData();
+    window.scrollTo(0, 0);
   }
 
   //#region Create Dialog
@@ -345,6 +506,10 @@ export class homeComponent implements OnInit, AfterViewInit {
     if (!this.stateValidator.validateCreateRecipeSteps())
       return;
 
+    // Quill 2's getSemanticHTML emits &nbsp; for every space, which prevents word wrap.
+    this.homePageState.selectedRecipe.instructions =
+      this.homePageState.selectedRecipe.instructions?.replace(/&nbsp;/g, ' ');
+
     // Populate ingredient array
     var i = this.homePageState.selectedRecipe.strIngredients.split("\n");
     if (i.length > 0) {
@@ -366,7 +531,8 @@ export class homeComponent implements OnInit, AfterViewInit {
         this.homePageState.pageIsLoading = true;
         await this.recipeService.UpdateRecipe(this.homePageState.selectedRecipe);
         this.toastService.showSuccess('Recipe updated successfully');
-      }      
+      }
+      this.homePageState.resetRecipes();
       await this.getData();
     } catch (message: any) {
       this.toastService.showError(message);

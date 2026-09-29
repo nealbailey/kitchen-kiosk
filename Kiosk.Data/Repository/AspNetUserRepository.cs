@@ -67,6 +67,18 @@ namespace Kiosk.Data.Repository
             var users = _context.AspNetUsers.OrderBy(x => x.UserName).ToListAsync();
             return Task.Run(() => users);
         }
+
+        /// <summary>
+        /// Determine if a user has any associated recipes.
+        /// </summary>
+        /// <param name="id">The unique identifier of the user.</param>
+        /// <returns>A boolean flag indicating whether the user has any associated recipes.</returns>
+        public async Task<bool> UserHasRecipesAsync(Guid id)
+        {
+            var hasRecipes = await _context.Recipes.AnyAsync(r => r.Useruid == id);
+            return hasRecipes;
+        }        
+
         #endregion
     }
 }

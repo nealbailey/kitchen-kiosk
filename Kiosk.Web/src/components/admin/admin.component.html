@@ -1,0 +1,118 @@
+<div class="content admin-page" role="main">
+  <p-confirmDialog key="adminConfirm"></p-confirmDialog>
+
+  <header class="admin-header" *ngIf="isLoggedIn">
+    <span class="admin-header-icon"><i class="pi pi-shield"></i></span>
+    <div>
+      <h1>Administration</h1>
+      <p>Manage your account<span *ngIf="isAdmin">, users, and recipe categories</span>.</p>
+    </div>
+  </header>
+
+  <section class="admin-section" *ngIf="isLoggedIn">
+    <button type="button" class="admin-section-toggle" [attr.aria-expanded]="passwordSectionExpanded" aria-controls="password-section-content" (click)="passwordSectionExpanded = !passwordSectionExpanded">
+      <i class="pi pi-key"></i>
+      <div>
+        <h3><b>Change My Password</b></h3>
+        <p>Use your current password to authorize the change.</p>
+      </div>
+      <i class="pi admin-toggle-icon" [ngClass]="passwordSectionExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+    </button>
+
+    <div id="password-section-content" class="admin-section-content" *ngIf="passwordSectionExpanded">
+      <div class="admin-form-grid admin-password-grid">
+        <label>
+          <span>Current password</span>
+          <input pInputText type="password" autocomplete="current-password" [(ngModel)]="currentPassword">
+        </label>
+        <label>
+          <span>New password</span>
+          <input pInputText type="password" autocomplete="new-password" [(ngModel)]="newPassword">
+        </label>
+        <label>
+          <span>Confirm new password</span>
+          <input pInputText type="password" autocomplete="new-password" [(ngModel)]="confirmNewPassword">
+        </label>
+      </div>
+      <p class="password-requirements">At least 6 characters with uppercase, lowercase, number, and symbol characters.</p>
+      <button pButton pRipple type="button" icon="pi pi-save" label="Change Password" [disabled]="isSavingPassword" (click)="changePassword()"></button>
+    </div>
+  </section>
+
+  <section class="admin-section" *ngIf="isAdmin">
+    <button type="button" class="admin-section-toggle" [attr.aria-expanded]="userSectionExpanded" aria-controls="user-section-content" (click)="userSectionExpanded = !userSectionExpanded">
+      <i class="pi pi-users"></i>
+      <div>
+        <h3><b>User Management</b></h3>
+        <p>Create standard or administrator accounts and remove unused accounts.</p>
+      </div>
+      <i class="pi admin-toggle-icon" [ngClass]="userSectionExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+    </button>
+
+    <div id="user-section-content" class="admin-section-content" *ngIf="userSectionExpanded">
+      <div class="admin-subsection">
+        <h3>Create New User</h3>
+        <div class="admin-form-grid">
+          <label>
+            <span>Username</span>
+            <input pInputText type="text" maxlength="64" autocomplete="off" [(ngModel)]="newUsername">
+          </label>
+          <label>
+            <span>Email</span>
+            <input pInputText type="email" maxlength="128" autocomplete="off" [(ngModel)]="newUserEmail">
+          </label>
+          <label>
+            <span>Password</span>
+            <input pInputText type="password" autocomplete="new-password" [(ngModel)]="newUserPassword">
+          </label>
+          <label>
+            <span>Confirm password</span>
+            <input pInputText type="password" autocomplete="new-password" [(ngModel)]="confirmUserPassword">
+          </label>
+          <label>
+            <span>Account type</span>
+            <p-selectButton [options]="userRoleOptions" optionLabel="label" optionValue="value" [(ngModel)]="newUserRole"></p-selectButton>
+          </label>
+        </div>
+        <button pButton pRipple type="button" icon="pi pi-user-plus" label="Create User" [disabled]="isSavingUser" (click)="createUser()"></button>
+      </div>
+
+      <div class="admin-subsection admin-danger-zone">
+        <h3>Delete User</h3>
+        <div class="admin-inline-form">
+          <p-dropdown [options]="homePageState.users" optionLabel="userName" placeholder="Select a user" appendTo="body" [(ngModel)]="selectedUser"></p-dropdown>
+          <button pButton pRipple type="button" icon="pi pi-trash" label="Delete User" class="p-button-danger p-button-outlined" [disabled]="isDeletingUser" (click)="confirmDeleteUser()"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="admin-section" *ngIf="isAdmin">
+    <button type="button" class="admin-section-toggle" [attr.aria-expanded]="categorySectionExpanded" aria-controls="category-section-content" (click)="categorySectionExpanded = !categorySectionExpanded">
+      <i class="pi pi-tags"></i>
+      <div>
+        <h3><b>Category Management</b></h3>
+        <p>Add categories or remove categories that are no longer in use.</p>
+      </div>
+      <i class="pi admin-toggle-icon" [ngClass]="categorySectionExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+    </button>
+
+    <div id="category-section-content" class="admin-section-content" *ngIf="categorySectionExpanded">
+      <div class="admin-subsection">
+        <h3>Create Category</h3>
+        <div class="admin-inline-form">
+          <input pInputText type="text" maxlength="64" placeholder="Category name" [(ngModel)]="newCategoryName">
+          <button pButton pRipple type="button" icon="pi pi-plus" label="Add Category" [disabled]="isSavingCategory" (click)="createCategory()"></button>
+        </div>
+      </div>
+
+      <div class="admin-subsection admin-danger-zone">
+        <h3>Delete Category</h3>
+        <div class="admin-inline-form">
+          <p-dropdown [options]="homePageState.categories" optionLabel="category" placeholder="Select a category" appendTo="body" [(ngModel)]="selectedCategory"></p-dropdown>
+          <button pButton pRipple type="button" icon="pi pi-trash" label="Delete Category" class="p-button-danger p-button-outlined" [disabled]="isDeletingCategory" (click)="confirmDeleteCategory()"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

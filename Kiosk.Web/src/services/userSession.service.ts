@@ -32,8 +32,12 @@ export class UserSessionService {
    * @returns userSession instance.
    */
   getUserSession(): UserSession {
-    let userSession: UserSession = JSON.parse(localStorage.getItem('token'));
-    return userSession;
+    try {
+      return JSON.parse(localStorage.getItem('token'));
+    } catch {
+      // Malformed/corrupt token value (e.g. from an older app version) - treat as no session.
+      return null;
+    }
   }
 
   /** Ends a user session */

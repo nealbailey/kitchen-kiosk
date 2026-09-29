@@ -25,3 +25,195 @@
   opacity: 0.4;
   margin-bottom: 1.5em;
 }
+
+.infinite-scroll-trigger {
+  height: 1px;
+}
+
+.infinite-scroll-loading {
+  align-items: center;
+  display: flex;
+  height: 60px;
+  justify-content: center;
+}
+
+/* Expanded search/category/author/sort filter panel, shown via the hourglass toggle */
+.filter-panel {
+  display: flex;
+  flex-wrap: wrap;
+  /* flex-end would bottom-align groups, so shorter groups (Category/Author/Sort) drift
+     down to match the taller Search group's bottom edge instead of lining up labels. */
+  align-items: flex-start;
+  gap: 1.25rem;
+  background-color: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.filter-group-search {
+  /* flex-grow: 0 (not 1) so this group only claims the width its own controls need,
+     instead of greedily eating the rest of the row and pushing Category/Author down
+     to the next line even when there's still room for them. */
+  flex: 0 1 320px;
+  min-width: 260px;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--app-text-muted);
+}
+
+.filter-search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-search-row input[pInputText] {
+  flex: 1 1 180px;
+}
+
+@media screen and (max-width: 767px) {
+  .filter-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* flex-basis: 320px is meant to set a *width* in the row layout above; once the panel
+     stacks into a column it would otherwise be read as a min-height, leaving a huge gap. */
+  .filter-group-search {
+    flex-basis: auto;
+  }
+
+  .filter-search-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-search-row input[pInputText] {
+    flex-basis: auto;
+  }
+
+  .filter-search-row .p-selectbutton {
+    display: flex;
+  }
+
+  .filter-search-row .p-selectbutton .p-button {
+    flex: 1;
+  }
+}
+
+/* Recipe card grid replaces the old HR-separated blog list */
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.recipe-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--app-shadow);
+  cursor: pointer;
+  transition: box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease;
+}
+
+.recipe-card:hover {
+  box-shadow: var(--app-shadow-hover);
+  border-color: var(--app-accent);
+  transform: translateY(-2px);
+}
+
+.recipe-card-title-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.recipe-card-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.recipe-card-title-link:hover .recipe-card-title {
+  color: var(--app-accent-dark);
+}
+
+.recipe-card-recommended {
+  margin-left: 0.4rem;
+  font-size: 1rem;
+  color: var(--app-accent);
+}
+
+.recipe-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.recipe-card-date {
+  color: var(--app-text-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-right: 0.25rem;
+}
+
+.recipe-card-summary {
+  flex: 1;
+  color: var(--app-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.recipe-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--app-border);
+}
+
+.recipe-card-action-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background-color: var(--app-surface-muted);
+}
+
+.recipe-card-action-group > span {
+  display: contents;
+}
+
+@media screen and (max-width: 767px) {
+  .recipe-grid {
+    grid-template-columns: 1fr;
+  }
+}

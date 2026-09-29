@@ -18,4 +18,59 @@
 .recipe-photo img {
   display: block;
 }
+
+/* Replaces the old full-width gray <hr>-style border under the title. */
+.section-divider {
+  width: 64px;
+  height: 3px;
+  margin: 0 auto 2rem;
+  border-radius: 3px;
+  background-color: var(--app-accent);
+}
+
+/* Icon badge preceding the Ingredients/Instructions headings. */
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.section-heading .pi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-size: 1rem;
+  color: var(--app-accent);
+  background-color: var(--app-surface-muted);
+}
+
+/* Replaces the legacy <blockquote>-wrapped ingredient list. */
+.ingredients-list {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  border-left: 3px solid var(--app-accent);
+  background-color: var(--app-surface-muted);
+  border-radius: 0 var(--app-radius) var(--app-radius) 0;
+}
+
+.ingredients-list li {
+  padding: 0.6rem 1.25rem;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.ingredients-list li:last-child {
+  border-bottom: none;
+}
+
+.instructions-copy {
+  line-height: 1.6;
+}
+
+.recipe-back-button {
+  margin-top: 1rem;
+}
  
