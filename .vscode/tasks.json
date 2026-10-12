@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Kiosk.Data/Kiosk.Data.csproj",
+                "${workspaceFolder}/Kiosk.Api/Kiosk.Api.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/Kiosk.Data/Kiosk.Data.csproj",
+                "${workspaceFolder}/Kiosk.Api/Kiosk.Api.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/Kiosk.Data/Kiosk.Data.csproj"
+                "${workspaceFolder}/Kiosk.Api/Kiosk.Api.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
