@@ -12,6 +12,7 @@
             "program": "${workspaceFolder}/Kiosk.Api/bin/Debug/net9.0/linux-x64/Kiosk.Api.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Kiosk.Api",
+            "envFile": "${workspaceFolder}/dbg.env",
             "console": "internalConsole",
             "stopAtEntry": false
         },
@@ -32,6 +33,7 @@
             "program": "${workspaceFolder}/Kiosk.Api/bin/Debug/net9.0/linux-x64/Kiosk.Api.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Kiosk.Api",
+            "envFile": "${workspaceFolder}/dbg.env",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
