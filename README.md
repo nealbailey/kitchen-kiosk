@@ -10,6 +10,8 @@ Modern Next-Generation Recipe Management
 [![Node.js build tool](https://img.shields.io/badge/Node.js-build_tool-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Angular CLI development tool](https://img.shields.io/badge/Angular_CLI-development_only-DD0031?logo=angular&logoColor=white)](https://angular.dev/tools/cli)
 
+![Kitchen Kiosk screenshot](kk-screenshot.png)
+
 This solution consists of two primary components:
 
 1. **Kiosk.Api** — a .NET 9 Web API hosted in Kestrel, exposing recipe/category/authentication endpoints and connecting to a MySQL 8 `KIOSK` database.
