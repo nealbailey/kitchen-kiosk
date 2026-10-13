@@ -1,3 +1,12 @@
+-- Kitchen Kiosk schema and initial data for MySQL 8.
+-- Run once, as a MySQL administrator, against a server with no existing KIOSK database:
+--   mysql -u root -p < 20260807-KIOSK-SCHEMA-MYSQL.sql
+--
+-- Creates the KIOSK database, all tables, the 'Admin' and 'User' roles, and one administrator:
+--   username: admin    password: ChangeMe!2026
+-- CHANGE THIS PASSWORD after the first login (Admin page > Change My Password).
+-- The application's MySQL account is not created here; see the README for the CREATE USER/GRANT statements.
+
 CREATE DATABASE IF NOT EXISTS `KIOSK` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `KIOSK`;
 
@@ -28,7 +37,7 @@ CREATE TABLE `AspNetUsers`(
  PhoneNumber LONGTEXT,
  PhoneNumberConfirmed BOOLEAN NOT NULL,
  TwoFactorEnabled BOOLEAN NOT NULL,
- LockoutEnd DATETIME NULL,
+ LockoutEnd DATETIME(6) NULL,
  LockoutEnabled BOOLEAN NOT NULL,
  AccessFailedCount INT NOT NULL,
  PRIMARY KEY(Id)
@@ -41,7 +50,7 @@ CREATE TABLE `AspNetRoleClaims`(
  ClaimValue LONGTEXT,
  PRIMARY KEY(Id),
  INDEX(RoleId),
- CONSTRAINT FK_RoleClaims_Roles FOREIGN KEY(RoleId) REFERENCES AspNetRoles(Id)
+ CONSTRAINT FK_RoleClaims_Roles FOREIGN KEY(RoleId) REFERENCES AspNetRoles(Id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `AspNetUserClaims`(
@@ -51,7 +60,7 @@ CREATE TABLE `AspNetUserClaims`(
  ClaimValue LONGTEXT,
  PRIMARY KEY(Id),
  INDEX(UserId),
- CONSTRAINT FK_UserClaims_Users FOREIGN KEY(UserId) REFERENCES AspNetUsers(Id)
+ CONSTRAINT FK_UserClaims_Users FOREIGN KEY(UserId) REFERENCES AspNetUsers(Id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `AspNetUserLogins`(
@@ -146,3 +155,25 @@ CREATE TABLE recipeIngredients(
 CREATE UNIQUE INDEX IX_AspNetRoles_NormalizedName ON AspNetRoles(NormalizedName);
 CREATE UNIQUE INDEX IX_AspNetUsers_NormalizedUserName ON AspNetUsers(NormalizedUserName);
 CREATE INDEX IX_AspNetUsers_NormalizedEmail ON AspNetUsers(NormalizedEmail);
+
+-- Initial data ------------------------------------------------------------
+
+-- Marks the Identity schema as current so EF tooling does not try to re-create it.
+INSERT INTO `__EFMigrationsHistory` (MigrationId, ProductVersion) VALUES ('20220131141440_initial', '5.0.13');
+
+INSERT INTO AspNetRoles (Id, Name, NormalizedName, ConcurrencyStamp) VALUES
+ ('046dda50-5567-4a5e-9b04-720c17586261', 'Admin', 'ADMIN', 'a1c0c7e2-3b8d-4f55-9f0e-1d2b6c8e4a01'),
+ ('f2f49159-c945-49d4-bc0c-06db01021a81', 'User',  'USER',  'a1c0c7e2-3b8d-4f55-9f0e-1d2b6c8e4a02');
+
+-- Default administrator. Password is 'ChangeMe!2026' (ASP.NET Core Identity v3 hash). Change it after first login.
+INSERT INTO AspNetUsers
+ (Id, UserName, NormalizedUserName, Email, NormalizedEmail, EmailConfirmed, PasswordHash, SecurityStamp, ConcurrencyStamp,
+  PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnabled, AccessFailedCount)
+VALUES
+ ('10278bf3-4144-4593-ac3f-975d586f8145', 'admin', 'ADMIN', 'admin@example.com', 'ADMIN@EXAMPLE.COM', 1,
+  'AQAAAAIAAYagAAAAEDD5eU5cWsD7/U2Q6I8p+b0j6Zf+FnwC8t81XH5LeMh+z/WgVJcEXr/i8ZofNpM1YA==',
+  'e75606ee-ce96-4442-9e94-e926619d6d73', '929e4f73-e196-4819-bd01-c9ded1303b3b',
+  0, 0, 1, 0);
+
+INSERT INTO AspNetUserRoles (UserId, RoleId) VALUES
+ ('10278bf3-4144-4593-ac3f-975d586f8145', '046dda50-5567-4a5e-9b04-720c17586261');

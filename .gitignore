@@ -366,3 +366,6 @@ FodyWeavers.xsd
 
 # Functional test plan
 testplan.txt
+
+#compiled build
+kiosk.tar.gz

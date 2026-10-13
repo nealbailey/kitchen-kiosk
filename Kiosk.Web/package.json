@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "build:prod": "ng build --configuration production --base-href /kioskweb/ --optimization=false --build-optimizer=false --extract-licenses=false",
+    "build:prod": "ng build --configuration production --base-href / --output-path ../Kiosk.Api/wwwroot --optimization=false --build-optimizer=false --extract-licenses=false",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

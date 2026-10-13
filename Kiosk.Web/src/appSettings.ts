@@ -39,14 +39,9 @@ export interface AppSettingsConfig {
 export class AppSettings {
 
   // #region Constants
-  readonly CLOUD_URL    = 'https://kiosk-data.azurewebsites.net'; //Azure
-  readonly DEVL_WIN_URL = 'https://localhost:44389'; //Windows
-  readonly DEVL_LIN_URL = 'http://localhost:5000'; //Linux
-  readonly APACHE_URL   = 'https://localhost/kioskapi'; //Apache
-  //readonly APACHE_URL = 'http://localhost:5000'; //Apache  
-  //readonly APACHE_URL = 'http://baileyfs02.baileysoft.lan:8001'; //Apache
-  //readonly APACHE_URL_2 = 'http://192.168.2.1:8001'; //Apache
-  
+  /** API used by the `ng serve` dev server (port 4200). */
+  readonly DEVL_URL = 'http://localhost:5020';
+
   // #endregion
 
   // #region Properties
@@ -127,30 +122,12 @@ export class AppSettings {
     AppSettings.API_RECIPE_PHOTOS = value(config?.API_RECIPE_PHOTOS, AppSettings.API_URL + '/api/photos/');
   }
 
-  /** Get the webapi to use. */
+  /** Get the webapi to use. Same origin as the app, under its base path (e.g. '' or '/kiosk'). */
   protected getApiUrl(): string {
-    let hostname: string = window.location.hostname;
-    console.log("hostname: " + hostname);
-    
-    switch (hostname.toLowerCase()) {
-      case 'baileyfs02.baileysoft.lan':
-        return this.APACHE_URL;
-        break;
-      case 'baileyfs02':
-        return this.APACHE_URL;
-        break;
-      case 'kiosk-web':
-        return this.CLOUD_URL;
-        break;
-      case 'kiosk-web.azurewebsites.net':
-        return this.CLOUD_URL;
-        break;
-      case 'localhost':
-        return this.DEVL_LIN_URL;
-        break;
-      default:
-        return this.APACHE_URL;
-    }
+    if (window.location.port === '4200')
+      return this.DEVL_URL;
+
+    return new URL(document.baseURI).pathname.replace(/\/$/, '');
   }
 
   // #endregion
