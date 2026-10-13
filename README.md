@@ -147,6 +147,16 @@ server {
 </VirtualHost>
 ```
 
+**Apache, under a sub-path** (for example `https://host/kiosk/` on a shared virtual host). Set `PathBase=/kiosk` in `/etc/kiosk/api.env` and restart the service, then keep the prefix when proxying:
+
+```apache
+RedirectMatch 301 ^/kiosk$ /kiosk/
+ProxyPass        /kiosk/ http://127.0.0.1:5020/kiosk/
+ProxyPassReverse /kiosk/ http://127.0.0.1:5020/kiosk/
+```
+
+Leave `PathBase` unset (the default) when the app is served from the root of its own host name. The web app calls the API under the same sub-path automatically.
+
 ## Update
 
 ```bash
@@ -179,3 +189,30 @@ npm run build:prod      # rebuild into Kiosk.Api/wwwroot (commit the result)
 ```
 
 Run the tests with `dotnet test UnitTests/UnitTests.csproj`.
+
+### Publishing
+
+Build the web app and the API on the development machine, then copy the result to the server. Run these from the repository root.
+
+1. Rebuild everything and publish to `artifacts/kiosk`. The web app is built into `Kiosk.Api/wwwroot`, which the publish step bundles. The first publish downloads the runtime packs, so it needs internet access.
+
+   ```bash
+   (cd Kiosk.Web && npm ci && npm run build:prod) && dotnet publish Kiosk.Api/Kiosk.Api.csproj -c Release -o artifacts/kiosk
+   ```
+
+2. Package it and copy it to the server:
+
+   ```bash
+   tar -czf kiosk.tar.gz -C artifacts/kiosk . && scp kiosk.tar.gz USER@SERVER:/tmp/   
+   ```
+
+3. On the server, unpack it (for an update, run `sudo systemctl stop kitchen-kiosk.service` first):
+
+   ```bash
+   sudo install -d /opt/kitchen-kiosk && sudo tar -xzf /tmp/kiosk.tar.gz -C /opt/kitchen-kiosk
+   sudo chmod +x /opt/kitchen-kiosk/Kiosk.Api
+   ```
+
+4. Start or restart the service: `sudo systemctl restart kitchen-kiosk.service`.
+
+The first install also needs the database, `/etc/kiosk/api.env`, and the systemd unit described under [Install](#install).

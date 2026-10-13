@@ -122,9 +122,12 @@ export class AppSettings {
     AppSettings.API_RECIPE_PHOTOS = value(config?.API_RECIPE_PHOTOS, AppSettings.API_URL + '/api/photos/');
   }
 
-  /** Get the webapi to use. Empty means same origin (Kiosk.Api serves this app). */
+  /** Get the webapi to use. Same origin as the app, under its base path (e.g. '' or '/kiosk'). */
   protected getApiUrl(): string {
-    return window.location.port === '4200' ? this.DEVL_URL : '';
+    if (window.location.port === '4200')
+      return this.DEVL_URL;
+
+    return new URL(document.baseURI).pathname.replace(/\/$/, '');
   }
 
   // #endregion

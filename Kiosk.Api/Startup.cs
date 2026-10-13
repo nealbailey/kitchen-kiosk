@@ -5,6 +5,7 @@ using KioskApi.Domain.Models.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace KioskApi
 {
@@ -133,6 +135,12 @@ namespace KioskApi
         {
             app.UseForwardedHeaders();
 
+            // Set when a reverse proxy publishes the app under a sub-path such as /kiosk.
+            var pathBase = (Configuration["PathBase"] ?? string.Empty).Trim().Trim('/');
+            pathBase = pathBase.Length == 0 ? string.Empty : "/" + pathBase;
+            if (pathBase.Length > 0)
+                app.UsePathBase(pathBase);
+
             // Only the `ng serve` dev server (another origin) needs CORS.
             if (env.IsDevelopment())
                 app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
@@ -148,7 +156,35 @@ namespace KioskApi
 
             //app.UseHttpsRedirection();
 
-            app.UseDefaultFiles();
+            // index.html is served by code so its <base href> can include the PathBase.
+            string indexHtml = null;
+            async Task ServeIndex(HttpContext context)
+            {
+                if (indexHtml == null)
+                {
+                    var file = env.WebRootFileProvider.GetFileInfo("index.html");
+                    if (!file.Exists)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
+                        return;
+                    }
+
+                    using var reader = new StreamReader(file.CreateReadStream());
+                    indexHtml = (await reader.ReadToEndAsync()).Replace("<base href=\"/\">", $"<base href=\"{pathBase}/\">");
+                }
+
+                context.Response.ContentType = "text/html; charset=utf-8";
+                await context.Response.WriteAsync(indexHtml);
+            }
+
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path == "/" || context.Request.Path == "/index.html")
+                    await ServeIndex(context);
+                else
+                    await next();
+            });
+
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -160,7 +196,7 @@ namespace KioskApi
             {
                 endpoints.MapControllers();
                 // Angular deep links; unmatched /api/* must stay 404.
-                endpoints.MapFallbackToFile("{*path:nonfile:regex(^(?!api/).*$)}", "index.html");
+                endpoints.MapFallback("{*path:nonfile:regex(^(?!api/).*$)}", ServeIndex);
             });
         }
     }

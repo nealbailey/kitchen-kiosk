@@ -19,6 +19,7 @@ Settings are read from `appsettings.json` and can be overridden by environment v
 | `AppSettings__photosPath` | No | Root folder of recipe photos. |
 | `AppSettings__photosThumbWidth` | No | Thumbnail width in pixels, 50 to 2000. Default 200. |
 | `ASPNETCORE_URLS` | No | Listen address, e.g. `http://127.0.0.1:5020`. |
+| `PathBase` | No | Sub-path when a reverse proxy publishes the app under one, e.g. `/kiosk`. Leave unset for the site root. |
 
 The service does not start if `ConnectionStrings__ConnStr` or `JWT__Secret` is missing.
 
