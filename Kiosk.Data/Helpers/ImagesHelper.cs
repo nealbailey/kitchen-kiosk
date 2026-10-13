@@ -18,9 +18,8 @@
 //-----------------------------------------------------------------------
 namespace Kiosk.Data.Helpers
 {
-    using SixLabors.ImageSharp;
-    using SixLabors.ImageSharp.Formats.Jpeg;
-    using SixLabors.ImageSharp.Processing;    
+    using SkiaSharp;
+    using System;
     using System.IO;
 
     public class ImagesHelper
@@ -34,8 +33,7 @@ namespace Kiosk.Data.Helpers
         /// <param name="height">The image height (optional). Default is 0px.</param>
         /// <exception cref="System.ArgumentNullException">The exception that is thrown when a null reference (Nothing in Visual Basic) is passed to a method that does not accept it as a valid argument.</exception>
         /// <exception cref="System.ArgumentException">The exception that is thrown when one of the arguments provided to a method is not valid.</exception>
-        /// <exception cref="SixLabors.ImageSharp.UnknownImageFormatException">Image format not recognised.</exception>
-        /// <exception cref="SixLabors.ImageSharp.InvalidImageContentException">Image contains invalid content.</exception>
+        /// <exception cref="InvalidDataException">Image format not recognised or content invalid.</exception>
         /// <returns><see cref="byte"/> array.</returns>
         public static byte[] ResizeImage(byte[] imageBytes, int width = 1920, int height = 0)
         {
@@ -45,27 +43,25 @@ namespace Kiosk.Data.Helpers
             if (width == 0 && height == 0)
                 return imageBytes;
 
-            byte[] resizedImageBytes = imageBytes;
-            using (var img = Image.Load(imageBytes))
-            {
-                if (width > 0 && width > img.Width)                
-                    return resizedImageBytes;
+            using var source = SKBitmap.Decode(imageBytes)
+                ?? throw new InvalidDataException("Image format not recognised or content invalid.");
 
-                if (height > 0 && height > img.Height)
-                    return resizedImageBytes;
+            if (width > 0 && width > source.Width)
+                return imageBytes;
 
-                // All supported resampling algorithms:
-                // https://docs.sixlabors.com/api/ImageSharp/SixLabors.ImageSharp.Processing.KnownResamplers.html
-                // img.Mutate(x => x.Resize(1280, 0, KnownResamplers.NearestNeighbor));
-                
-                img.Mutate(x => x.Resize(width, height));
-                using (var memoryStream = new MemoryStream())
-                {
-                    img.Save(memoryStream, new JpegEncoder());
-                    resizedImageBytes = memoryStream.ToArray();
-                }
-            }
-            return resizedImageBytes;
+            if (height > 0 && height > source.Height)
+                return imageBytes;
+
+            // A zero dimension is derived from the other to preserve aspect ratio.
+            int targetWidth = width > 0 ? width : Math.Max(1, (int)Math.Round((double)source.Width * height / source.Height));
+            int targetHeight = height > 0 ? height : Math.Max(1, (int)Math.Round((double)source.Height * width / source.Width));
+
+            var info = new SKImageInfo(targetWidth, targetHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
+            using var resized = source.Resize(info, new SKSamplingOptions(SKCubicResampler.Mitchell))
+                ?? throw new InvalidOperationException("Image resize failed.");
+            using var image = SKImage.FromBitmap(resized);
+            using var data = image.Encode(SKEncodedImageFormat.Jpeg, 90);
+            return data.ToArray();
         }
 
         /// <summary>

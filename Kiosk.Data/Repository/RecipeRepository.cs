@@ -78,6 +78,10 @@ namespace Kiosk.Data.Repository
             var instructions = recipe.Instructions.Replace("\n", "<br />");
             recipe.Instructions = instructions;
 
+            // Clients that omit the date would otherwise store 0001-01-01.
+            if (recipe.Date == default)
+                recipe.Date = System.DateTime.UtcNow;
+
             // Create recipe
             _context.Add(recipe);
             _context.SaveChanges();

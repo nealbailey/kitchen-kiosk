@@ -1,0 +1,15 @@
+{
+  "API_URL": "",
+  "API_LOGIN_ENDPOINT": "",
+  "API_CREATE_USER": "",
+  "API_CREATE_ADMIN": "",
+  "API_DELETE_USER": "",
+  "API_CATEGORIES": "",
+  "API_CREATE_CATEGORY": "",
+  "API_DELETE_CATEGORY": "",
+  "API_USERS": "",
+  "API_RECIPES": "",
+  "API_RECIPE": "",
+  "API_RECIPE_INGREDIENTS": "",
+  "API_RECIPE_PHOTOS": ""
+}

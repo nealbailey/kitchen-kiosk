@@ -5,6 +5,7 @@ using KioskApi.Domain.Models.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -44,7 +45,18 @@ namespace KioskApi
         /// </summary>
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
-        {           
+        {
+            foreach (var key in new[] { "ConnectionStrings:ConnStr", "JWT:Secret" })
+            {
+                if (string.IsNullOrWhiteSpace(Configuration[key]))
+                    throw new InvalidOperationException($"Missing required setting '{key}'. Set it with the environment variable '{key.Replace(":", "__")}'.");
+            }
+           
+            services.Configure<ForwardedHeadersOptions>(o =>
+            {
+                o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
+
             services.AddControllers();
 
             // Newtonsoft JSON
@@ -119,7 +131,11 @@ namespace KioskApi
         /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseForwardedHeaders();
+
+            // Only the `ng serve` dev server (another origin) needs CORS.
+            if (env.IsDevelopment())
+                app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             // Middle-ware injection
 
@@ -132,6 +148,9 @@ namespace KioskApi
 
             //app.UseHttpsRedirection();
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
             app.UseRouting();
 
             app.UseAuthentication();
@@ -140,6 +159,8 @@ namespace KioskApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                // Angular deep links; unmatched /api/* must stay 404.
+                endpoints.MapFallbackToFile("{*path:nonfile:regex(^(?!api/).*$)}", "index.html");
             });
         }
     }
