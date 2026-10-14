@@ -19,6 +19,11 @@ No Node.js, Angular, or Apache is needed to run it.
 | Kiosk.Api | .NET 9 service: REST API plus the web app as static files | [Kiosk.Api/README.md](Kiosk.Api/README.md) |
 | Kiosk.Web | Angular web app (prebuilt into `Kiosk.Api/wwwroot`) | [Kiosk.Web/README.md](Kiosk.Web/README.md) |
 
+## Choose an Installation
+
+- **Docker:** [Quickstart](quickstart.md) starts the app and MySQL together, including database setup. No .NET, Node.js, or existing MySQL installation is needed.
+- **Native Linux service:** follow [Install](#install) below to manage the executable and MySQL yourself.
+
 ## Install
 
 These steps target Ubuntu/Debian Linux with systemd. Replace the placeholders in `UPPER_CASE`.
