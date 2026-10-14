@@ -1,0 +1,42 @@
+name: kitchen-kiosk
+
+services:
+  db:
+    image: mysql:8.4
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Run sh docker/setup.sh first}
+      MYSQL_DATABASE: KIOSK
+      MYSQL_USER: kiosk
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Run sh docker/setup.sh first}
+    volumes:
+      - database:/var/lib/mysql
+      - ./Database/20260807-KIOSK-SCHEMA-MYSQL.sql:/docker-entrypoint-initdb.d/01-kiosk.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_PASSWORD\" mysql --protocol=TCP -h 127.0.0.1 -u kiosk KIOSK -Nse 'SELECT EXISTS(SELECT 1 FROM AspNetUserRoles)' | grep -qx 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  kiosk:
+    build: .
+    platform: linux/amd64
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__ConnStr: Server=db;Database=KIOSK;Uid=kiosk;Pwd=${MYSQL_PASSWORD:?Run sh docker/setup.sh first}
+      JWT__Secret: ${JWT_SECRET:?Run sh docker/setup.sh first}
+      AppSettings__photosPath: /photos
+      PathBase: ${KIOSK_PATH_BASE:-}
+    ports:
+      - "${KIOSK_BIND_ADDRESS:-127.0.0.1}:${KIOSK_PORT:-5020}:5020"
+    volumes:
+      - photos:/photos:ro
+
+volumes:
+  database:
+  photos:
