@@ -3,7 +3,7 @@
 ## Document status and evidence
 
 - **Status:** Current implementation baseline, with limitations called out below.
-- **Version:** 1.1.
+- **Version:** 1.2.
 - **Last reviewed:** 2026-10-22.
 - **Governance:** [Project constitution](constitution.md).
 - **Baseline:** Git HEAD `36fe1e9` plus the local .NET 10 migration and documentation
@@ -380,10 +380,14 @@ Known limitations and follow-up candidates, not approved implementation tasks:
 | [Web guide](../Kiosk.Web/README.md) | User workflows and frontend instructions |
 | [Docker quickstart](../quickstart.md) | Container operations and acceptance checks |
 | [Copilot instructions](../.github/copilot-instructions.md) | Startup reading guidance for supported clients |
+| [Mobile constitution](kiosk-mobile.constitution.md) | First-release companion-app product boundaries; not implemented functionality |
+| [Mobile specification](kiosk-mobile.spec.md) | Mobile feature/acceptance checklist; implementation pending |
+| [Mobile execution plan](kiosk-mobile.plan.md) | Phased Pop!_OS/VS Code setup, confirmed Android 13+ scope and LAN decisions, build/release gates; no APK verification yet |
 | [Repository branches](https://github.com/nealbailey/kitchen-kiosk/branches) | Historical branch context; reviewed refs and migration milestones are recorded in section 8 |
 
-No additional weekend notes were supplied when this baseline was established.
-Add reviewed notes to this index as they arrive; mark drafts/proposals clearly
+Mobile notes were reviewed for planning on 2026-10-22; their proposed endpoint and
+offline app are not part of the implemented baseline. Add reviewed notes to this
+index as they arrive; mark drafts/proposals clearly
 and incorporate accepted changes using the constitution's intake process.
 
 ### Specification revision record
@@ -392,3 +396,4 @@ and incorporate accepted changes using the constitution's intake process.
 | --- | --- | --- |
 | 1.0 | 2026-10-22 | Established the implementation baseline and .NET 10 session validation record. |
 | 1.1 | 2026-10-22 | Incorporated maintainer-provided branch progression and production designation; verified remote ancestry and historical framework/database/UI milestones; separated local development from deployed release status. |
+| 1.2 | 2026-10-22 | Indexed reviewed mobile product notes and the phased execution plan; kept planned mobile functionality distinct from the implemented baseline. |
