@@ -3,6 +3,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -119,7 +120,7 @@ namespace UnitTests.Api
             Assert.IsNotNull(recipe.PrimaryCategory);
             Assert.IsTrue(recipe.Categories.Count > 0);
             Assert.IsTrue(recipe.Ingredients.Count > 0);
-            Assert.AreEqual("abc4bbf1-5bb4-43df-8c1b-ca5b1c85883d", recipe.Owner.Id);
+            Assert.AreEqual(Guid.Parse("abc4bbf1-5bb4-43df-8c1b-ca5b1c85883d"), recipe.Owner.Id);
             Assert.AreEqual("nealbailey", recipe.Owner.UserName);
 
             //
