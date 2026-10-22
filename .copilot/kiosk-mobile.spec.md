@@ -1,364 +1,257 @@
-# Kitchen-Kiosk Mobile Specification and Development Plan
+# Kitchen-Kiosk Mobile Specification
 
-**Status:** Working plan for the first release  
-**Companion document:** `kiosk-mobile.constitution.md`  
-**Parent repository:** https://github.com/nealbailey/kitchen-kiosk
+- **Status:** Approved v1 scope; implementation pending.
+- **Last revised:** 2026-10-22.
+- **Product rules:** [Mobile constitution](kiosk-mobile.constitution.md), version 1.2.
+- **Execution guide:** [Phased development plan](kiosk-mobile.plan.md).
+- **Parent context:** [Application specification](app.spec.md).
 
-**Execution guide:** [Phased development plan](kiosk-mobile.plan.md), including
-the confirmed 2026-10-22 decisions, Pop!_OS setup, phase dependencies, and evidence.
-Use that guide for sequencing; this document retains the original detailed
-feature/acceptance checklist. Its illustrative project layout is superseded by
-the confirmed `Kiosk.Mobile/` layout in the execution guide.
-
-This document is the actionable checklist for building and releasing Kitchen-Kiosk Mobile. Check off items as they are completed, record decisions where indicated, and revise the plan when repository inspection or testing changes an assumption.
+This specification records the text-only, manifest-based v1 approved by the
+maintainer on 2026-10-22. It supersedes the previous full-body/photo snapshot
+checklist. The execution guide owns workstation setup, exact candidate tool
+versions, device inventory, dependencies, and verification evidence. No endpoint
+or APK is implemented merely because it is specified here.
 
 ## 1. Definition of Done
 
-The first release is complete when all of the following are true:
+- [ ] A reproducible signed APK installs on the target Android 13+ tablets/phones.
+- [ ] Browsing, title search, category filtering, ingredients, and formatted
+  instructions use local SQLite, including after an offline restart/reboot.
+- [ ] A prominent Sync button appears only when an authenticated check reports
+  a reachable, compatible, sync-enabled server with a collection revision different
+  from the device's committed revision. Equal revisions hide the prominent action.
+- [ ] Before the first successful sync, show Download recipes when available;
+  retain a quiet status/Check for updates entry and clear user-initiated failure/retry feedback.
+- [ ] Open/resume and connectivity changes trigger bounded availability checks,
+  not automatic recipe synchronization; checks have timeouts and do not overlap.
+- [ ] The first explicit sync downloads the manifest, categories, and all recipe bodies.
+- [ ] Later explicit syncs download the complete lightweight ID/revision manifest
+  and categories, but only new/changed recipe bodies.
+- [ ] Successful sync removes local recipes absent from the complete authoritative manifest.
+- [ ] Failed, interrupted, invalid, or concurrently inconsistent sync preserves
+  the complete last-good collection and last-success metadata.
+- [ ] No v1 mobile operation calls photo endpoints, enumerates NAS storage, or
+  displays/caches photos, including remote images embedded in instructions.
+- [ ] Offline/unavailable/unauthorized/disabled/rate-limited states are clear and
+  never block local reading. Availability is rechecked when Sync is pressed.
+- [ ] No recipe writes, accounts/login UI, direct MySQL access, or remote sync
+  outside the home LAN is introduced.
+- [ ] Build, signing, installation/update, sync, and failure recovery are documented.
 
-- [ ] A release APK can be built reproducibly and installed on the target Android tablet.
-- [ ] The app displays recipe data from local SQLite storage.
-- [ ] Recipe search and category filtering work without a network connection.
-- [ ] Recipe detail pages display all required fields, ingredients, instructions, and cached thumbnails.
-- [ ] The Synchronize button downloads a complete current snapshot from the home-LAN API.
-- [ ] Thumbnail downloads use the existing thumbnail API, not full-resolution image endpoints.
-- [ ] A successful synchronization updates the active local data and reports the last successful sync.
-- [ ] A failed or interrupted synchronization leaves the previous complete dataset usable.
-- [ ] The app can be restarted and used in airplane mode after a successful sync.
-- [ ] The app has no recipe create, update, delete, login, or account workflows.
-- [ ] The app does not connect directly to MySQL.
-- [ ] The setup, build, sync, and release steps are documented.
+## 2. Phased development checklist
 
-## 2. Phased Development Plan
+## Phase 0 - Repository Reconnaissance and Decisions
 
-## Phase 0 — Repository Reconnaissance and Decisions
+- [ ] Verify required recipe/category/ingredient fields, formatting, ordering,
+  optional values, stable identifiers, current queries, and date behavior.
+- [ ] Confirm desktop prerequisites, device inventory, LAN base URL and CA assumptions.
+- [ ] Agree revision coverage, completeness, deletion, and concurrency semantics
+  before implementing the contract. Do not infer correctness from recipe dates.
+- [ ] Keep remaining device and plugin decisions visible in the execution guide.
 
-**Goal:** Replace assumptions with verified facts before writing the sync contract.
+**Exit criteria:** Sufficient evidence to design Phase 1; remaining gates assigned.
+See the execution guide for completed reconnaissance rather than inferring
+completion from the original checklist.
 
-- [ ] Clone or update the Kitchen-Kiosk repository locally.
-- [ ] Identify the API, Domain, Data, and Web project structure and current build instructions.
-- [ ] Inspect recipe domain models and database mappings.
-- [ ] Identify category relationships and ordering.
-- [ ] Identify ingredient models, quantities, units, ordering, and recipe relationships.
-- [ ] Determine how instructions are stored, including any HTML or rich-text formatting.
-- [ ] Identify how recipe photos are represented and whether a recipe can have multiple photos.
-- [ ] Find the existing thumbnail endpoint and verify its exact route and parameters.
-- [ ] Verify thumbnail response content type, default size, configurable width, and error behavior.
-- [ ] Verify whether the thumbnail endpoint returns JPEG bytes and how the filename/ID is resolved.
-- [ ] Identify current API pagination and expansion behavior.
-- [ ] Confirm the LAN API base URL and HTTPS certificate behavior on the target Android version.
-- [ ] Record the Android tablet model, Android version, screen resolution, and orientation preference.
+## Phase 1 - API Contract, Implementation, and Approved Deployment
 
-**Deliverables**
-- Confirmed model/endpoint notes.
-- Confirmed tablet and LAN assumptions.
-- List of fields that must be included in the mobile snapshot.
+- [ ] Finalize versioned routes/DTOs for availability, full manifest/categories,
+  and bounded changed-recipe body retrieval; `/api/mobile/sync` is tentative.
+- [ ] Define revision coverage over all mobile-visible recipe text/relationships
+  and a consistent category catalog. Dates are display data, not the sole cursor.
+- [ ] Return a cached opaque collection revision in lightweight status, covering
+  additions/edits/deletions and category/ingredient changes. No per-check full scan/hash.
+- [ ] Invalidate after all relevant successful API writes; coalesce rebuilds and
+  define freshness for direct database changes, restarts, and multiple instances.
+  Explicit pending/error state must not masquerade as current/up-to-date data.
+- [ ] Define complete-manifest validation, first sync, no-change, empty collection,
+  server deletion, and restart/retry behavior.
+- [ ] Define handling of edits/deletions between manifest and body requests:
+  validate expected revisions and a coherent manifest/catalog boundary before
+  commit; retry safely or fail without activating mixed data.
+- [ ] Finalize access-key/server-switch and rate/concurrency policies. A bundled
+  key is not proof of genuine app identity; no administrator/JWT signing secrets.
+  Availability must be lightweight and authenticated; no photo/NAS work.
+- [ ] Implement/test complete inventory beyond existing listing pagination,
+  bounded bodies, appropriate HTTP errors, cancellation, and resource limits.
+- [ ] Test backdated creation, tied dates, ingredient/category-only edits, deleted
+  recipes, duplicate/missing IDs, malformed revisions, and concurrent mutations.
+- [ ] Assert zero photo repository/filesystem enumeration calls from all v1 operations.
+- [ ] Document contract and run focused tests/relevant existing web/API regressions.
+- [ ] Approve deployment artifact/runtime and backup/rollback procedure before
+  deploying; preserve existing API routes, web app, data, photos, and secrets.
+- [ ] Verify the live availability/manifest/body operations through `/kiosk/api`
+  and record results without copying private recipe data into documentation.
 
-**Exit criteria:** No unresolved assumptions remain about required recipe fields or how photo thumbnails are fetched.
+**Exit criteria:** Tested versioned contract deployed with explicit approval;
+live text sync works with no dependency on photo availability or indexing.
 
-## Phase 1 — Development Environment and Android Build Proof
+## Phase 2 - Development Environment and Android Build Proof
 
-**Goal:** Prove that the development machine can produce and install a basic APK before implementing application features.
+- [ ] Install missing Android Studio/SDK/JDK components on Pop!_OS, following the
+  compatible version matrix and beginner-friendly steps in the execution guide.
+- [ ] Scaffold separate `Kiosk.Mobile/` Ionic Angular/Capacitor project.
+- [ ] Set app name/ID and minimum/compile/target SDK; version native configuration
+  and lockfile, excluding local paths, build output, and signing secrets.
+- [ ] Build/install/launch a starter APK from VS Code's terminal on the Tab S7 FE;
+  record other-device/emulator checks and pending coverage honestly.
+- [ ] Record device display, ABI, storage, WebView, and USB authorization evidence.
 
-- [ ] Install Android Studio on the Pop!_OS development workstation.
-- [ ] Install the Android SDK platform and build tools required by the selected Capacitor/Gradle versions.
-- [ ] Install/configure a compatible JDK.
-- [ ] Verify Node.js/npm compatibility with the selected Ionic/Angular version.
-- [ ] Create a separate Ionic Angular project for Kitchen-Kiosk Mobile.
-- [ ] Add and configure Capacitor.
-- [ ] Add the Android platform.
-- [ ] Build and run the starter application in an Android emulator.
-- [ ] Connect the target tablet for debugging, or enable a suitable installation method.
-- [ ] Build a debug APK and install it on the tablet.
-- [ ] Record exact setup commands, versions, and troubleshooting notes.
+**Exit criteria:** Repeatable starter APK build/install on real hardware.
 
-**Deliverables**
-- New mobile project.
-- Basic app running on emulator and physical tablet.
-- Repeatable local build instructions.
+## Phase 3 - Android LAN HTTPS and Availability Proof
 
-**Exit criteria:** A basic APK can be built and launched on the target tablet.
+- [ ] Configure release/debug domain-scoped user-CA trust with TLS validation intact.
+- [ ] Verify the actual WebView/native request stack against live availability,
+  manifest, and body operations, retaining `/kiosk/api` exactly once.
+- [ ] Restrict any necessary CORS to verified mobile origins.
+- [ ] Implement throttled checks on open/resume and connectivity changes. Compare
+  server collection revision with the committed local revision; show updates only
+  on mismatch, Download recipes before first sync, and quiet status/check otherwise.
+  Define an interval before adding optional foreground-only polling; no background polling.
+- [ ] Test connection loss after a successful check and after leaving the LAN;
+  online status is a hint, never authorization or a guarantee a sync will succeed.
+- [ ] Test invalid certificates/trust, access denied, server disabled, rate limits,
+  and timeouts in debug and signed release on Android 13, 14, and 16.
 
-## Phase 2 — API Contract and Server Endpoint
+**Exit criteria:** Prominent Sync reflects available updates, not mere LAN presence;
+invalid trust fails, and offline reading stays independent of all checks.
 
-**Goal:** Provide a stable, read-only data contract for a full local refresh.
+## Phase 4 - Offline Reader and SQLite
 
-- [ ] Define a versioned sync DTO based on actual domain models.
-- [ ] Include every field required to list and display a recipe.
-- [ ] Include stable IDs for recipes, categories, and ingredients where available.
-- [ ] Preserve ingredient ordering and any required quantity/unit details.
-- [ ] Preserve instruction ordering and supported formatting.
-- [ ] Include photo metadata sufficient to request each thumbnail.
-- [ ] Include a `schemaVersion` and generated/snapshot timestamp.
-- [ ] Implement the dedicated read-only endpoint, tentatively `GET /api/mobile/sync`.
-- [ ] Ensure the endpoint returns the complete required dataset and is not accidentally limited by normal recipe pagination.
-- [ ] Ensure the endpoint does not return unnecessary full-resolution image data.
-- [ ] Verify serialization of null/optional fields and recipes with no photos.
-- [ ] Test empty, typical, and large recipe collections.
-- [ ] Test API errors and response time.
-- [ ] Document the endpoint contract and a representative response.
-- [ ] Confirm no write endpoints are introduced for the mobile client.
+- [ ] Approve/pin a maintained native SQLite plugin and prove Android persistence.
+- [ ] Define migrations and local recipe/category/ingredient/revision/sync metadata.
+- [ ] Seed synthetic text-only fixtures for local-storage tests, not production fallback.
+- [ ] Build browse/detail navigation, local title search/category filters, and
+  readable ordered ingredients and safely formatted instructions.
+- [ ] Support both orientations, landscape-first tablets, phone-sized viewports,
+  text scaling, system bars, accessible touch targets, and Android Back.
+- [ ] Provide first-launch/empty/no-results/database-error/sync-status states.
+- [ ] Ensure embedded images/styles/links cannot initiate implicit external
+  requests while reading; do not render photos in v1.
+- [ ] Demonstrate browsing after network loss, force-stop/reopen, and reboot.
 
-**Deliverables**
-- Read-only sync endpoint.
-- Versioned JSON contract.
-- API tests or a repeatable manual verification procedure.
+**Exit criteria:** SQLite is authoritative; all recipe reading works offline.
 
-**Exit criteria:** The endpoint reliably returns all required recipe data in one complete snapshot.
+## Phase 5 - Transactional Manifest-Based Synchronization
 
-## Phase 3 — Mobile UI with Local/Sample Data
+- [ ] Only tapping Sync starts collection transfer; prevent overlapping attempts.
+- [ ] Obtain/validate a complete authoritative manifest and category catalog.
+- [ ] Compare committed local IDs/revisions; fetch all missing/changed bodies in
+  bounded requests and reuse unchanged validated local bodies.
+- [ ] Validate expected body revisions, schema, relationships, completeness, and
+  the agreed concurrent-change protocol; never activate mixed versions.
+- [ ] Stage changes and atomically apply upserts, authoritative deletions,
+  category refresh, recipe revisions, corresponding manifest collection revision,
+  and last-success metadata in SQLite. Never persist a status-only newer revision.
+- [ ] After commit, recheck status; a newer concurrent collection still indicates
+  updates. Failures preserve the old revision and provide a retry/status action.
+- [ ] Preserve the previous collection on every pre-commit failure, low storage,
+  process death, cancellation, invalid response, or retry exhaustion.
+- [ ] Report progress, last attempt/success, active count, and added/updated/
+  removed counts; a no-change success transfers zero recipe bodies.
+- [ ] Never infer deletion from an incomplete page, timeout, or error response.
 
-**Goal:** Build and validate the core tablet experience independently of synchronization.
+**Exit criteria:** First/repeat/changed/deleted/no-change sync is correct,
+transactional, and transfers only required recipe bodies without photo work.
 
-- [ ] Establish the application navigation and visual style.
-- [ ] Create a home/recipe browsing view.
-- [ ] Create category filtering.
-- [ ] Create local recipe search.
-- [ ] Create a recipe detail view.
-- [ ] Display ingredients in a readable ordered list.
-- [ ] Display instructions with supported formatting.
-- [ ] Add thumbnail display slots and a placeholder for recipes without images.
-- [ ] Design tablet-friendly typography, spacing, and touch targets.
-- [ ] Add loading, empty, no-results, and error states.
-- [ ] Add a Synchronize button and a status area.
-- [ ] Test portrait and landscape behavior if both orientations are supported.
-- [ ] Confirm that browsing components do not directly call the API.
+## Phase 6 - Offline, Reliability, and Device Acceptance
 
-**Deliverables**
-- Usable mobile interface backed by temporary/sample data.
-- Agreed layout on the target tablet.
+- [ ] Execute section 4's matrix on the five target devices and available
+  Android 13, 14, and 16 hardware; record exact build/device versions.
+- [ ] Measure startup, local search, manifest/body transfer sizes, sync time,
+  and disk use against agreed thresholds before sign-off.
+- [ ] Test long instructions, Unicode, many recipes/categories, rotation, text
+  scaling, and phone/tablet layouts.
+- [ ] Verify no recipe transfer without tapping Sync and no photo/NAS work.
+- [ ] Preserve relevant existing web/API behavior; distinguish baseline failures.
 
-**Exit criteria:** A user can browse and read sample recipes comfortably without any server dependency.
+**Exit criteria:** Maintainer accepts the actual devices' offline/recovery UX;
+no data-loss defects or unverified device claims.
 
-## Phase 4 — SQLite and Local Thumbnail Storage
+## Phase 7 - Signed APK, Updates, and Optional Gift Handover
 
-**Goal:** Make local storage the source of truth for the reading experience.
+- [ ] Finalize icon/version; remove fixtures, debug flags, and live-reload URLs.
+- [ ] Back up release signing material outside Git; build and verify signed APK.
+- [ ] Test fresh install and in-place signed update preserving local data.
+- [ ] Perform final live text sync then airplane-mode/reboot tests with that APK.
+- [ ] Document APK installation/update, LAN CA prerequisite, availability checks,
+  explicit sync, error recovery, and rebuilding/signing.
+- [ ] Explain that clearing storage/uninstall removes the local collection and
+  returning to the home LAN is required for refresh.
+- [ ] Retain tested APK/release notes outside Git; tag only with approval.
+- [ ] Prepare a pre-synced gift tablet only if gifting is chosen.
 
-- [ ] Select and pin a maintained Capacitor-compatible SQLite plugin.
-- [ ] Define the local schema for recipes, categories, ingredients, photo metadata, and sync metadata.
-- [ ] Add database schema versioning/migration strategy.
-- [ ] Use stable server IDs as local keys where available.
-- [ ] Add repositories/services for local recipe queries.
-- [ ] Implement local search and category filtering in the data layer.
-- [ ] Select an application-private directory for cached thumbnails.
-- [ ] Define deterministic local thumbnail filenames/keys that avoid unsafe server-provided paths.
-- [ ] Ensure missing images have a safe placeholder.
-- [ ] Ensure recipe browsing loads from SQLite and local files only.
-- [ ] Persist data across app restarts and device reboots.
-- [ ] Test a manually seeded local dataset with the network disabled.
+**Exit criteria:** Tested signed APK, safe update path, signing backup, and owner instructions.
 
-**Deliverables**
-- SQLite schema and data access layer.
-- Local thumbnail cache.
-- Recipe UI fully backed by local data.
+## 3. Contract checklist (proposed shape; finalize in Phase 1)
 
-**Exit criteria:** The app can be seeded with local data, restarted, and used entirely offline.
+| Operation | Required semantics |
+| --- | --- |
+| Availability | Lightweight authenticated read; compatibility, sync-enabled status, cached opaque `collectionRevision`; no per-check collection scan/hash, recipe bodies, or photos; explicit pending/error state |
+| Manifest | Schema version, coherent collection revision/generation, complete recipe ID/revision inventory and category catalog; never normal listing's truncated page |
+| Recipe bodies | Bounded retrieval of requested IDs with expected revisions; all text fields/relationships required by reader; no user secrets/host paths/photo metadata |
+| Local sync status | Last attempt, last successful committed sync, active count, revision state, added/updated/removed counts, actionable errors |
 
-## Phase 5 — Full Synchronization Workflow
+Use deterministic revision rules that include ingredients and category
+relationships; category renames/deletions must also refresh correctly.
+Content-derived revisions are a candidate, not a finalized encoding. A newer
+recipe `Date` alone cannot establish what changed. Define consistency across
+multiple HTTP requests: do not silently accept body versions different from
+the manifest or prune against a partial/expired generation.
 
-**Goal:** Safely replace the local snapshot with a complete server snapshot and its thumbnails.
-
-- [ ] Implement the Synchronize button workflow.
-- [ ] Verify the tablet can reach the configured API on the home LAN.
-- [ ] Use HTTPS and validate the server certificate correctly.
-- [ ] Fetch the sync JSON and validate status code, content type, schema version, and required fields.
-- [ ] Prevent overlapping synchronization attempts.
-- [ ] Show progress and a clear current status.
-- [ ] Enumerate all referenced thumbnails from the snapshot.
-- [ ] Download thumbnails from the existing thumbnail endpoint; evaluate the current server-configured width before proposing approximately 300 pixels. The endpoint has no per-request width parameter.
-- [ ] Confirm requests return thumbnail JPEGs and do not fetch original images.
-- [ ] Handle recipes with no image and any optional photo metadata.
-- [ ] Store downloaded images in a staging directory.
-- [ ] Build the new recipe dataset in a staging database or transaction.
-- [ ] Verify all required downloads and data writes before activation.
-- [ ] Activate the new database and image set only after successful validation.
-- [ ] Preserve the prior active database and images if any required step fails.
-- [ ] Clean up obsolete staged data safely after success or failure.
-- [ ] Update last-successful-sync time only after activation succeeds.
-- [ ] Report recipe count and a useful completion message.
-- [ ] Test first-time sync, repeat sync with no changes, changed data, removed recipes, missing images, server errors, and interrupted downloads.
-
-**Deliverables**
-- Working end-to-end synchronization.
-- Safe failure/recovery behavior.
-- Sync status and timestamp.
-
-**Exit criteria:** A complete refresh succeeds, and any simulated failure leaves the last-known-good dataset intact.
-
-## Phase 6 — Offline, Reliability, and Usability Testing
-
-**Goal:** Validate the app as a dependable family recipe book.
-
-- [ ] Perform a successful sync on the home LAN.
-- [ ] Enable airplane mode and browse all major views.
-- [ ] Search recipes and filter categories offline.
-- [ ] Open recipes with and without thumbnails.
-- [ ] Restart the app offline and repeat the tests.
-- [ ] Reboot the tablet and verify the dataset persists.
-- [ ] Turn off or disconnect the API server and confirm local browsing still works.
-- [ ] Interrupt synchronization during JSON download.
-- [ ] Interrupt synchronization during thumbnail download.
-- [ ] Simulate an invalid or incompatible schema version.
-- [ ] Confirm failures never replace good data with a partial snapshot.
-- [ ] Confirm no browsing screen makes network requests.
-- [ ] Confirm no recipe mutation controls or flows exist.
-- [ ] Verify large collections remain responsive.
-- [ ] Check long titles, long ingredient lists, long instructions, special characters, and recipes with many photos.
-- [ ] Verify thumbnail caching does not grow without bound across repeated full refreshes.
-- [ ] Verify app behavior with low storage or failed file writes where practical.
-- [ ] Review certificate errors and ensure TLS validation has not been disabled.
-
-**Deliverables**
-- Test results and a list of resolved defects.
-- Release candidate accepted on the actual tablet.
-
-**Exit criteria:** Offline browsing and failure recovery pass on the target hardware.
-
-## Phase 7 — Release APK and Gift Preparation
-
-**Goal:** Produce a reliable installable build and document how to refresh it later.
-
-- [ ] Set application name, package ID, app icon, and version number.
-- [ ] Remove debug-only settings, sample data, and development URLs.
-- [ ] Configure the production LAN API URL.
-- [ ] Build a signed release APK.
-- [ ] Store signing-key material securely and back it up; never commit private signing keys to Git.
-- [ ] Install the release APK on the target tablet using the intended installation process.
-- [ ] Perform one final sync using the release build.
-- [ ] Verify airplane-mode operation with the release build.
-- [ ] Document APK installation and update steps.
-- [ ] Document how the owner performs future synchronization at home.
-- [ ] Document how to recover from a failed sync.
-- [ ] Tag the release in Git and record dependency/tool versions.
-- [ ] Keep a copy of the tested release APK and release notes.
-
-**Deliverables**
-- Signed APK.
-- Release notes and repeatable build instructions.
-- Simple user instructions for synchronization and offline use.
-
-**Exit criteria:** The tablet is ready to hand over and can be updated/rebuilt later.
-
-## 3. Suggested Local Project Structure
-
-Adapt this structure to the Ionic/Angular conventions generated by the selected versions; it is a conceptual guide, not a requirement to force every file into these exact paths.
-
-```text
-kitchen-kiosk-mobile/
-├── android/                 # Capacitor-generated Android project
-├── src/
-│   ├── app/
-│   │   ├── core/
-│   │   │   ├── api/         # Sync API client
-│   │   │   ├── database/    # SQLite setup and migrations
-│   │   │   ├── repositories/# Local data access
-│   │   │   └── sync/        # Snapshot and thumbnail workflow
-│   │   ├── features/
-│   │   │   ├── recipes/     # Recipe list, search, details
-│   │   │   └── categories/  # Category navigation/filtering
-│   │   └── shared/          # Shared UI components and formatting
-│   └── assets/
-├── docs/
-│   ├── kiosk-mobile.constitution.md
-│   └── kiosk-mobile.spec.md
-└── README.md
-```
-
-## 4. Proposed Data Contract Checklist
-
-Confirm actual model details during Phase 0; do not assume this list is the exact existing schema.
-
-### Snapshot envelope
-- [ ] `schemaVersion`
-- [ ] `generatedAt` or equivalent server snapshot timestamp
-- [ ] `recipes` containing the complete recipe collection
-
-### Recipe
-- [ ] Stable recipe ID
-- [ ] Title
-- [ ] Description/summary, if supported
-- [ ] Category ID and display name
-- [ ] Instructions and supported formatting
-- [ ] Any other existing fields required by the reading experience
-
-### Ingredients
-- [ ] Stable ID if available
-- [ ] Recipe ID/relationship
-- [ ] Display text or structured quantity, unit, and ingredient name as supported by the existing model
-- [ ] Display order
-
-### Photos
-- [ ] Stable photo ID or a stable recipe/photo key
-- [ ] Server filename/identifier required by the existing thumbnail endpoint
-- [ ] Enough metadata to construct a validated thumbnail request
-- [ ] No full-resolution image bytes in the snapshot JSON
-
-### Sync status
-- [ ] Last attempted sync
-- [ ] Last successful sync
-- [ ] Last known recipe count
-- [ ] Last error message where appropriate
-
-## 5. Test Matrix
+## 4. Test matrix
 
 | Scenario | Expected result |
-|---|---|
-| First sync succeeds | Full recipe set and thumbnails become available locally |
-| Repeat sync succeeds | Active dataset refreshes cleanly; no duplicate records |
-| API is unreachable | Clear error; previous local dataset remains usable |
-| JSON is invalid | Snapshot rejected; previous dataset remains active |
-| Unsupported schema version | Sync stops safely and reports incompatibility |
-| Thumbnail request fails | Refresh does not activate an incomplete required image set; previous dataset remains active |
-| Sync interrupted | Staging data is discarded or safely resumed; old dataset remains active |
-| Recipe removed on server | Recipe disappears after the next successful full snapshot |
-| App launched in airplane mode | Local recipe browsing works |
-| App restarted offline | Local recipes and thumbnails remain available |
-| Recipe has no thumbnail | Recipe remains readable with a placeholder |
-| User searches offline | Results come from local data |
-| User browses recipes | No network request is needed |
-| User tries to find editing controls | No create/update/delete workflow is present |
+| --- | --- |
+| First sync | Complete manifest/categories and all bodies committed |
+| Repeat without changes | Manifest/categories transferred; zero recipe bodies; no duplicates |
+| New/backdated recipe or tied dates | Manifest detects missing/changed ID/revision regardless of date |
+| Ingredients/category relationships change | Correct body revision/change detected |
+| Category renamed/deleted | Catalog and references reconciled consistently |
+| Recipe deleted | Removed only after complete successful sync |
+| Valid empty collection | Removes local recipes only after explicit valid complete empty manifest |
+| Partial manifest/duplicate IDs/invalid schema | Reject; keep last-good data and last success |
+| Edit/delete during transfer | Safely retry/fail via agreed protocol; no mixed activation |
+| JSON transfer interrupted/process killed/low storage | Previous committed collection remains usable |
+| Open/resume/connectivity change | Bounded authenticated availability check, no automatic recipe transfer |
+| Reachable and equal collection revision | Prominent Sync hidden; quiet up-to-date/status/manual-check entry |
+| Reachable and different revision | Show updates action only if compatible and sync enabled; includes deletions/category-only changes |
+| No committed revision, including empty server | Show Download recipes when available; valid empty sync establishes baseline |
+| Failed sync/newer status arrives during sync | Do not advance local revision without matching data commit; retain retry/update indication |
+| API write/direct DB edit/cache cold or stale | Correct invalidation/defined refresh; coalesced rebuild; no false up-to-date claim or per-check full scan |
+| Server disabled/invalid key/rate limit | Clear status; Sync unavailable; local browsing unaffected |
+| Leave LAN/connection fails after availability check | Sync fails safely or becomes unavailable; offline reading continues |
+| Restart/reboot in airplane mode | All synchronized text still usable |
+| Photo library unavailable/slow | No effect: v1 mobile operations perform no photo/NAS work |
+| Instructions include remote resources | No implicit image/network requests; safe text formatting |
 
-**Confirmed 2026-10-22:** Every referenced thumbnail must download and validate
-before activation. A failed required download preserves the previous snapshot.
-Recipes intentionally declared to have no photo use placeholders.
+## 5. Confirmed decisions
 
-## 6. Decisions Log
+| Topic | Decision |
+| --- | --- |
+| Stack/editor | Ionic Angular + Capacitor; SQLite; VS Code daily workflow |
+| Layout | Repository-root `Kiosk.Mobile/`, native lowercase `android/` |
+| Identity | Kitchen Kiosk / `com.baileysoft.kiosk.mobile` |
+| Devices | Android 13+; EM101A on 13, SM-P613/SM-T733 on 14, S23+ SM-S916U on 16; S22+ OS pending |
+| Primary tablet | Tab S7 FE SM-T733 |
+| Inventory | [Device details and setup checks](kiosk-mobile.plan.md#device-inventory-for-phase-2) |
+| Orientation | Both orientations; landscape-first tablet layout |
+| Distribution | Signed sideloaded APK; gifting optional |
+| Server | API-first development/test, approved compatible deployment, live LAN integration |
+| API base | `https://baileyfs02.baileysoft.lan/kiosk/api` |
+| CA | Baileysoft LAN CA preinstalled; app trust verified in debug and signed release |
+| Sync | Complete lightweight manifest/categories, only new/changed bodies, authoritative deletion on success |
+| Availability | Throttled authenticated cached collection-revision checks; prominent action only for updates/first download; quiet status/manual check otherwise; no automatic recipe sync |
+| Photos | All display/download/cache deferred from v1; photo indexing is separate future work |
+| Exclusions | Accounts/login UI, writes, direct MySQL, remote sync, background recipe sync |
+| Failure | Preserve last-good complete collection and last-success metadata |
+| Access controls | Dedicated key/server switch/rate limits discussed; exact policy remains a Phase 1 contract decision |
 
-Record confirmed decisions here so future implementation sessions stay consistent.
+## 6. Change control
 
-| Topic | Current decision |
-|---|---|
-| Mobile technology | Ionic Angular + Capacitor |
-| Primary development editor | VS Code |
-| Project layout | Repository-root `Kiosk.Mobile/` with native `android/` subfolder |
-| Android support | Android 13+ (minimum API 33); EM101A on Android 13, SM-P613/SM-T733 on Android 14, S23+ SM-S916U on Android 16; S22+ OS pending |
-| Installation targets | Three tablets plus Galaxy S23+ and S22+ phones; detailed inventory and setup checks in the [execution guide](kiosk-mobile.plan.md#device-inventory-for-phase-1) |
-| Gift preparation | Optional; no gift tablet selected. Personal installations are planned regardless |
-| Primary tablet | Galaxy Tab S7 FE SM-T733, confirmed 2026-10-22 |
-| Application identity | Kitchen Kiosk / `com.baileysoft.kiosk.mobile` |
-| Orientation | Both orientations supported; landscape-first tablet design |
-| Photo coverage | All recipe photo thumbnails, not only a cover thumbnail |
-| API delivery sequence | Implement/test in development `Kiosk.Api`, approve/deploy compatible server changes first, then target live LAN API from APK for real-data/image integration; see execution guide for revised phase order |
-| API base URL | `https://baileyfs02.baileysoft.lan/kiosk/api` |
-| LAN certificate | Baileysoft LAN CA preinstalled on device; verify domain-scoped app trust in debug and signed release |
-| Android tooling | Android Studio + Android SDK |
-| Local data | SQLite |
-| Synchronization | Explicit user-initiated full snapshot |
-| Network location | Owner's home LAN only for v1 |
-| Mobile writes | None |
-| Image source | Existing thumbnail API |
-| Image size | Evaluate existing server-configured width; ~300 px is a proposal, not a per-request option |
-| Full-resolution photos | Never download |
-| Failed sync | Keep last-known-good dataset |
-| Background sync | Out of scope for v1 |
-| Incremental sync | Out of scope for v1 |
-| Release format | Signed Android APK |
-
-## 7. Working Notes and Change Control
-
-- Keep this plan updated as checkboxes are completed.
-- Record decisions that change the constitution in the constitution document too.
-- Do not begin a later phase if its dependencies are unresolved, unless the work is explicitly independent.
-- Prefer small, buildable increments that can be tested on the emulator and target tablet.
-- Verify source code and actual endpoint behavior before relying on illustrative routes, fields, or parameters.
-- Keep credentials, signing keys, and private configuration out of source control.
+Check off only verified tasks. Keep the execution guide, this specification, and
+the constitution aligned; preserve explicit approval for scope changes and live
+deployments. Record commands/results without credentials or private recipe data.
+The 2026-10-22 manifest/text-only amendment supersedes earlier all-thumbnail and
+full-body snapshot decisions; no implementation or photo reindexing is implied.
