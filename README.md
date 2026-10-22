@@ -1,7 +1,7 @@
 # kitchen-kiosk
 Modern Next-Generation Recipe Management
 
-[![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 [![MySQL 8](https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
 
 ![Kitchen Kiosk screenshot](kk-screenshot.png)
@@ -16,8 +16,15 @@ No Node.js, Angular, or Apache is needed to run it.
 
 | Component | Description | Docs |
 |-----------|-------------|------|
-| Kiosk.Api | .NET 9 service: REST API plus the web app as static files | [Kiosk.Api/README.md](Kiosk.Api/README.md) |
+| Kiosk.Api | .NET 10 service: REST API plus the web app as static files | [Kiosk.Api/README.md](Kiosk.Api/README.md) |
 | Kiosk.Web | Angular web app (prebuilt into `Kiosk.Api/wwwroot`) | [Kiosk.Web/README.md](Kiosk.Web/README.md) |
+
+## Project Context for Contributors
+
+Before planning or changing the project, read the [project constitution](.copilot/constitution.md)
+and [application specification](.copilot/app.spec.md). These record engineering
+principles, implemented behavior, decisions, validation results, and known gaps.
+New developer notes should follow the constitution's document-intake process.
 
 ## Choose an Installation
 
@@ -47,7 +54,7 @@ Use the MySQL server's host name instead of `localhost` if the database is on an
 
 ### 2. Install the service
 
-The service is published as a self-contained executable, so the host does **not** need .NET installed. Publish on any machine with the [.NET 9 SDK](https://dotnet.microsoft.com/download) (the host only runs the result), then copy the output to the host:
+The service is published as a self-contained executable, so the host does **not** need .NET installed. Publish on any machine with the [.NET 10 SDK](https://dotnet.microsoft.com/download) (the host only runs the result), then copy the output to the host:
 
 ```bash
 dotnet publish Kiosk.Api/Kiosk.Api.csproj -c Release -o artifacts/kiosk
@@ -172,7 +179,17 @@ sudo systemctl start kitchen-kiosk.service
 
 ## Development
 
-Prerequisites: [.NET SDK 9](https://dotnet.microsoft.com/download) (see [global.json](global.json)), MySQL 8, and Node.js 22 with npm (only for changing the web app).
+Prerequisites: [.NET SDK 10.0.113 or a newer .NET 10 SDK](https://dotnet.microsoft.com/download) (see [global.json](global.json)), MySQL 8, and Node.js 22 with npm (only for changing the web app).
+
+All projects target .NET 10. EF Core and the Identity EF stores remain on 9.x because the stable Pomelo MySQL provider requires EF Core 9; this does not require the .NET 9 runtime. Keep those packages aligned until the provider supports EF Core 10.
+
+In VS Code, select **API + Web** in Run and Debug and press **F5**. This builds
+and debugs the API on http://localhost:5020 with the settings in `dbg.env`, starts
+the Angular dev server on http://localhost:4200, and opens your default browser
+after Angular compiles. Stopping either service stops both. Set up
+`dbg.env` as shown below and run `npm ci` in `Kiosk.Web` once before the first
+launch. The VS Code C# extension is required. The **API**, **Web**,
+and **API Attach** entries remain available for separate debugging.
 
 Run the API from the repository root with a local settings file:
 
