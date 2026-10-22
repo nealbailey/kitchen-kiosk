@@ -331,8 +331,14 @@ Record confirmed decisions here so future implementation sessions stay consisten
 | Mobile technology | Ionic Angular + Capacitor |
 | Primary development editor | VS Code |
 | Project layout | Repository-root `Kiosk.Mobile/` with native `android/` subfolder |
-| Android support | Android 13+ (minimum API 33); available test devices run Android 13, 14, and 16 |
-| Orientation | Landscape preferred; responsive UI; portrait policy to confirm |
+| Android support | Android 13+ (minimum API 33); EM101A on Android 13, SM-P613/SM-T733 on Android 14, S23+ SM-S916U on Android 16; S22+ OS pending |
+| Installation targets | Three tablets plus Galaxy S23+ and S22+ phones; detailed inventory and setup checks in the [execution guide](kiosk-mobile.plan.md#device-inventory-for-phase-1) |
+| Gift preparation | Optional; no gift tablet selected. Personal installations are planned regardless |
+| Primary tablet | Galaxy Tab S7 FE SM-T733, confirmed 2026-10-22 |
+| Application identity | Kitchen Kiosk / `com.baileysoft.kiosk.mobile` |
+| Orientation | Both orientations supported; landscape-first tablet design |
+| Photo coverage | All recipe photo thumbnails, not only a cover thumbnail |
+| API delivery sequence | Implement/test in development `Kiosk.Api`, approve/deploy compatible server changes first, then target live LAN API from APK for real-data/image integration; see execution guide for revised phase order |
 | API base URL | `https://baileyfs02.baileysoft.lan/kiosk/api` |
 | LAN certificate | Baileysoft LAN CA preinstalled on device; verify domain-scoped app trust in debug and signed release |
 | Android tooling | Android Studio + Android SDK |

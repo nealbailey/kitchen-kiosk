@@ -369,3 +369,6 @@ testplan.txt
 
 #compiled build
 kiosk.tar.gz
+
+# Temporary device reference photos; sanitized inventory is in the mobile plan
+/.copilot/tablets/
