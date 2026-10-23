@@ -21,6 +21,7 @@ namespace KioskApi.Controllers
     using Kiosk.Data.Repository;
     using KioskApi.Domain.Models;
     using KioskApi.Domain.Models.Auth;
+    using KioskApi.MobileSync;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -67,6 +68,7 @@ namespace KioskApi.Controllers
         /// <param name="category">The category to create.</param>
         /// <returns>A response indicating the success or failure of the operation.</returns>
         [Authorize(Roles = UserRoles.Admin)]
+        [InvalidatesMobileSync]
         [HttpPost("AddCategory", Name = "AddCategory")]
         public async Task<IActionResult> AddCategory([FromBody] RecipeCategory category)
         {
@@ -91,6 +93,7 @@ namespace KioskApi.Controllers
         /// <param name="category">The category to delete.</param>
         /// <returns>A response indicating the success or failure of the operation.</returns>
         [Authorize(Roles = UserRoles.Admin)]
+        [InvalidatesMobileSync]
         [HttpPost("DeleteCategory", Name = "DeleteCategory")]
         public async Task<IActionResult> DeleteCategory([FromBody] RecipeCategory category)
         {

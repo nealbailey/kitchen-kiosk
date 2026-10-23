@@ -32,6 +32,8 @@ services:
       JWT__Secret: ${JWT_SECRET:?Run sh docker/setup.sh first}
       AppSettings__photosPath: /photos
       PathBase: ${KIOSK_PATH_BASE:-}
+      MobileSync__Enabled: ${MOBILE_SYNC_ENABLED:-false}
+      MobileSync__ApiKey: ${MOBILE_SYNC_API_KEY:-}
     ports:
       - "${KIOSK_BIND_ADDRESS:-127.0.0.1}:${KIOSK_PORT:-5020}:5020"
     volumes:

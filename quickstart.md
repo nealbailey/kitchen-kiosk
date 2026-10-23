@@ -27,6 +27,8 @@ By default only browsers on the Docker host can connect. To allow other devices 
 
 Change `KIOSK_PORT` in `.env` if port 5020 is occupied. Leave `KIOSK_PATH_BASE` empty for normal use, even behind a proxy serving a dedicated hostname. For a proxy publishing `/kiosk/`, set `KIOSK_PATH_BASE=/kiosk` and preserve that prefix upstream. Apply changes with `docker compose up -d` (a simple restart does not reload environment settings). See the [reverse proxy examples](README.md#3-https-with-a-reverse-proxy-optional).
 
+To enable the Android app's sync endpoints, set `MOBILE_SYNC_ENABLED=true` and `MOBILE_SYNC_API_KEY` (from `openssl rand -hex 32`) in `.env`, then run `docker compose up -d`. See [Mobile sync](Kiosk.Api/README.md#mobile-sync-apimobile).
+
 Keep TLS at a reverse proxy for internet access. A proxy running on the host can connect to localhost:5020. Docker-network proxies need separate networking and trusted-proxy configuration; they are not configured here.
 
 ## Everyday Commands

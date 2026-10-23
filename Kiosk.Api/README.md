@@ -20,6 +20,11 @@ Settings are read from `appsettings.json` and can be overridden by environment v
 | `AppSettings__photosThumbWidth` | No | Thumbnail width in pixels, 50 to 2000. Default 200. |
 | `ASPNETCORE_URLS` | No | Listen address, e.g. `http://127.0.0.1:5020`. |
 | `PathBase` | No | Sub-path when a reverse proxy publishes the app under one, e.g. `/kiosk`. Leave unset for the site root. |
+| `MobileSync__Enabled` | No | `true` turns on the [mobile sync endpoints](#mobile-sync-apimobile). Default `false`. |
+| `MobileSync__ApiKey` | When enabled | Shared mobile sync key, at least 32 characters. Generate with `openssl rand -hex 32`. |
+| `MobileSync__StatusRequestsPerMinute` | No | Status checks accepted per minute, all clients combined. Default 120. |
+| `MobileSync__DataRequestsPerMinute` | No | Manifest and recipe-body requests per minute, all clients combined. Default 60. |
+| `MobileSync__MaxConcurrentDataRequests` | No | Manifest and recipe-body requests running at once. Default 2. |
 
 The service does not start if `ConnectionStrings__ConnStr` or `JWT__Secret` is missing.
 
@@ -187,6 +192,46 @@ Returns `[ { "ingredient": "6 apples", "recId": 12 } ]`.
 
 The list returns `[ { "recipeId": 12, "fileName": "pie.jpg", "imageUrl": "...", "imageThumbUrl": "..." } ]`. Missing files return `404`.
 
+### Mobile sync: `/api/mobile`
+
+Read-only text sync for the Kitchen Kiosk Mobile app (contract version 1). Every request needs the `X-Kiosk-Mobile-Key` header matching `MobileSync__ApiKey`; JWT tokens are not used. The key is bundled in the app, so it limits casual use but is not proof of a genuine app. Changing it, or setting `MobileSync__Enabled=false`, stops all syncing after a service restart; installed apps then need a build with the new key. These endpoints never read photos or the photo folder.
+
+| Method and path | Access | Description |
+|---|---|---|
+| `GET /api/mobile/status` | Mobile key | Cheap availability check with the cached collection revision. |
+| `GET /api/mobile/manifest` | Mobile key | Every recipe id with its revision, plus the full category list. |
+| `POST /api/mobile/recipes` | Mobile key | Recipe text for 1 to 100 distinct ids. |
+
+```bash
+KEY=YOUR_MOBILE_SYNC_KEY
+curl -H "X-Kiosk-Mobile-Key: $KEY" http://localhost:5020/api/mobile/status
+curl -H "X-Kiosk-Mobile-Key: $KEY" -H 'Content-Type: application/json' \
+  -d '{"ids":[12,15]}' http://localhost:5020/api/mobile/recipes
+```
+
+Status returns `{ "contractVersion": 1, "syncEnabled": true, "collectionRevision": "sha256-…", "recipeCount": 512, "categoryCount": 14, "maxRecipesPerRequest": 100 }`.
+
+The manifest returns `{ "contractVersion": 1, "collectionRevision": "sha256-…", "categories": [ { "id": 1, "name": "Appetizer" } ], "recipes": [ { "id": 12, "revision": "sha256-…" } ] }`. Both lists are complete and ordered by id; the manifest is never paged.
+
+Recipe bodies return `{ "contractVersion": 1, "recipes": [ … ], "missingIds": [15] }`. Each recipe has `id`, `revision`, `title`, `description`, `instructions` (as stored, may contain `<br />`), `date` (stored value, no time zone, display only), `primaryCategoryId`, `categoryIds` (ascending), and `ingredients` (strings, case-insensitive alphabetical). Owners, favorites, and photos are not included. `missingIds` lists requested recipes that no longer exist.
+
+**Revisions.** A recipe revision is a SHA-256 hash of every field above. The collection revision hashes the contract version, the category list, and every recipe id and revision, so additions, edits, deletions, and category changes all change it. Revisions are opaque: compare them only for equality. A server upgrade may change every revision, which only causes a full re-download.
+
+**Freshness.** The manifest is cached in memory and rebuilt on the next request after a recipe is created, updated, or deleted, or a category is added or deleted through the API. Repeated checks with no changes do no database work. Edits made directly in MySQL are not detected until the service restarts. This assumes a single API process.
+
+**Sync procedure.** Fetch status; if `collectionRevision` differs from the last committed one, fetch the manifest, request bodies for new or changed ids in batches, and check that each body's `revision` equals its manifest entry. A different revision or a `missingIds` entry means the collection changed during sync; start again from the manifest (retry a limited number of times) without committing partial data. After every body matches, commit everything, delete local recipes absent from the manifest, and store the manifest's `collectionRevision`.
+
+| Error (`code`) | HTTP | Meaning |
+|---|---|---|
+| `sync_disabled` | `503` | `MobileSync__Enabled` is not `true`. |
+| `sync_not_configured` | `503` | Enabled, but `MobileSync__ApiKey` is missing or shorter than 32 characters. |
+| `invalid_key` | `401` | Missing or wrong `X-Kiosk-Mobile-Key`. |
+| `rate_limited`, `busy` | `429` | Per-minute or concurrency limit reached; honor `Retry-After`. |
+| `revision_pending` | `503` | A recipe or category write is in progress; retry after `Retry-After`. |
+| `invalid_request` | `400` | Malformed body, empty or more than 100 ids, duplicates, or non-positive ids. |
+
+Errors use `{ "code": "invalid_key", "message": "..." }` instead of the envelope above.
+
 ## Status codes
 
 | Code | Meaning |
@@ -197,4 +242,6 @@ The list returns `[ { "recipeId": 12, "fileName": "pie.jpg", "imageUrl": "...", 
 | `403` | The token's user is not an administrator. |
 | `404` | Not found, or an unknown `/api` path. |
 | `422` | A recipe operation failed or was not permitted. |
+| `429` | Too many mobile sync requests. |
 | `500` | Server error. The `message` field has details. |
+| `503` | Mobile sync is disabled, not configured, or briefly unavailable during a write. |

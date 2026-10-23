@@ -55,29 +55,36 @@ completion from the original checklist.
 
 ## Phase 1 - API Contract, Implementation, and Approved Deployment
 
-- [ ] Finalize versioned routes/DTOs for availability, full manifest/categories,
-  and bounded changed-recipe body retrieval; `/api/mobile/sync` is tentative.
-- [ ] Define revision coverage over all mobile-visible recipe text/relationships
-  and a consistent category catalog. Dates are display data, not the sole cursor.
-- [ ] Return a cached opaque collection revision in lightweight status, covering
-  additions/edits/deletions and category/ingredient changes. No per-check full scan/hash.
-- [ ] Invalidate after all relevant successful API writes; coalesce rebuilds and
-  define freshness for direct database changes, restarts, and multiple instances.
-  Explicit pending/error state must not masquerade as current/up-to-date data.
-- [ ] Define complete-manifest validation, first sync, no-change, empty collection,
-  server deletion, and restart/retry behavior.
-- [ ] Define handling of edits/deletions between manifest and body requests:
-  validate expected revisions and a coherent manifest/catalog boundary before
-  commit; retry safely or fail without activating mixed data.
-- [ ] Finalize access-key/server-switch and rate/concurrency policies. A bundled
-  key is not proof of genuine app identity; no administrator/JWT signing secrets.
-  Availability must be lightweight and authenticated; no photo/NAS work.
-- [ ] Implement/test complete inventory beyond existing listing pagination,
-  bounded bodies, appropriate HTTP errors, cancellation, and resource limits.
-- [ ] Test backdated creation, tied dates, ingredient/category-only edits, deleted
-  recipes, duplicate/missing IDs, malformed revisions, and concurrent mutations.
-- [ ] Assert zero photo repository/filesystem enumeration calls from all v1 operations.
-- [ ] Document contract and run focused tests/relevant existing web/API regressions.
+Contract approved 2026-10-22 (D-017) and documented in the
+[API guide](../Kiosk.Api/README.md#mobile-sync-apimobile).
+
+- [x] Versioned routes/DTOs (contract version 1): `GET api/mobile/status`,
+  `GET api/mobile/manifest`, `POST api/mobile/recipes` (1-100 distinct ids).
+- [x] Revision coverage: SHA-256 over title, description, instructions, stored
+  date, primary category, sorted category ids, and case-insensitive alphabetical
+  ingredients. Collection revision covers contract version, category catalog,
+  and every recipe id/revision. Dates are display data, not a cursor.
+- [x] Status returns the cached collection revision; unchanged checks do no
+  rebuild (tested by build counter).
+- [x] Invalidation on API recipe create/update/delete and category add/delete,
+  including failed attempts; concurrent rebuilds coalesce; snapshots built
+  during a write are discarded and `503 revision_pending` is returned instead of
+  a possibly stale revision. Direct MySQL edits need a service restart; a single
+  API process is assumed. Cold start rebuilds on first request.
+- [x] Complete-manifest, first-sync, no-change, empty, deletion, and retry rules
+  documented. Client validates each body revision against the manifest; a
+  mismatch or `missingIds` entry means restart from the manifest without commit.
+- [x] Access: `X-Kiosk-Mobile-Key` header, `MobileSync__Enabled` switch, fail
+  closed (`503 sync_disabled` / `sync_not_configured`, `401 invalid_key`) before
+  any database work; global per-minute and data-concurrency limits (`429`). No
+  JWT/admin secrets reused; key is not app attestation. Tests keep the key on.
+- [x] Tests: invalid keys, disabled/misconfigured, rate limit, cache reuse,
+  complete ordered manifest, body/manifest revision agreement, missing ids,
+  private-field exclusion, invalid requests, write invalidation, coalescing,
+  pending state, revision sensitivity, and no photo dependency.
+- [ ] Untested: realistic production-size data (the `kiosk_test` MySQL smoke check
+  had one recipe), backdated/tied dates beyond content hashing, concurrency
+  `busy` limit, and a real manifest/body race across separate HTTP requests.
 - [ ] Approve deployment artifact/runtime and backup/rollback procedure before
   deploying; preserve existing API routes, web app, data, photos, and secrets.
 - [ ] Verify the live availability/manifest/body operations through `/kiosk/api`
@@ -184,7 +191,7 @@ no data-loss defects or unverified device claims.
 
 **Exit criteria:** Tested signed APK, safe update path, signing backup, and owner instructions.
 
-## 3. Contract checklist (proposed shape; finalize in Phase 1)
+## 3. Contract checklist (implemented contract version 1; see API guide)
 
 | Operation | Required semantics |
 | --- | --- |
@@ -195,10 +202,11 @@ no data-loss defects or unverified device claims.
 
 Use deterministic revision rules that include ingredients and category
 relationships; category renames/deletions must also refresh correctly.
-Content-derived revisions are a candidate, not a finalized encoding. A newer
-recipe `Date` alone cannot establish what changed. Define consistency across
-multiple HTTP requests: do not silently accept body versions different from
-the manifest or prune against a partial/expired generation.
+Implemented as SHA-256 content revisions (contract version 1). A newer
+recipe `Date` alone cannot establish what changed. Across multiple HTTP
+requests the client accepts a body only when its revision equals the manifest
+entry; otherwise it restarts from a fresh manifest and never prunes against a
+partial manifest.
 
 ## 4. Test matrix
 
@@ -246,7 +254,9 @@ the manifest or prune against a partial/expired generation.
 | Photos | All display/download/cache deferred from v1; photo indexing is separate future work |
 | Exclusions | Accounts/login UI, writes, direct MySQL, remote sync, background recipe sync |
 | Failure | Preserve last-good complete collection and last-success metadata |
-| Access controls | Dedicated key/server switch/rate limits discussed; exact policy remains a Phase 1 contract decision |
+| Access controls | `X-Kiosk-Mobile-Key` shared key, `MobileSync__Enabled` switch, fail-closed, global rate/concurrency limits (D-017) |
+| Ingredient order | Case-insensitive alphabetical; no authored-order migration |
+| Revision freshness | Invalidated by API writes; direct MySQL edits need a service restart; single API process |
 
 ## 6. Change control
 

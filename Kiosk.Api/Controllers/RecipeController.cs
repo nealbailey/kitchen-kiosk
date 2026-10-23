@@ -22,6 +22,7 @@ namespace KioskApi.Controllers
     using Kiosk.Data.Repository;
     using KioskApi.Domain.Models;
     using KioskApi.Domain.Models.Auth;
+    using KioskApi.MobileSync;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
@@ -102,6 +103,7 @@ namespace KioskApi.Controllers
         /// </summary>
         /// <returns></returns>
         [Authorize()]
+        [InvalidatesMobileSync]
         [HttpPost(Name = "InsertRecipe")]
         public async Task<IActionResult> InsertRecipe([FromBody] Recipe recipe)
         {
@@ -123,6 +125,7 @@ namespace KioskApi.Controllers
         /// </summary>
         /// <returns></returns>
         [Authorize()]
+        [InvalidatesMobileSync]
         [HttpPut(Name = "UpdateRecipe")]
         public async Task<IActionResult> UpdateRecipe([FromBody] Recipe recipe)
         {
@@ -168,6 +171,7 @@ namespace KioskApi.Controllers
         /// <param name="id">The recipe Id to Delete</param>
         /// <returns></returns> 
         [Authorize()]
+        [InvalidatesMobileSync]
         [HttpDelete("{id}", Name = "DeleteRecipe")]
         public async Task<IActionResult> DeleteRecipe(int id)
         {

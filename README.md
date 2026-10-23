@@ -84,6 +84,7 @@ ASPNETCORE_URLS=http://127.0.0.1:5020
 
 - Generate the signing key with `openssl rand -hex 32` and paste the value in.
 - `photosPath` is optional. See [Photos](Kiosk.Api/README.md#photos).
+- Mobile sync is off by default. To enable it for the Android app, add `MobileSync__Enabled=true` and `MobileSync__ApiKey=` followed by the output of `openssl rand -hex 32`. See [Mobile sync](Kiosk.Api/README.md#mobile-sync-apimobile).
 - Use `KEY=value` lines without `export`. Shell expansion is not performed.
 - To listen on all interfaces without a reverse proxy, use `http://0.0.0.0:5020`.
 

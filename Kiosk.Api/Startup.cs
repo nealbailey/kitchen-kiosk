@@ -2,6 +2,7 @@ using Kiosk.Data.Repository;
 using KioskApi.Authentication;
 using KioskApi.Data;
 using KioskApi.Domain.Models.Auth;
+using KioskApi.MobileSync;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -123,7 +124,8 @@ namespace KioskApi
             services.AddScoped<IPhotosRepository, PhotosRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IIngredientRepository, IngredientRepository>();
-            services.AddScoped<IRecipeRepository, RecipeRepository>();            
+            services.AddScoped<IRecipeRepository, RecipeRepository>();
+            services.AddMobileSync(Configuration);
         }
 
         /// <summary>

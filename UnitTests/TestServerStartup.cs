@@ -3,6 +3,7 @@ using KioskApi.Authentication;
 using KioskApi.Data;
 using KioskApi.Domain.Models;
 using KioskApi.Domain.Models.Auth;
+using KioskApi.MobileSync;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -90,6 +91,7 @@ namespace UnitTests
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IRecipeRepository, RecipeRepository>();
             services.AddScoped<IIngredientRepository, IngredientRepository>();
+            services.AddMobileSync(Configuration);
 
             // Newtonsoft JSON
             services.AddControllers().AddNewtonsoftJson(options =>
