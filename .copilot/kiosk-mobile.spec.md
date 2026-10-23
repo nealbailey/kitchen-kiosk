@@ -85,13 +85,15 @@ Contract approved 2026-10-22 (D-017) and documented in the
   changing only that recipe's revision, invalid requests, write invalidation,
   coalescing, pending state, revision sensitivity, and no photo dependency
   (14 tests).
-- [ ] Untested: realistic production-size data (the `kiosk_test` MySQL smoke check
-  had one recipe), backdated/tied dates beyond content hashing, concurrency
-  `busy` limit, and a real manifest/body race across separate HTTP requests.
-- [ ] Approve deployment artifact/runtime and backup/rollback procedure before
-  deploying; preserve existing API routes, web app, data, photos, and secrets.
-- [ ] Verify the live availability/manifest/body operations through `/kiosk/api`
-  and record results without copying private recipe data into documentation.
+- [x] Production-size check: 477 recipes / 22 categories; manifest 46.9 KB in
+  0.065 s over the LAN (2026-10-23).
+- [ ] Still untested: concurrency `busy` limit and a real manifest/body race
+  across separate HTTP requests (client protocol handles both).
+- [x] Deployed by the maintainer 2026-10-23 (self-contained .NET 10 build);
+  existing `/categories` still served.
+- [x] Live status/manifest/body operations verified through `/kiosk/api`
+  (see [plan](kiosk-mobile.plan.md) Phase 1 status), including the no-key `401`
+  and a live favorite toggle changing, then restoring, `collectionRevision`.
 
 **Exit criteria:** Tested versioned contract deployed with explicit approval;
 live text sync works with no dependency on photo availability or indexing.
@@ -134,7 +136,8 @@ invalid trust fails, and offline reading stays independent of all checks.
 - [ ] Seed synthetic text-only fixtures for local-storage tests, not production fallback.
 - [ ] Build browse/detail navigation, local title search/category/author filters,
   author and recommended indicators on list cards and details, and
-  readable ordered ingredients and safely formatted instructions.
+  readable ordered ingredients and safely formatted instructions (stored
+  rich-text HTML: allow-list sanitize; turn `&nbsp;` into normal spaces).
 - [ ] Support both orientations, landscape-first tablets, phone-sized viewports,
   text scaling, system bars, accessible touch targets, and Android Back.
 - [ ] Provide first-launch/empty/no-results/database-error/sync-status states.

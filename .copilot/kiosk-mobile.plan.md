@@ -349,9 +349,23 @@ author username and recommended flag (D-018), verified against `kiosk_test`.
 Full suite: 27 passed, 2 failed; both failures (`CategoryController_Create`, `Recipes_GetOne`) were present
 before the change. A read-only local run against the development `kiosk_test`
 MySQL database (one recipe) confirmed key rejection, status, manifest, and batch
-body queries with matching revisions. **Not deployed.** The checklist below is the
-original design checklist; items through documentation are satisfied, except
-production-size performance, which is not yet measured.
+body queries with matching revisions.
+
+**Live smoke test 2026-10-23 (maintainer deployed with author/recommended):**
+from the desktop over the LAN through `/kiosk/api` with the mobile key:
+status 200 with sync enabled, 477 recipes, 22 categories, and the same
+`collectionRevision` on repeated calls; manifest 46,902 bytes in 0.065 s;
+a 3-id body request returned all three with `author` and `recommended`
+populated; an unknown id returned in `missingIds`; a malformed id list returned
+`400 invalid_request`; existing `/categories` still 200; a request without the
+key returned `401`; and a favorite toggle in the web app changed
+`collectionRevision` (`sha256-e401…`) and reverting it restored the original
+(`sha256-511d…`). **Finding:** stored `instructions` are rich-text HTML
+(`<p>`, `<strong>`, `<ol>/<ul>/<li>`, `<i>/<b>`, `<br />`, entities). Some
+recipes use `&nbsp;` between every word, so the mobile reader must sanitize
+HTML and normalize non-breaking spaces so text wraps (Phase 4).
+
+The checklist below is the original design checklist; all items are satisfied.
 
 - [ ] Finalize versioned DTOs/routes for authenticated availability (no collection
   scan), complete recipe ID/revision manifest plus categories, and bounded
@@ -507,7 +521,11 @@ No production API deployment changes occur without approval.
   builds only. Never substitute an in-memory/browser fallback for native proof.
 - [ ] Build list/detail navigation, local title search and category/author filters,
   author and recommended (thumbs-up) indicators on cards and details,
-  ingredients and safe formatted instructions; no photo UI.
+  ingredients and safe formatted instructions; no photo UI. Instructions are
+  stored rich-text HTML (paragraphs, bold/italic, lists, `<br />`, entities):
+  render through an allow-list sanitizer (no scripts, styles, links, or remote
+  resources), and convert `&nbsp;`/U+00A0 to normal spaces so long lines wrap
+  on phones.
 - [ ] Provide first-launch/no-data, no-results, database-error,
   syncing, and sync-failure states. Never trigger automatic synchronization.
 - [ ] Make layouts readable in landscape, usable on phone-sized screens, and
@@ -652,20 +670,16 @@ latest release as a tested project pin:
 | --- | --- | --- |
 | Planning | Complete | Text-only manifest scope and cached collection-revision UX approved 2026-10-22; prominent Sync only for updates/first use, quiet status/manual check otherwise; recipe transfers remain explicit |
 | Phase 0 | Ready for API-first work; integration gates open | Desktop inventory and compatible candidate pins recorded; S23+ Android 16 confirmed; app identity, orientation, primary tablet, photo scope, and API-first/live-integration sequence agreed. Device measurements, S22+ OS, approved server deployment, ingredient order, and final SQLite approval pending |
-| Phase 1 (current) | Implemented and tested locally; deployment pending | Contract v1 (D-017, D-018 author/recommended) with 14 passing tests and a read-only `kiosk_test` MySQL check. Next: maintainer deploys with backup, mobile key, and `MobileSync__Enabled=true`, then records live `/kiosk/api/mobile/*` smoke results |
-| Phase 2 | Not started | No Android tool installation or starter build performed |
+| Phase 1 | Complete 2026-10-23 | Contract v1 (D-017, D-018) with 14 passing tests; deployed by maintainer; live status/manifest/body checks passed (477 recipes, 22 categories, 46.9 KB manifest in 0.065 s). Instructions are rich-text HTML; reader must sanitize and normalize `&nbsp;` |
+| Phase 2 (current) | Not started | No Android tool installation or starter build performed |
 | Phases 3-7 | Not started | No mobile HTTPS, SQLite, synchronization, or APK acceptance claims |
 
 For each completed milestone, add a concise result here: date, commands, exact
 versions, device/Android version, debug or release variant, outcome, and remaining
 limitations. Keep credentials and private recipe contents out of this record.
 
-**Next step:** Approved Phase 1 deployment. The text-sync endpoints are implemented
-and tested locally but not deployed. `release-mysql` already targets .NET 10
-with a self-contained single-file build, so the server needs no .NET runtime.
-The maintainer deploys using the README publishing steps, then performs live
-status/manifest/body checks, including `author`/`recommended` fields.
-Photo indexing and synchronization are deferred; no NAS access is needed for v1
-mobile sync. Phase 2 Android setup can start in parallel because it does not
-depend on deployment. Phase 3 app-level TLS needs the live server. No Android
-installation or APK build has been performed yet.
+**Next step:** Phase 2: install the Android toolchain on the desktop, scaffold
+`Kiosk.Mobile/`, and install a starter debug APK on the Tab S7 FE (SM-T733).
+The live mobile API is available for Phase 3 TLS work. Photo indexing and
+synchronization remain deferred. No Android installation or APK build has been
+performed yet.
