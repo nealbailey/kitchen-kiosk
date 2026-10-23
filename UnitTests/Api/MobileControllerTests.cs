@@ -218,8 +218,10 @@ namespace UnitTests.Api
                 Assert.AreEqual(1, recipe.PrimaryCategoryId);
                 CollectionAssert.AreEqual(new[] { "apple", "Butter", "salt" }, recipe.Ingredients.ToArray());
                 CollectionAssert.AreEqual(new[] { 999999 }, bodies.MissingIds.ToArray());
+                Assert.AreEqual("nealbailey", recipe.Author);
+                Assert.IsFalse(recipe.Recommended);
 
-                foreach (var forbidden in new[] { "useruid", "owner", "email", "photo", "favorite" })
+                foreach (var forbidden in new[] { "useruid", "abc4bbf1", "owner", "email", "@", "photo", "isFavorite" })
                     Assert.IsFalse(json.Contains(forbidden, StringComparison.OrdinalIgnoreCase), $"Response must not contain '{forbidden}'.");
             }
             finally
@@ -314,6 +316,40 @@ namespace UnitTests.Api
         }
 
         [TestMethod]
+        public void Mobile_FavoritesSetRecommendedAndChangeOnlyThatRecipe()
+        {
+            var id = InsertSyntheticRecipe();
+            try
+            {
+                var before = GetManifest();
+                var otherRevisions = before.Recipes.Where(r => r.Id != id).ToList();
+                var originalRevision = before.Recipes.Single(r => r.Id == id).Revision;
+
+                var apply = _httpClient.PutAsync("api/recipe/ApplyFavorite",
+                    new StringContent(JsonConvert.SerializeObject(new { recId = id }), Encoding.UTF8, "application/json")).Result;
+                Assert.AreEqual(HttpStatusCode.OK, apply.StatusCode);
+
+                var afterApply = GetManifest();
+                Assert.AreNotEqual(before.CollectionRevision, afterApply.CollectionRevision);
+                Assert.AreNotEqual(originalRevision, afterApply.Recipes.Single(r => r.Id == id).Revision);
+                Assert.AreEqual(
+                    JsonConvert.SerializeObject(otherRevisions),
+                    JsonConvert.SerializeObject(afterApply.Recipes.Where(r => r.Id != id)),
+                    "Only the favorited recipe should need re-downloading.");
+                Assert.IsTrue(GetBodies(id).Recipes.Single().Recommended);
+
+                var remove = _httpClient.DeleteAsync($"api/recipe/RemoveFavorite?id={id}").Result;
+                Assert.AreEqual(HttpStatusCode.OK, remove.StatusCode);
+                Assert.AreEqual(before.CollectionRevision, GetStatus().CollectionRevision);
+                Assert.IsFalse(GetBodies(id).Recipes.Single().Recommended);
+            }
+            finally
+            {
+                DeleteRecipe(id);
+            }
+        }
+
+        [TestMethod]
         public void Mobile_RevisionCoversIngredientsAndCategories()
         {
             MobileRecipe Recipe(string[] ingredients, int[] categories) => new MobileRecipe
@@ -330,6 +366,14 @@ namespace UnitTests.Api
             var withEmptyDescription = Recipe(new[] { "a" }, new[] { 1 });
             withEmptyDescription.Description = "";
             Assert.AreNotEqual(baseline, MobileSyncCatalog.ComputeRecipeRevision(withEmptyDescription));
+
+            var withAuthor = Recipe(new[] { "a" }, new[] { 1 });
+            withAuthor.Author = "leah";
+            Assert.AreNotEqual(baseline, MobileSyncCatalog.ComputeRecipeRevision(withAuthor));
+
+            var recommended = Recipe(new[] { "a" }, new[] { 1 });
+            recommended.Recommended = true;
+            Assert.AreNotEqual(baseline, MobileSyncCatalog.ComputeRecipeRevision(recommended));
         }
 
         [TestMethod]

@@ -1,7 +1,7 @@
 # Kitchen-Kiosk Mobile Constitution
 
 **Status:** Project baseline for the first release  
-**Version:** 1.2; amended with maintainer approval on 2026-10-22
+**Version:** 1.3; amended with maintainer approval on 2026-10-23
 **Product:** Kitchen-Kiosk Mobile  
 **Parent project:** [Kitchen-Kiosk](https://github.com/nealbailey/kitchen-kiosk)  
 **Primary deliverable:** An installable Android APK that provides a polished, offline, read-only recipe-book experience.
@@ -30,10 +30,10 @@ The first release is deliberately small in scope: it is a read-only recipe reade
 A family member opens the app and browses previously synchronized recipes without a network connection. Lists, details, ingredients, instructions, and categories are read from local storage.
 
 ### UC-02: Find a recipe
-A family member searches recipes by title and/or filters by category using the local dataset. Searching and filtering must not require API calls.
+A family member searches recipes by title and/or filters by category or author using the local dataset. Searching and filtering must not require API calls.
 
 ### UC-03: Read a recipe
-A family member opens a recipe and sees its available text details, ingredients, instructions, and categories in a legible tablet/phone layout.
+A family member opens a recipe and sees its available text details, ingredients, instructions, categories, author, and whether the family recommends it, in a legible tablet/phone layout. Lists show each recipe's author and recommended (thumbs-up) indicator so same-named recipes can be told apart without opening them.
 
 ### UC-04: Synchronize at the owner's home
 The user connects to the home LAN and opens the app. A lightweight authenticated check returns sync availability and a cached collection revision. Show the prominent **Synchronize** action only if the server allows sync and its revision differs from the device's last successfully committed revision. On first use, show **Download recipes** when available, even for an empty collection. When revisions match, hide the prominent action and provide a quiet status/manual-check entry. After the user taps it, fetch the manifest/categories and changed bodies, validate, and atomically commit. Losing connectivity preserves the previous collection.
@@ -49,7 +49,8 @@ The user can see the last successful synchronization time and a useful summary o
 ### Included
 - Android APK installation on a target tablet.
 - Read-only recipe browsing.
-- Recipe search and category filtering, implemented locally.
+- Recipe search plus category and author filtering, implemented locally.
+- Recipe author username and the read-only recommended indicator (any family member has favorited the recipe), matching the web app's thumbs-up.
 - Recipe detail view, ingredients, and instructions.
 - Explicit, user-initiated manifest-based synchronization over the home LAN.
 - Initial full recipe-body download; subsequent downloads include only new/changed bodies.
@@ -64,7 +65,7 @@ The user can see the last successful synchronization time and a useful summary o
 ### Explicitly excluded
 - User accounts, login, profiles, or role management in the mobile app.
 - Creating, editing, deleting, or writing recipe data.
-- Favorites, ratings, comments, or other user-generated data.
+- Marking or unmarking favorites, per-user favorite lists, ratings, comments, or other user-generated data. Storing user records beyond the author username.
 - Automatic/background recipe synchronization (lightweight availability checks are allowed).
 - Remote synchronization from outside the owner's home LAN.
 - Direct connections from the mobile app to MySQL.
@@ -203,6 +204,7 @@ and verified behavior change.
 | --- | --- | --- |
 | 1.1 | 2026-10-22 | Maintainer explicitly approved text-only v1, full ID/revision manifest with changed-body transfers, deletion reconciliation, and lightweight authenticated availability checks. Supersedes full-body/photo snapshot scope and the prohibition on incremental recipe transfers. No implementation claimed. |
 | 1.2 | 2026-10-22 | Maintainer approved cached collection-revision checks: prominent Sync only for available updates/first download, quiet status/manual checks otherwise; persist revision only with successful data commit. Phase 1 must define invalidation/rebuild and external-write refresh behavior. |
+| 1.3 | 2026-10-23 | Maintainer required author username display/filtering and the read-only recommended (any-user favorite) indicator. Favorite editing, per-user favorites, and other user data remain excluded. |
 
 ## 12. Repository and Verification Notes
 

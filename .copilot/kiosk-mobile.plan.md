@@ -341,11 +341,12 @@ or UX decisions have owners. Existing web/API behavior remains unchanged.
 **Goal:** Deliver bounded, read-only text synchronization without photo/NAS work
 or changes to existing web/API contracts.
 
-**Status 2026-10-22:** Contract version 1 implemented in `Kiosk.Api/MobileSync/`
+**Status 2026-10-23:** Contract version 1 implemented in `Kiosk.Api/MobileSync/`
 and `MobileController`, documented in the
-[API guide](../Kiosk.Api/README.md#mobile-sync-apimobile), and covered by 13
-tests in `UnitTests/Api/MobileControllerTests.cs`. Full suite: 26 passed, 2
-failed; both failures (`CategoryController_Create`, `Recipes_GetOne`) were present
+[API guide](../Kiosk.Api/README.md#mobile-sync-apimobile), and covered by 14
+tests in `UnitTests/Api/MobileControllerTests.cs`. Recipe bodies include the
+author username and recommended flag (D-018), verified against `kiosk_test`.
+Full suite: 27 passed, 2 failed; both failures (`CategoryController_Create`, `Recipes_GetOne`) were present
 before the change. A read-only local run against the development `kiosk_test`
 MySQL database (one recipe) confirmed key rejection, status, manifest, and batch
 body queries with matching revisions. **Not deployed.** The checklist below is the
@@ -354,7 +355,8 @@ production-size performance, which is not yet measured.
 
 - [ ] Finalize versioned DTOs/routes for authenticated availability (no collection
   scan), complete recipe ID/revision manifest plus categories, and bounded
-  requested-body retrieval. Exclude photos, private users, secrets, and host paths.
+  requested-body retrieval. Exclude photos, user ids/emails, secrets, and host paths;
+  include only author username and recommended flag (D-018).
 - [ ] Define deterministic revision coverage over all reader-visible recipe
   text, ingredients, and category relationships. Refresh category catalog even
   for category-only changes; do not use recipe `Date` as a sole high-water mark.
@@ -503,7 +505,8 @@ No production API deployment changes occur without approval.
   ingredients, committed revisions, staging, and sync status.
 - [ ] Seed synthetic text-only fixtures into SQLite in debug/test
   builds only. Never substitute an in-memory/browser fallback for native proof.
-- [ ] Build list/detail navigation, local title search and category filters,
+- [ ] Build list/detail navigation, local title search and category/author filters,
+  author and recommended (thumbs-up) indicators on cards and details,
   ingredients and safe formatted instructions; no photo UI.
 - [ ] Provide first-launch/no-data, no-results, database-error,
   syncing, and sync-failure states. Never trigger automatic synchronization.
@@ -649,7 +652,7 @@ latest release as a tested project pin:
 | --- | --- | --- |
 | Planning | Complete | Text-only manifest scope and cached collection-revision UX approved 2026-10-22; prominent Sync only for updates/first use, quiet status/manual check otherwise; recipe transfers remain explicit |
 | Phase 0 | Ready for API-first work; integration gates open | Desktop inventory and compatible candidate pins recorded; S23+ Android 16 confirmed; app identity, orientation, primary tablet, photo scope, and API-first/live-integration sequence agreed. Device measurements, S22+ OS, approved server deployment, ingredient order, and final SQLite approval pending |
-| Phase 1 (current) | Implemented and tested locally; deployment pending | Contract v1 (D-017) with 13 passing tests and a read-only `kiosk_test` MySQL check. Next: confirm production runtime/commit, deployment artifact, backup/rollback, and mobile key provisioning; then deploy with approval and verify live `/kiosk/api/mobile/*` |
+| Phase 1 (current) | Implemented and tested locally; deployment pending | Contract v1 (D-017, D-018 author/recommended) with 14 passing tests and a read-only `kiosk_test` MySQL check. Next: maintainer deploys with backup, mobile key, and `MobileSync__Enabled=true`, then records live `/kiosk/api/mobile/*` smoke results |
 | Phase 2 | Not started | No Android tool installation or starter build performed |
 | Phases 3-7 | Not started | No mobile HTTPS, SQLite, synchronization, or APK acceptance claims |
 
@@ -658,9 +661,10 @@ versions, device/Android version, debug or release variant, outcome, and remaini
 limitations. Keep credentials and private recipe contents out of this record.
 
 **Next step:** Approved Phase 1 deployment. The text-sync endpoints are implemented
-and tested locally but not deployed. Production runs `release-mysql`, last
-recorded as .NET 9, while this branch targets .NET 10. Choose and approve
-the release path before deploying, then perform live status/manifest/body checks.
+and tested locally but not deployed. `release-mysql` already targets .NET 10
+with a self-contained single-file build, so the server needs no .NET runtime.
+The maintainer deploys using the README publishing steps, then performs live
+status/manifest/body checks, including `author`/`recommended` fields.
 Photo indexing and synchronization are deferred; no NAS access is needed for v1
 mobile sync. Phase 2 Android setup can start in parallel because it does not
 depend on deployment. Phase 3 app-level TLS needs the live server. No Android

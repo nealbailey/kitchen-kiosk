@@ -81,7 +81,7 @@ namespace KioskApi.MobileSync
     }
 
     /// <summary>
-    /// Reader-visible recipe text. Excludes owners, favorites, and photos.
+    /// Reader-visible recipe text, author username, and recommended flag. Excludes user ids, emails, and photos.
     /// </summary>
     public class MobileRecipe
     {
@@ -99,6 +99,10 @@ namespace KioskApi.MobileSync
         public string Date { get; set; }
         /// <summary>Primary category id.</summary>
         public int PrimaryCategoryId { get; set; }
+        /// <summary>Username of the recipe owner; null if the owner no longer exists.</summary>
+        public string Author { get; set; }
+        /// <summary>True when any user has marked the recipe as a favorite (the web app's thumbs-up).</summary>
+        public bool Recommended { get; set; }
         /// <summary>Mapped category ids, ascending.</summary>
         public IReadOnlyList<int> CategoryIds { get; set; }
         /// <summary>Ingredient lines, case-insensitive alphabetical.</summary>

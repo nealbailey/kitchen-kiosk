@@ -3,7 +3,7 @@
 ## Document status and evidence
 
 - **Status:** Current implementation baseline, with limitations called out below.
-- **Version:** 1.3.
+- **Version:** 1.4.
 - **Last reviewed:** 2026-10-22.
 - **Governance:** [Project constitution](constitution.md).
 - **Baseline:** Git HEAD `36fe1e9` plus the local .NET 10 migration and documentation
@@ -16,9 +16,10 @@ user, and deployment instructions remain in the linked guides.
 
 **Development is not production:** This specification describes the working
 `upgrade-dotnet-10` implementation. The maintainer identifies `release-mysql` as
-the branch deployed on `baileysoft.lan`. As of the remote refresh on 2026-10-22,
-that branch still targets .NET 9. The live server and its exact deployed commit,
-runtime, and deployment method have not been independently inspected.
+the branch deployed on `baileysoft.lan`. As of the 2026-10-23 fetch, that branch
+targets .NET 10 and publishes a self-contained single-file `linux-x64` build, so
+the server needs no .NET runtime installed. The live server and its exact deployed commit
+and deployment method have not been independently inspected.
 
 ## 1. Product and users
 
@@ -140,12 +141,14 @@ Do not upgrade EF or its Identity stores independently of provider compatibility
 ### Mobile text sync (local implementation, not deployed)
 
 - `GET /api/mobile/status`, `GET /api/mobile/manifest`, and
-  `POST /api/mobile/recipes` serve read-only recipe text to Kitchen Kiosk Mobile
+  `POST /api/mobile/recipes` serve read-only recipe text, author username, and
+  recommended (any-user favorite) flag to Kitchen Kiosk Mobile
   (contract version 1). They require `X-Kiosk-Mobile-Key`, are off unless
   `MobileSync__Enabled=true`, and fail closed with `503` when the key is missing
   or shorter than 32 characters.
-- A process-wide manifest cache is rebuilt after API recipe create/update/delete
-  and category add/delete; direct MySQL edits need a service restart. Global
+- A process-wide manifest cache is rebuilt after API recipe create/update/delete,
+  favorite add/remove, category add/delete, and user delete; direct MySQL edits
+  need a service restart. Global
   rate/concurrency limits apply. No photo or NAS access.
 - Details: [mobile sync API guide](../Kiosk.Api/README.md#mobile-sync-apimobile).
 
@@ -337,6 +340,7 @@ not independent runtime verification or evidence that an old defect stays fixed.
 | D-015 | 2026-10-22 | Maintainer-approved scope amendment; implementation pending | Text-only mobile v1: complete lightweight recipe ID/revision manifest and category catalog; download only new/changed recipe bodies, remove server-deleted recipes only on successful transactional sync. Permit authenticated lightweight availability checks on open/resume/connectivity changes, but no automatic recipe downloads. All photo display/download/cache and NAS indexing deferred. Dates alone are not a reliable cursor; revision/concurrency/access policies remain Phase 1 gates. Updated [mobile constitution](kiosk-mobile.constitution.md), [specification](kiosk-mobile.spec.md), and [plan](kiosk-mobile.plan.md); no API implementation/deployment claimed. |
 | D-016 | 2026-10-22 | Maintainer-approved sync UX refinement; implementation pending | Lightweight authenticated status returns cached collection revision; prominent Sync only for enabled/compatible available updates or first download, hidden when revisions match, with quiet status/manual checking otherwise. Commit the manifest collection revision only with successfully synchronized data; preserve revision/error feedback on failure. Phase 1 must cover write invalidation, coalesced rebuilds, direct database refresh and cache lifecycle, without per-check full scans. See [mobile constitution](kiosk-mobile.constitution.md), [specification](kiosk-mobile.spec.md), and [plan](kiosk-mobile.plan.md). |
 | D-017 | 2026-10-22 | Maintainer-approved Phase 1 contract; implemented and tested locally, not deployed | Shared key in `X-Kiosk-Mobile-Key` plus `MobileSync__Enabled` switch, fail-closed, global rate/concurrency limits; ingredients ordered case-insensitive alphabetically; manifest cache invalidated by API writes only (direct MySQL edits need restart); single API process assumed; ~500 production recipes, 100-id body batches. SHA-256 content revisions; client validates body revisions against the manifest and restarts on mismatch. See [API guide](../Kiosk.Api/README.md#mobile-sync-apimobile) and [plan](kiosk-mobile.plan.md). |
+| D-018 | 2026-10-23 | Maintainer-required contract addition; implemented and tested locally, not deployed | Recipe bodies include `author` (owner username only) and `recommended` (any user has favorited, matching the web thumbs-up), both covered by the recipe revision. Favorite add/remove and user delete (cascades favorites) invalidate the manifest. Mobile shows author/recommended and filters by author locally; marking favorites and other user data remain excluded. Contract stays version 1 because it has not been deployed. Constitution amended to 1.3. |
 
 ## 9. Validation record and known gaps
 
@@ -416,3 +420,4 @@ and incorporate accepted changes using the constitution's intake process.
 | 1.1 | 2026-10-22 | Incorporated maintainer-provided branch progression and production designation; verified remote ancestry and historical framework/database/UI milestones; separated local development from deployed release status. |
 | 1.2 | 2026-10-22 | Indexed reviewed mobile product notes and the phased execution plan; kept planned mobile functionality distinct from the implemented baseline. |
 | 1.3 | 2026-10-22 | Recorded the locally implemented, undeployed mobile text-sync endpoints, settings, and decision D-017. |
+| 1.4 | 2026-10-23 | Added mobile author/recommended fields (D-018) and corrected `release-mysql` to .NET 10 self-contained. |

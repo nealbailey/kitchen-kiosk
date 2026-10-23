@@ -2,7 +2,7 @@
 
 - **Status:** Approved v1 scope; implementation pending.
 - **Last revised:** 2026-10-22.
-- **Product rules:** [Mobile constitution](kiosk-mobile.constitution.md), version 1.2.
+- **Product rules:** [Mobile constitution](kiosk-mobile.constitution.md), version 1.3.
 - **Execution guide:** [Phased development plan](kiosk-mobile.plan.md).
 - **Parent context:** [Application specification](app.spec.md).
 
@@ -15,7 +15,8 @@ or APK is implemented merely because it is specified here.
 ## 1. Definition of Done
 
 - [ ] A reproducible signed APK installs on the target Android 13+ tablets/phones.
-- [ ] Browsing, title search, category filtering, ingredients, and formatted
+- [ ] Browsing, title search, category and author filtering, author and
+  recommended (thumbs-up) display, ingredients, and formatted
   instructions use local SQLite, including after an offline restart/reboot.
 - [ ] A prominent Sync button appears only when an authenticated check reports
   a reachable, compatible, sync-enabled server with a collection revision different
@@ -61,13 +62,13 @@ Contract approved 2026-10-22 (D-017) and documented in the
 - [x] Versioned routes/DTOs (contract version 1): `GET api/mobile/status`,
   `GET api/mobile/manifest`, `POST api/mobile/recipes` (1-100 distinct ids).
 - [x] Revision coverage: SHA-256 over title, description, instructions, stored
-  date, primary category, sorted category ids, and case-insensitive alphabetical
-  ingredients. Collection revision covers contract version, category catalog,
+  date, primary category, author username, recommended flag, sorted category
+  ids, and case-insensitive alphabetical ingredients (D-018). Collection revision covers contract version, category catalog,
   and every recipe id/revision. Dates are display data, not a cursor.
 - [x] Status returns the cached collection revision; unchanged checks do no
   rebuild (tested by build counter).
-- [x] Invalidation on API recipe create/update/delete and category add/delete,
-  including failed attempts; concurrent rebuilds coalesce; snapshots built
+- [x] Invalidation on API recipe create/update/delete, favorite add/remove,
+  category add/delete, and user delete (favorites cascade), including failed attempts; concurrent rebuilds coalesce; snapshots built
   during a write are discarded and `503 revision_pending` is returned instead of
   a possibly stale revision. Direct MySQL edits need a service restart; a single
   API process is assumed. Cold start rebuilds on first request.
@@ -80,8 +81,10 @@ Contract approved 2026-10-22 (D-017) and documented in the
   JWT/admin secrets reused; key is not app attestation. Tests keep the key on.
 - [x] Tests: invalid keys, disabled/misconfigured, rate limit, cache reuse,
   complete ordered manifest, body/manifest revision agreement, missing ids,
-  private-field exclusion, invalid requests, write invalidation, coalescing,
-  pending state, revision sensitivity, and no photo dependency.
+  private-field exclusion, author/recommended values, favorite invalidation
+  changing only that recipe's revision, invalid requests, write invalidation,
+  coalescing, pending state, revision sensitivity, and no photo dependency
+  (14 tests).
 - [ ] Untested: realistic production-size data (the `kiosk_test` MySQL smoke check
   had one recipe), backdated/tied dates beyond content hashing, concurrency
   `busy` limit, and a real manifest/body race across separate HTTP requests.
@@ -129,7 +132,8 @@ invalid trust fails, and offline reading stays independent of all checks.
 - [ ] Approve/pin a maintained native SQLite plugin and prove Android persistence.
 - [ ] Define migrations and local recipe/category/ingredient/revision/sync metadata.
 - [ ] Seed synthetic text-only fixtures for local-storage tests, not production fallback.
-- [ ] Build browse/detail navigation, local title search/category filters, and
+- [ ] Build browse/detail navigation, local title search/category/author filters,
+  author and recommended indicators on list cards and details, and
   readable ordered ingredients and safely formatted instructions.
 - [ ] Support both orientations, landscape-first tablets, phone-sized viewports,
   text scaling, system bars, accessible touch targets, and Android Back.
@@ -197,7 +201,7 @@ no data-loss defects or unverified device claims.
 | --- | --- |
 | Availability | Lightweight authenticated read; compatibility, sync-enabled status, cached opaque `collectionRevision`; no per-check collection scan/hash, recipe bodies, or photos; explicit pending/error state |
 | Manifest | Schema version, coherent collection revision/generation, complete recipe ID/revision inventory and category catalog; never normal listing's truncated page |
-| Recipe bodies | Bounded retrieval of requested IDs with expected revisions; all text fields/relationships required by reader; no user secrets/host paths/photo metadata |
+| Recipe bodies | Bounded retrieval of requested IDs with expected revisions; all text fields/relationships required by reader, author username, and recommended flag; no user ids/emails/secrets/host paths/photo metadata |
 | Local sync status | Last attempt, last successful committed sync, active count, revision state, added/updated/removed counts, actionable errors |
 
 Use deterministic revision rules that include ingredients and category
@@ -215,6 +219,7 @@ partial manifest.
 | First sync | Complete manifest/categories and all bodies committed |
 | Repeat without changes | Manifest/categories transferred; zero recipe bodies; no duplicates |
 | New/backdated recipe or tied dates | Manifest detects missing/changed ID/revision regardless of date |
+| Favorite added/removed by any user | Only that recipe's revision changes; recommended indicator updates after sync |
 | Ingredients/category relationships change | Correct body revision/change detected |
 | Category renamed/deleted | Catalog and references reconciled consistently |
 | Recipe deleted | Removed only after complete successful sync |
@@ -255,6 +260,7 @@ partial manifest.
 | Exclusions | Accounts/login UI, writes, direct MySQL, remote sync, background recipe sync |
 | Failure | Preserve last-good complete collection and last-success metadata |
 | Access controls | `X-Kiosk-Mobile-Key` shared key, `MobileSync__Enabled` switch, fail-closed, global rate/concurrency limits (D-017) |
+| Author/recommended | Display author username and the web app's any-user thumbs-up; filter by author locally; no favorite editing (D-018) |
 | Ingredient order | Case-insensitive alphabetical; no authored-order migration |
 | Revision freshness | Invalidated by API writes; direct MySQL edits need a service restart; single API process |
 

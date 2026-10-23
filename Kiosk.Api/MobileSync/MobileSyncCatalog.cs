@@ -36,21 +36,33 @@ namespace KioskApi.MobileSync
             var recipeQuery = context.Recipes.AsNoTracking();
             var mapQuery = context.RecipeCategoryMaps.AsNoTracking();
             var ingredientQuery = context.RecipeIngredients.AsNoTracking();
+            int[] idArray = null;
             if (ids != null)
             {
-                var idArray = ids.ToArray();
+                idArray = ids.ToArray();
                 recipeQuery = recipeQuery.Where(r => idArray.Contains(r.RecId));
                 mapQuery = mapQuery.Where(m => idArray.Contains(m.RecId));
                 ingredientQuery = ingredientQuery.Where(i => idArray.Contains(i.RecId));
             }
 
             var recipes = await recipeQuery
-                .Select(r => new { r.RecId, r.Title, r.Description, r.Instructions, r.Date, r.CatId })
+                .Select(r => new { r.RecId, r.Title, r.Description, r.Instructions, r.Date, r.CatId, r.Useruid })
                 .ToListAsync(cancellationToken);
             var maps = (await mapQuery.Select(m => new { m.RecId, m.CatId }).ToListAsync(cancellationToken))
                 .ToLookup(m => m.RecId, m => m.CatId);
             var ingredients = (await ingredientQuery.Select(i => new { i.RecId, i.Ingredient }).ToListAsync(cancellationToken))
                 .ToLookup(i => i.RecId, i => i.Ingredient);
+
+            var ownerIds = recipes.Select(r => r.Useruid).Distinct().ToArray();
+            var authors = (await context.AspNetUsers.AsNoTracking()
+                    .Where(u => ownerIds.Contains(u.Id))
+                    .Select(u => new { u.Id, u.UserName })
+                    .ToListAsync(cancellationToken))
+                .ToDictionary(u => u.Id, u => u.UserName);
+            var favoriteQuery = context.RecipeFavorites.AsNoTracking().Select(f => f.RecId);
+            if (idArray != null)
+                favoriteQuery = favoriteQuery.Where(id => idArray.Contains(id));
+            var recommended = (await favoriteQuery.Distinct().ToListAsync(cancellationToken)).ToHashSet();
 
             return recipes
                 .OrderBy(r => r.RecId)
@@ -64,6 +76,8 @@ namespace KioskApi.MobileSync
                         Instructions = r.Instructions,
                         Date = r.Date.ToString("yyyy-MM-dd'T'HH:mm:ss.FFFFFFF", CultureInfo.InvariantCulture),
                         PrimaryCategoryId = r.CatId,
+                        Author = authors.TryGetValue(r.Useruid, out var author) ? author : null,
+                        Recommended = recommended.Contains(r.RecId),
                         CategoryIds = maps[r.RecId].Distinct().OrderBy(c => c).ToList(),
                         Ingredients = ingredients[r.RecId]
                             .Where(i => i != null)
@@ -103,6 +117,8 @@ namespace KioskApi.MobileSync
                 writer.WriteString("instructions", recipe.Instructions);
                 writer.WriteString("date", recipe.Date);
                 writer.WriteNumber("primaryCategoryId", recipe.PrimaryCategoryId);
+                writer.WriteString("author", recipe.Author);
+                writer.WriteBoolean("recommended", recipe.Recommended);
                 writer.WriteStartArray("categoryIds");
                 foreach (var id in recipe.CategoryIds)
                     writer.WriteNumberValue(id);

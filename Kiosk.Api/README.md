@@ -213,11 +213,11 @@ Status returns `{ "contractVersion": 1, "syncEnabled": true, "collectionRevision
 
 The manifest returns `{ "contractVersion": 1, "collectionRevision": "sha256-…", "categories": [ { "id": 1, "name": "Appetizer" } ], "recipes": [ { "id": 12, "revision": "sha256-…" } ] }`. Both lists are complete and ordered by id; the manifest is never paged.
 
-Recipe bodies return `{ "contractVersion": 1, "recipes": [ … ], "missingIds": [15] }`. Each recipe has `id`, `revision`, `title`, `description`, `instructions` (as stored, may contain `<br />`), `date` (stored value, no time zone, display only), `primaryCategoryId`, `categoryIds` (ascending), and `ingredients` (strings, case-insensitive alphabetical). Owners, favorites, and photos are not included. `missingIds` lists requested recipes that no longer exist.
+Recipe bodies return `{ "contractVersion": 1, "recipes": [ … ], "missingIds": [15] }`. Each recipe has `id`, `revision`, `title`, `description`, `instructions` (as stored, may contain `<br />`), `date` (stored value, no time zone, display only), `primaryCategoryId`, `categoryIds` (ascending), `ingredients` (strings, case-insensitive alphabetical), `author` (the owner's username, or `null` if the owner no longer exists), and `recommended` (`true` when any user has marked the recipe as a favorite, shown as the thumbs-up in the web app). User ids, email addresses, which users chose a favorite, and photos are not included. `missingIds` lists requested recipes that no longer exist.
 
-**Revisions.** A recipe revision is a SHA-256 hash of every field above. The collection revision hashes the contract version, the category list, and every recipe id and revision, so additions, edits, deletions, and category changes all change it. Revisions are opaque: compare them only for equality. A server upgrade may change every revision, which only causes a full re-download.
+**Revisions.** A recipe revision is a SHA-256 hash of every field above. The collection revision hashes the contract version, the category list, and every recipe id and revision, so additions, edits, deletions, favorite changes, and category changes all change it. Adding or removing a favorite changes only that recipe's revision. Revisions are opaque: compare them only for equality. A server upgrade may change every revision, which only causes a full re-download.
 
-**Freshness.** The manifest is cached in memory and rebuilt on the next request after a recipe is created, updated, or deleted, or a category is added or deleted through the API. Repeated checks with no changes do no database work. Edits made directly in MySQL are not detected until the service restarts. This assumes a single API process.
+**Freshness.** The manifest is cached in memory and rebuilt on the next request after any of these API writes: recipe create, update, or delete; favorite add or remove; category add or delete; or user delete (which removes that user's favorites). Repeated checks with no changes do no database work. Edits made directly in MySQL are not detected until the service restarts. This assumes a single API process.
 
 **Sync procedure.** Fetch status; if `collectionRevision` differs from the last committed one, fetch the manifest, request bodies for new or changed ids in batches, and check that each body's `revision` equals its manifest entry. A different revision or a `missingIds` entry means the collection changed during sync; start again from the manifest (retry a limited number of times) without committing partial data. After every body matches, commit everything, delete local recipes absent from the manifest, and store the manifest's `collectionRevision`.
 
@@ -227,7 +227,7 @@ Recipe bodies return `{ "contractVersion": 1, "recipes": [ … ], "missingIds": 
 | `sync_not_configured` | `503` | Enabled, but `MobileSync__ApiKey` is missing or shorter than 32 characters. |
 | `invalid_key` | `401` | Missing or wrong `X-Kiosk-Mobile-Key`. |
 | `rate_limited`, `busy` | `429` | Per-minute or concurrency limit reached; honor `Retry-After`. |
-| `revision_pending` | `503` | A recipe or category write is in progress; retry after `Retry-After`. |
+| `revision_pending` | `503` | A recipe, favorite, category, or user-delete write is in progress; retry after `Retry-After`. |
 | `invalid_request` | `400` | Malformed body, empty or more than 100 ids, duplicates, or non-positive ids. |
 
 Errors use `{ "code": "invalid_key", "message": "..." }` instead of the envelope above.

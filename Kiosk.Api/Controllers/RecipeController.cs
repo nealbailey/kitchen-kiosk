@@ -150,6 +150,7 @@ namespace KioskApi.Controllers
         /// </summary>
         /// <returns></returns>
         [Authorize()]
+        [InvalidatesMobileSync]
         [HttpPut("ApplyFavorite")]
         public async Task<IActionResult> ApplyFavorite([FromBody] Recipe recipe)
         {
@@ -195,6 +196,7 @@ namespace KioskApi.Controllers
         /// </summary>
         /// <returns></returns>
         [Authorize()]
+        [InvalidatesMobileSync]
         [HttpDelete("RemoveFavorite")]
         public async Task<IActionResult> RemoveFavorite(int id)
         {

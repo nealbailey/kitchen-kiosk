@@ -21,6 +21,7 @@ namespace KioskApi.Controllers
     using Kiosk.Data.Repository;
     using KioskApi.Domain.Models;
     using KioskApi.Domain.Models.Auth;
+    using KioskApi.MobileSync;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
@@ -113,6 +114,7 @@ namespace KioskApi.Controllers
         /// <param name="model">The <see cref="DeleteModel"/> to remove.</param>
         /// <returns></returns>
         [Authorize(Roles = UserRoles.Admin)]
+        [InvalidatesMobileSync]
         [HttpDelete]
         [Route("delete")]
         public async Task<IActionResult> Delete([FromBody] DeleteModel model)
