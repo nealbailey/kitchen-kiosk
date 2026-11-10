@@ -1,0 +1,46 @@
+{
+  "name": "kiosk-mobile",
+  "version": "0.0.1",
+  "author": "Kitchen Kiosk",
+  "homepage": "https://github.com/nealbailey/kitchen-kiosk",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "build:preview": "ng build --configuration development",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "lint": "ng lint"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/common": "22.2.3",
+    "@angular/compiler": "22.2.3",
+    "@angular/core": "22.2.3",
+    "@angular/forms": "22.2.3",
+    "@angular/platform-browser": "22.2.3",
+    "@angular/platform-browser-dynamic": "22.2.3",
+    "@angular/router": "22.2.3",
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3",
+    "@ionic/angular": "9.0.9",
+    "ionicons": "8.1.0",
+    "rxjs": "7.8.2",
+    "tslib": "2.9.1"
+  },
+  "devDependencies": {
+    "@angular/build": "22.2.4",
+    "@angular/cli": "22.2.4",
+    "@angular/compiler-cli": "22.2.3",
+    "@angular/language-service": "22.2.3",
+    "@capacitor/cli": "8.5.3",
+    "@ionic/angular-toolkit": "13.0.0",
+    "angular-eslint": "22.6.0",
+    "eslint": "10.14.0",
+    "jsdom": "30.1.3",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.2",
+    "vitest": "5.1.0"
+  },
+  "description": "Offline-first Android recipe reader for Kitchen Kiosk"
+}

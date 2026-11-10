@@ -36,6 +36,91 @@
                 "${workspaceFolder}/Kiosk.Api/Kiosk.Api.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Mobile: Start Android Emulator",
+            "type": "process",
+            "command": "${env:HOME}/Android/Sdk/emulator/emulator",
+            "args": [
+                "-avd",
+                "Medium_Phone_API_37.0",
+                "-no-audio",
+                "-no-boot-anim"
+            ],
+            "options": {
+                "env": {
+                    "ANDROID_HOME": "${env:HOME}/Android/Sdk"
+                }
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "android-emulator",
+                "pattern": {
+                    "regexp": "^(INFO\\s+\\|\\s+.*)$",
+                    "message": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^INFO\\s+\\| Android emulator version",
+                    "endsPattern": "^INFO\\s+\\| Boot completed"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": false
+            }
+        },
+        {
+            "label": "Mobile: Build Preview APK",
+            "type": "shell",
+            "command": "npm run build:preview -- --source-map=false && npx cap sync android && ./android/gradlew -p android assembleDebug",
+            "options": {
+                "cwd": "${workspaceFolder}/Kiosk.Mobile",
+                "env": {
+                    "JAVA_HOME": "${env:HOME}/opt/jdk-21.0.13+9",
+                    "ANDROID_HOME": "${env:HOME}/Android/Sdk",
+                    "GOMAXPROCS": "2",
+                    "NG_BUILD_MAX_WORKERS": "1",
+                    "PATH": "${env:HOME}/opt/jdk-21.0.13+9/bin:${env:HOME}/Android/Sdk/platform-tools:${env:PATH}"
+                }
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "focus": false
+            }
+        },
+        {
+            "label": "Mobile: Install and Launch APK on Emulator",
+            "type": "shell",
+            "command": "( timeout 120s \"${env:HOME}/Android/Sdk/platform-tools/adb\" wait-for-device || { echo 'No Android device appeared within 120 seconds.'; exit 1; } ) && \"${env:HOME}/Android/Sdk/platform-tools/adb\" -e install -r \"${workspaceFolder}/Kiosk.Mobile/android/app/build/outputs/apk/debug/app-debug.apk\" && \"${env:HOME}/Android/Sdk/platform-tools/adb\" -e shell am start -n com.baileysoft.kiosk.mobile/.MainActivity",
+            "options": {
+                "env": {
+                    "ANDROID_HOME": "${env:HOME}/Android/Sdk"
+                }
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "focus": false
+            }
+        },
+        {
+            "label": "Mobile: Build and Launch Preview on Emulator",
+            "dependsOn": [
+                "Mobile: Build Preview APK",
+                "Mobile: Install and Launch APK on Emulator"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "focus": false
+            }
         }
     ]
 }

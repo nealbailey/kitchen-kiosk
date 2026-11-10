@@ -131,6 +131,11 @@ invalid trust fails, and offline reading stays independent of all checks.
 
 ## Phase 4 - Offline Reader and SQLite
 
+- [ ] Prototype the Home/Search/Categories/Authors navigation, with a fixed
+  bottom bar in portrait and a side rail for landscape tablet widths. Home sorts
+  by date descending; categories and authors drill into their recipe filters.
+  Search includes title/ingredient, category, author, and the existing title/date
+  sort options. Use development-only synthetic fixtures, never production fallback.
 - [ ] Approve/pin a maintained native SQLite plugin and prove Android persistence.
 - [ ] Define migrations and local recipe/category/ingredient/revision/sync metadata.
 - [ ] Seed synthetic text-only fixtures for local-storage tests, not production fallback.
@@ -255,7 +260,7 @@ partial manifest.
 | Orientation | Both orientations; landscape-first tablet layout |
 | Distribution | Signed sideloaded APK; gifting optional |
 | Server | API-first development/test, approved compatible deployment, live LAN integration |
-| API base | `https://baileyfs02.baileysoft.lan/kiosk/api` |
+| API base | `https://recipes.baileysoft.lan/api` |
 | CA | Baileysoft LAN CA preinstalled; app trust verified in debug and signed release |
 | Sync | Complete lightweight manifest/categories, only new/changed bodies, authoritative deletion on success |
 | Availability | Throttled authenticated cached collection-revision checks; prominent action only for updates/first download; quiet status/manual check otherwise; no automatic recipe sync |

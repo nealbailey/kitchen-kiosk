@@ -1,0 +1,197 @@
+<!-- eslint-disable @angular-eslint/template/prefer-control-flow -->
+<ion-header class="app-header">
+  <ion-toolbar>
+    <ion-buttons *ngIf="detailRequested" slot="start"><ion-back-button defaultHref="/home" text="Back"></ion-back-button></ion-buttons>
+    <button *ngIf="!detailRequested" class="brand" slot="start" type="button" aria-label="Kitchen Kiosk home" (click)="selectTab('home')">
+      <span class="brand-mark"><ion-icon name="restaurant-outline"></ion-icon></span>
+      <span>Kitchen Kiosk</span>
+    </button>
+    <span *ngIf="isPreview" class="preview-badge" slot="end"><span></span>Preview set</span>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="reader-content">
+  <main *ngIf="detailRequested" class="content-frame recipe-detail">
+    <article *ngIf="selectedRecipe as recipe; else missingRecipe" aria-labelledby="recipe-title">
+      <header class="detail-heading">
+        <h1 id="recipe-title">{{ recipe.title }}</h1>
+        <div class="detail-meta"><time>{{ formatDate(recipe.date) }}</time><span>{{ recipe.category.name }}</span><span>{{ recipe.author.name }}</span><span *ngIf="recipe.recommended" class="recommended-mark"><ion-icon name="thumbs-up-outline" aria-hidden="true"></ion-icon>Recommended</span></div>
+      </header>
+      <p class="detail-summary">{{ recipe.summary }}</p>
+      <div class="detail-columns">
+        <section aria-labelledby="ingredients-title"><h2 id="ingredients-title"><ion-icon name="cart-outline" aria-hidden="true"></ion-icon>Ingredients</h2><ul class="ingredient-list"><li *ngFor="let ingredient of recipe.ingredients">{{ ingredient }}</li></ul></section>
+        <section aria-labelledby="instructions-title"><h2 id="instructions-title"><ion-icon name="reader-outline" aria-hidden="true"></ion-icon>Instructions</h2><ol class="instruction-list"><li *ngFor="let step of recipe.instructions">{{ step }}</li></ol></section>
+      </div>
+    </article>
+    <ng-template #missingRecipe><div class="empty-state"><ion-icon name="book-outline"></ion-icon><h1>Recipe not found</h1><a routerLink="/home" [queryParams]="{recipe: null}" queryParamsHandling="merge">Back to recipes</a></div></ng-template>
+  </main>
+  <main [hidden]="detailRequested" class="content-frame" [ngSwitch]="activeTab">
+    <section *ngSwitchCase="'home'" aria-label="Home">
+      <div class="page-heading home-heading">
+        <div>
+          <p class="eyebrow">FAMILY RECIPE SHELF</p>          
+        </div>
+      </div>
+      <div class="home-search search-box">
+        <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+        <input type="search" [(ngModel)]="homeSearchTerm" placeholder="Quick Search" aria-label="Search recipe titles" autocomplete="off">
+        <button *ngIf="homeSearchTerm" type="button" class="clear-search" aria-label="Clear title search" (click)="homeSearchTerm = ''">
+          <ion-icon name="close-circle"></ion-icon>
+        </button>
+      </div>
+
+      <div *ngIf="homeRecipes.length; else emptyHome" class="recipe-grid">
+        <article *ngFor="let recipe of homeRecipes" class="recipe-card">
+          <a class="recipe-card-link" [routerLink]="[]" [queryParams]="{recipe: recipe.id}" queryParamsHandling="merge" [attr.aria-label]="'Read ' + recipe.title"></a>
+          <div class="recipe-card-top">
+            <span class="category-label">{{ recipe.category.name }}</span>
+            <time>{{ formatDate(recipe.date) }}</time>
+          </div>
+          <h2>{{ recipe.title }}</h2>
+          <p class="recipe-summary">{{ recipe.summary }}</p>
+          <div class="recipe-card-bottom">
+            <button type="button" class="author-link" (click)="openAuthor(recipe.author)">
+              <span class="author-initials">{{ recipe.author.initials }}</span>
+              {{ recipe.author.name }}
+            </button>
+            <span *ngIf="recipe.recommended" class="recommended-mark" title="Recommended by the family">
+              <ion-icon name="thumbs-up-outline"></ion-icon><span>Recommended</span>
+            </span>
+          </div>
+        </article>
+      </div>
+      <ng-template #emptyHome><div class="empty-state"><ion-icon [name]="recipes.length ? 'search-outline' : 'book-outline'"></ion-icon><h2>{{ recipes.length ? 'No matching recipes' : 'Your shelf is empty' }}</h2></div></ng-template>
+    </section>
+
+    <section *ngSwitchCase="'search'" aria-labelledby="search-title">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">FIND A FAVORITE</p>
+          <h1 id="search-title">Search recipes</h1>
+        </div>
+      </div>
+
+      <div class="search-panel">
+        <label class="field-label" for="recipe-search">Search the collection</label>
+        <div class="search-box">
+          <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+          <input id="recipe-search" type="search" [(ngModel)]="searchTerm" placeholder="Title or ingredient" autocomplete="off">
+          <button *ngIf="searchTerm" type="button" class="clear-search" aria-label="Clear search" (click)="searchTerm = ''">
+            <ion-icon name="close-circle"></ion-icon>
+          </button>
+        </div>
+
+        <div class="search-mode" role="group" aria-label="Search field">
+          <button type="button" [class.active]="searchMode === 'title'" [attr.aria-pressed]="searchMode === 'title'" (click)="searchMode = 'title'">Title</button>
+          <button type="button" [class.active]="searchMode === 'ingredient'" [attr.aria-pressed]="searchMode === 'ingredient'" (click)="searchMode = 'ingredient'">Ingredient</button>
+        </div>
+
+        <div class="filter-grid">
+          <label class="filter-field">
+            <span class="field-label">Category</span>
+            <ion-select [(ngModel)]="selectedCategoryId" interface="popover" aria-label="Filter by category">
+              <ion-select-option [value]="0">All categories</ion-select-option>
+              <ion-select-option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</ion-select-option>
+            </ion-select>
+          </label>
+          <label class="filter-field">
+            <span class="field-label">Author</span>
+            <ion-select [(ngModel)]="selectedAuthorId" interface="popover" aria-label="Filter by author">
+              <ion-select-option value="all">All authors</ion-select-option>
+              <ion-select-option *ngFor="let author of authors" [value]="author.id">{{ author.name }}</ion-select-option>
+            </ion-select>
+          </label>
+          <label class="filter-field">
+            <span class="field-label">Sort by</span>
+            <ion-select [(ngModel)]="searchColumn" interface="popover" aria-label="Sort recipes by">
+              <ion-select-option value="date">Date</ion-select-option>
+              <ion-select-option value="title">Title</ion-select-option>
+            </ion-select>
+          </label>
+          <label class="filter-field">
+            <span class="field-label">Order</span>
+            <ion-select [(ngModel)]="sortDirection" interface="popover" aria-label="Sort order">
+              <ion-select-option value="desc">Newest / Z to A</ion-select-option>
+              <ion-select-option value="asc">Oldest / A to Z</ion-select-option>
+            </ion-select>
+          </label>
+        </div>
+
+        <label class="recommended-filter">
+          <span><ion-icon name="thumbs-up-outline"></ion-icon> Recommended</span>
+          <ion-toggle [(ngModel)]="recommendedOnly" aria-label="Show recommended recipes only"></ion-toggle>
+        </label>
+      </div>
+
+      <div class="results-heading">
+        <h2>{{ filteredRecipes.length }} {{ filteredRecipes.length === 1 ? 'recipe' : 'recipes' }}</h2>
+        <button type="button" class="reset-button" (click)="clearFilters()">Clear filters</button>
+      </div>
+      <div *ngIf="filteredRecipes.length; else noResults" class="recipe-grid">
+        <article *ngFor="let recipe of filteredRecipes" class="recipe-card">
+          <a class="recipe-card-link" [routerLink]="[]" [queryParams]="{recipe: recipe.id}" queryParamsHandling="merge" [attr.aria-label]="'Read ' + recipe.title"></a>
+          <div class="recipe-card-top">
+            <span class="category-label">{{ recipe.category.name }}</span>
+            <time>{{ formatDate(recipe.date) }}</time>
+          </div>
+          <h2>{{ recipe.title }}</h2>
+          <p class="recipe-summary">{{ recipe.summary }}</p>
+          <div class="recipe-card-bottom">
+            <button type="button" class="author-link" (click)="openAuthor(recipe.author)">
+              <span class="author-initials">{{ recipe.author.initials }}</span>
+              {{ recipe.author.name }}
+            </button>
+            <span *ngIf="recipe.recommended" class="recommended-mark" title="Recommended by the family">
+              <ion-icon name="thumbs-up-outline"></ion-icon><span>Recommended</span>
+            </span>
+          </div>
+        </article>
+      </div>
+      <ng-template #noResults><div class="empty-state compact-empty"><ion-icon name="search-outline"></ion-icon><h2>No matching recipes</h2></div></ng-template>
+    </section>
+
+    <section *ngSwitchCase="'categories'" aria-labelledby="categories-title">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">BROWSE THE SHELF</p>
+          <h1 id="categories-title">Categories</h1>
+        </div>
+        <span class="directory-count">{{ categories.length }} categories</span>
+      </div>
+      <div *ngIf="categories.length; else emptyCategories" class="directory-grid">
+        <button *ngFor="let category of categories; let index = index" type="button" class="directory-card category-card" (click)="openCategory(category)">
+          <span class="directory-icon" [style.--accent]="category.accent"><ion-icon [name]="category.icon"></ion-icon></span>
+          <span class="directory-copy"><span class="directory-index">{{ (index + 1).toString().padStart(2, '0') }}</span><strong>{{ category.name }}</strong><small>{{ categoryCount(category.id) }} recipes</small></span>
+          <ion-icon class="directory-arrow" name="arrow-forward-outline"></ion-icon>
+        </button>
+      </div>
+      <ng-template #emptyCategories><div class="empty-state"><ion-icon name="grid-outline"></ion-icon><h2>No categories yet</h2></div></ng-template>
+    </section>
+
+    <section *ngSwitchCase="'authors'" aria-labelledby="authors-title">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">FROM OUR KITCHENS</p>
+          <h1 id="authors-title">Authors</h1>
+        </div>
+        <span class="directory-count">{{ authors.length }} cooks</span>
+      </div>
+      <div *ngIf="authors.length; else emptyAuthors" class="directory-grid author-grid">
+        <button *ngFor="let author of authors" type="button" class="directory-card author-card" (click)="openAuthor(author)">
+          <span class="author-avatar">{{ author.initials }}</span>
+          <span class="directory-copy"><strong>{{ author.name }}</strong><small>{{ authorCount(author.id) }} recipes</small></span>
+          <ion-icon class="directory-arrow" name="arrow-forward-outline"></ion-icon>
+        </button>
+      </div>
+      <ng-template #emptyAuthors><div class="empty-state"><ion-icon name="people-outline"></ion-icon><h2>No authors yet</h2></div></ng-template>
+    </section>
+  </main>
+</ion-content>
+
+<ion-footer *ngIf="!detailRequested" class="app-footer">
+  <nav class="primary-nav" aria-label="Main navigation">
+    <button *ngFor="let tab of tabs" type="button" class="nav-item" [class.active]="activeTab === tab.id" [attr.aria-current]="activeTab === tab.id ? 'page' : null" (click)="selectTab(tab.id)">
+      <ion-icon [name]="tab.icon"></ion-icon><span>{{ tab.label }}</span>
+    </button>
+  </nav>
+</ion-footer>

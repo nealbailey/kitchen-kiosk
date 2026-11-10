@@ -27,7 +27,7 @@ Confirmed with the maintainer on 2026-10-22:
 | Primary tablet | Galaxy Tab S7 FE (SM-T733), confirmed 2026-10-22 |
 | Orientation | Both orientations supported; landscape-first tablet design, confirmed 2026-10-22 |
 | Application identity | Kitchen Kiosk / `com.baileysoft.kiosk.mobile`, confirmed 2026-10-22 |
-| API base | `https://baileyfs02.baileysoft.lan/kiosk/api` |
+| API base | `https://recipes.baileysoft.lan/api` |
 | Certificate prerequisite | Baileysoft LAN CA must already be installed on each device |
 | Distribution | Signed APK, installed directly; no Play Store or paid cloud build service required |
 | Scope | Read-only, no login/accounts or writes; explicit manifest-based sync; offline browsing |
@@ -88,10 +88,11 @@ Before installing a test APK:
   update channels, not proof of matching security patch currency.
 - [x] Identify Android 16 hardware: Galaxy S23+ SM-S916U.
 - [ ] Capture the S22+'s exact model variant and installed Android version.
-- [ ] Enable Developer options and USB debugging on each authorized test device,
-  connect with a data-capable cable, and approve this desktop's debugging prompt.
-  On Samsung, Developer options are normally unlocked by tapping Build number
-  seven times under Settings > About tablet/phone > Software information.
+- [ ] For ADB-based installation or device queries, enable Developer options and
+  USB debugging, connect with a data-capable cable, and approve this desktop's
+  debugging prompt. ADB is optional when transferring and installing the APK
+  manually. On Samsung, Developer options are normally unlocked by tapping Build
+  number seven times under Settings > About tablet/phone > Software information.
 - [ ] Once `adb` is available, query the device facts below and record a sanitized
   summary, not a raw device/identifier dump. Recheck after OS updates.
 - [ ] Confirm enough free internal storage for both active and staged snapshots,
@@ -132,8 +133,8 @@ No SDKs, dependencies, or system packages installed; no environment settings cha
 | Emulator acceleration | `/dev/kvm` exists and is readable/writable by this user; emulator acceleration itself not run |
 | Node / npm | Node 22.22.3 via existing nvm installation / npm 10.9.8 |
 | .NET SDK | 10.0.113 selected by repository |
-| Java / Android CLI tools | `java`, `adb`, `sdkmanager`, and `emulator` not on PATH |
-| Common install locations | No Android Studio under `/opt`, `/usr/local`, home, or checked Toolbox location; no SDK at `~/Android/Sdk` |
+| Java / Android CLI tools (rechecked 2026-11-10) | Android Studio Rabbit 2 2026.2.2 Patch 1 and Temurin JDK 21.0.13+9 installed under `~/opt`; SDK tools are under `~/Android/Sdk`; ADB 37.0.1 and Emulator 37.2.13 are available there |
+| Android SDK | `~/Android/Sdk` contains Platform 36/37, Build-Tools 35.0.0/36.0.0, Platform-Tools, Command-line Tools, Emulator, and an API 37 Google Play x86_64 image |
 | Environment | `JAVA_HOME`, `ANDROID_HOME`, and `ANDROID_SDK_ROOT` unset |
 
 This is enough capacity to proceed with local builds and an x86_64 emulator.
@@ -156,8 +157,8 @@ the lockfile during scaffolding; stop if the generated starter conflicts.
 | Capacitor core / CLI / Android | 8.5.3 for all three | Keep these aligned; tagged Android library uses Java 21 and SDK 36 |
 | SQLite candidate | `@capacitor-community/sqlite` 8.1.1 | Peer requires Capacitor >=8; tagged Android build uses Java 21, AGP 8.13.0, compile SDK 36 |
 | Filesystem (deferred) | `@capacitor/filesystem` 8.1.5 was inspected | Not needed for v1 photo caching; do not install solely for deferred images |
-| Java | JDK/JBR 21 | Required by Capacitor/SQLite Java source level even though AGP alone has a lower minimum; record exact bundled runtime when Studio is installed |
-| Android Studio | Stable Linux release >=2025.2.1 | Record exact installed build in Phase 2; use its compatible JBR rather than installing arbitrary system Java |
+| Java | JDK 21 | Required by Capacitor/SQLite Java source level. Android Studio Rabbit 2 currently bundles JBR 25, so Gradle must use the separately installed Temurin 21 at `~/opt/jdk-21.0.13+9` |
+| Android Studio | Android Studio Rabbit 2 2026.2.2 Patch 1 | Installed locally from the official Linux archive after matching its published SHA-256; set the Gradle JDK to Temurin 21 |
 | Android Gradle Plugin / wrapper | 8.13.0 / 8.14.3 | Tagged Capacitor library/template defaults; wrapper version is not the AGP version |
 | Minimum / compile / target SDK | 33 / 36 / 36 | Product floor Android 13; compile/target Android 16 |
 | SDK packages | Platform 36, Build-Tools 35.0.0, Platform-Tools, Command-line Tools; Emulator/image optional | Build-Tools 35.0.0 is AGP 8.13's default, independent of compile SDK 36; verify generated project requirements before installing extras |
@@ -173,7 +174,7 @@ Android-only SQLite proof.
 ### Phase 0 server and data reconnaissance
 
 - Maintainer confirms the full `release-mysql` branch is deployed at
-  `https://baileyfs02.baileysoft.lan/kiosk`. Development may use the development
+  `https://recipes.baileysoft.lan`. Development may use the development
   `Kiosk.Api` while new endpoints are added. The revised delivery sequence is
   API-first: test locally, approve and deploy the server changes, then target the
   live LAN API from the APK. The later text-only amendment removes photo
@@ -428,18 +429,19 @@ sufficient for subsequent offline-reader integration, not a domain-entity dump.
 
 - [ ] Complete the inventory first, then install only missing tools. Document
   Pop!_OS-specific packages/permissions actually needed, not speculative commands.
-- [ ] Record SDK/JDK paths. Set `ANDROID_HOME`, `JAVA_HOME`, and terminal PATH as
-  required; verify `node --version`, `npm --version`, `java -version`,
-  `adb version`, and later `./gradlew --version`.
-  Restart VS Code or its terminal after environment changes.
-- [ ] For emulation, verify BIOS virtualization and Linux KVM access, then create
-  one AVD. If unavailable, use a real device rather than blocking all progress.
-- [ ] Scaffold Ionic Angular into `Kiosk.Mobile/` using compatible versioned
+- [x] Record SDK/JDK paths and verify the terminal toolchain. For this workstation,
+  use `JAVA_HOME=~/opt/jdk-21.0.13+9` and `ANDROID_HOME=~/Android/Sdk`; the
+  command-line tools work when those paths are supplied to the process.
+- [x] Boot the existing `Medium_Phone_API_37.0` AVD. AVD install/launch is useful
+  smoke coverage, but does not replace the required Android 13+ hardware test.
+- [x] Scaffold Ionic Angular into `Kiosk.Mobile/` using compatible versioned
   tooling. Add Capacitor Android and set `minSdk` 33.
 - [ ] Commit the npm lockfile and native project source; configure focused ignore
   rules for Android local settings, outputs, signing material, and caches.
-- [ ] Build the starter web assets, synchronize Capacitor, assemble a debug APK,
-  install it, and open it on a physical device. Also test an emulator if available.
+- [x] Build the starter web assets, synchronize Capacitor, assemble a debug APK,
+  and install/launch it in the API 37 emulator.
+- [ ] Transfer and install the debug APK on available target hardware; use the
+  S23+ first while the Tab S7 FE is inaccessible. ADB is optional for install.
 - [ ] Follow the device-inventory setup checks above. Demonstrate the first
   install on the agreed primary tablet, then smoke-test that same APK on the
   other two tablets and both phones as they become available.
@@ -671,15 +673,40 @@ latest release as a tested project pin:
 | Planning | Complete | Text-only manifest scope and cached collection-revision UX approved 2026-10-22; prominent Sync only for updates/first use, quiet status/manual check otherwise; recipe transfers remain explicit |
 | Phase 0 | Ready for API-first work; integration gates open | Desktop inventory and compatible candidate pins recorded; S23+ Android 16 confirmed; app identity, orientation, primary tablet, photo scope, and API-first/live-integration sequence agreed. Device measurements, S22+ OS, approved server deployment, ingredient order, and final SQLite approval pending |
 | Phase 1 | Complete 2026-10-23 | Contract v1 (D-017, D-018) with 14 passing tests; deployed by maintainer; live status/manifest/body checks passed (477 recipes, 22 categories, 46.9 KB manifest in 0.065 s). Instructions are rich-text HTML; reader must sanitize and normalize `&nbsp;` |
-| Phase 2 (current) | Not started | No Android tool installation or starter build performed |
+| Phase 2 (current) | In progress | Starter debug APK builds and installs/launches in an API 37 emulator. Manual installation and acceptance on physical targets remain open; the S23+ is next |
 | Phases 3-7 | Not started | No mobile HTTPS, SQLite, synchronization, or APK acceptance claims |
 
 For each completed milestone, add a concise result here: date, commands, exact
 versions, device/Android version, debug or release variant, outcome, and remaining
 limitations. Keep credentials and private recipe contents out of this record.
 
-**Next step:** Phase 2: install the Android toolchain on the desktop, scaffold
-`Kiosk.Mobile/`, and install a starter debug APK on the Tab S7 FE (SM-T733).
-The live mobile API is available for Phase 3 TLS work. Photo indexing and
-synchronization remain deferred. No Android installation or APK build has been
-performed yet.
+**Phase 2 progress (2026-11-10):** Generated the separate `Kiosk.Mobile/`
+Ionic Angular app with Ionic CLI 7.2.1, Capacitor 8.5.3, Angular 22.2.3,
+TypeScript 6.0.3, and an npm lockfile. Set application ID
+`com.baileysoft.kiosk.mobile`, display name Kitchen Kiosk, and Android min/compile/
+target SDK 33/36/36. `npm run build` passed; `npx cap add android` generated the
+native project. `npm test -- --watch=false` passed (2 tests), and
+`npm audit --omit=dev` reported no production dependency advisories. npm reports
+19 findings in the full development dependency tree; review before release.
+Node 22.22.3/npm 10.9.8 and ADB 37.0.1 are available. Android Studio Rabbit 2
+2026.2.2 Patch 1 was installed under `~/opt/android-studio-2026.2.2.9` from the
+official archive after SHA-256 verification; its bundled runtime is Java 25.
+Temurin JDK 21.0.13+9 was installed under `~/opt/jdk-21.0.13+9` and verified.
+The SDK under `~/Android/Sdk` contains Platform 36/37, Build-Tools 35.0.0/36.0.0,
+Platform-Tools, Command-line Tools, Emulator 37.2.13, and the API 37 Google Play
+x86_64 image. With JDK 21 and SDK paths supplied to the process,
+`./gradlew assembleDebug` passed using Gradle 8.14.3; `apksigner verify` passed.
+The debug APK installed on `emulator-5554` (`Medium_Phone_API_37.0`), launched,
+and remained running (API 37). This is emulator smoke evidence, not physical
+device acceptance. The latest `adb devices -l` lists only the emulator; Linux
+`lsusb` does not enumerate the connected S23+ at this check.
+Android Studio's first-run completion and Gradle JDK selection remain unverified;
+the terminal build explicitly selected Temurin 21. Gradle emitted an SDK XML
+version 4 compatibility warning but completed successfully.
+See the [mobile setup guide](../Kiosk.Mobile/README.md).
+
+**Next step:** Transfer and manually install the debug APK on the S23+ (SM-S916U)
+and record its Android/device facts. ADB is optional for installation and remains
+useful for automated device queries. The Tab S7 FE remains the primary tablet
+acceptance device when available. The live mobile API is available for Phase 3
+TLS work. Photo indexing and synchronization remain deferred.
