@@ -1,7 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { AfterViewInit, Component, Injector, ViewChild, afterNextRender, computed, inject } from '@angular/core';
+import { IonContent } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { environment } from '../../environments/environment';
+import { RecipeLibrary } from '../core/recipe-library.service';
+import { recipeHtml, recipeText } from '../core/recipe-content';
 
 type TabId = 'home' | 'search' | 'categories' | 'authors';
 type SearchMode = 'title' | 'ingredient';
@@ -27,9 +30,11 @@ interface RecipePreview {
   summary: string;
   date: string;
   category: CategoryPreview;
+  categoryIds?: number[];
   author: AuthorPreview;
   ingredients: string[];
   instructions: string[];
+  instructionsHtml?: string;
   recommended: boolean;
 }
 
@@ -123,8 +128,37 @@ const PREVIEW_RECIPES: RecipePreview[] = [
   styleUrls: ['home.page.scss'],
   standalone: false,
 })
-export class HomePage {
-  readonly isPreview = !environment.production;
+export class HomePage implements AfterViewInit {
+  @ViewChild(IonContent) private content?: IonContent;
+  private readonly injector = inject(Injector);
+  private scrollElement?: HTMLElement;
+  private listScrollTop = 0;
+  readonly library = inject(RecipeLibrary);
+  readonly recentNotices = computed(() => {
+    const notices = this.library.notices();
+    return notices[0]?.text === this.library.message() ? notices.slice(1) : notices;
+  });
+  readonly serverStatus = computed(() => {
+    const library = this.library;
+    if (!library.ready()) {
+      return { state: 'pending', label: 'Loading' };
+    }
+    if (!library.configured()) {
+      return { state: 'offline', label: 'Not configured' };
+    }
+    if (library.busy()) {
+      return { state: 'pending', label: 'Checking' };
+    }
+    return library.reachable() ? { state: 'online', label: 'Online' } : { state: 'offline', label: 'Unavailable' };
+  });
+  readonly refreshLabel = computed(() => {
+    const blockedUntil = this.library.refreshBlockedUntil();
+    if (this.library.busy()) {
+      return 'Checking for recipe updates';
+    }
+    return blockedUntil === null ? 'Check for recipe updates' : `Refresh limit reached. Available again at ${this.formatTime(new Date(blockedUntil).toISOString())}`;
+  });
+  readonly isPreview = !environment.production && !this.library.native;
   readonly tabs: { id: TabId; label: string; icon: string }[] = [
     { id: 'home', label: 'Home', icon: 'home-outline' },
     { id: 'search', label: 'Search', icon: 'search-outline' },
@@ -132,9 +166,35 @@ export class HomePage {
     { id: 'authors', label: 'Authors', icon: 'people-outline' },
   ];
 
-  readonly recipes = environment.production ? [] : PREVIEW_RECIPES;
-  readonly categories = environment.production ? [] : PREVIEW_CATEGORIES;
-  readonly authors = environment.production ? [] : PREVIEW_AUTHORS;
+  private readonly readerData = computed(() => {
+    if (this.isPreview) {
+      return { recipes: PREVIEW_RECIPES, categories: PREVIEW_CATEGORIES, authors: PREVIEW_AUTHORS };
+    }
+    const snapshot = this.library.snapshot();
+    const categories: CategoryPreview[] = (snapshot?.categories ?? []).map(category => ({
+      ...category, icon: 'restaurant-outline', accent: '#f0885a',
+    }));
+    const categoryById = new Map(categories.map(category => [category.id, category]));
+    const authorById = new Map<string, AuthorPreview>();
+    const recipes: RecipePreview[] = (snapshot?.recipes ?? []).map(recipe => {
+      const name = recipe.author?.trim() || 'Unknown author';
+      const authorId = recipe.author == null ? 'missing-author' : `author:${recipe.author}`;
+      if (!authorById.has(authorId)) {
+        authorById.set(authorId, { id: authorId, name, initials: name.split(/\s+/).slice(0, 2).map(part => part[0]).join('').toLocaleUpperCase() });
+      }
+      return {
+        id: recipe.id, title: recipe.title, summary: recipeText(recipe.description), date: recipe.date,
+        category: categoryById.get(recipe.primaryCategoryId)!, categoryIds: recipe.categoryIds,
+        author: authorById.get(authorId)!, ingredients: recipe.ingredients,
+        instructions: [], instructionsHtml: recipeHtml(recipe.instructions), recommended: recipe.recommended,
+      };
+    });
+    return { recipes, categories, authors: [...authorById.values()].sort((left, right) => left.name.localeCompare(right.name)) };
+  });
+
+  get recipes(): RecipePreview[] { return this.readerData().recipes; }
+  get categories(): CategoryPreview[] { return this.readerData().categories; }
+  get authors(): AuthorPreview[] { return this.readerData().authors; }
 
   activeTab: TabId = 'home';
   searchMode: SearchMode = 'title';
@@ -146,15 +206,40 @@ export class HomePage {
   selectedAuthorId = 'all';
   recommendedOnly = false;
   detailRequested = false;
-  selectedRecipe: RecipePreview | undefined;
+  private selectedRecipeId: string | null = null;
+
+  get selectedRecipe(): RecipePreview | undefined {
+    return this.recipes.find(recipe => String(recipe.id) === this.selectedRecipeId);
+  }
 
   constructor() {
     const route = inject(ActivatedRoute);
     route.queryParamMap.pipe(takeUntilDestroyed()).subscribe(params => {
       const recipeId = params.get('recipe');
+      const wasDetail = this.detailRequested;
+      if (recipeId !== null && !wasDetail && this.scrollElement) {
+        this.listScrollTop = this.scrollElement.scrollTop;
+      }
       this.detailRequested = recipeId !== null;
-      this.selectedRecipe = this.recipes.find(recipe => String(recipe.id) === recipeId);
+      this.selectedRecipeId = recipeId;
+      if (this.detailRequested) {
+        this.scrollAfterRender(0);
+      } else if (wasDetail) {
+        this.scrollAfterRender(this.listScrollTop);
+      }
     });
+    if (this.library.native) {
+      void this.library.initialize();
+    }
+  }
+
+  async ngAfterViewInit(): Promise<void> {
+    this.scrollElement = await this.content?.getScrollElement();
+  }
+
+  /** The list and the recipe detail share one scroll area: open recipes at the top and return to the saved list position. */
+  private scrollAfterRender(top: number): void {
+    afterNextRender(() => void this.content?.scrollToPoint(0, top, 0), { injector: this.injector });
   }
 
   get homeRecipes(): RecipePreview[] {
@@ -170,7 +255,8 @@ export class HomePage {
       const matchesTerm = !term || (this.searchMode === 'title'
         ? recipe.title.toLocaleLowerCase().includes(term)
         : recipe.ingredients.some(ingredient => ingredient.toLocaleLowerCase().includes(term)));
-      const matchesCategory = !this.selectedCategoryId || recipe.category.id === this.selectedCategoryId;
+      const matchesCategory = !this.selectedCategoryId || recipe.category.id === this.selectedCategoryId
+        || !!recipe.categoryIds?.includes(this.selectedCategoryId);
       const matchesAuthor = this.selectedAuthorId === 'all' || recipe.author.id === this.selectedAuthorId;
       const matchesRecommendation = !this.recommendedOnly || recipe.recommended;
 
@@ -211,7 +297,7 @@ export class HomePage {
   }
 
   categoryCount(categoryId: number): number {
-    return this.recipes.filter(recipe => recipe.category.id === categoryId).length;
+    return this.recipes.filter(recipe => recipe.category.id === categoryId || recipe.categoryIds?.includes(categoryId)).length;
   }
 
   authorCount(authorId: string): number {
@@ -219,8 +305,12 @@ export class HomePage {
   }
 
   formatDate(date: string): string {
-    const [year, month, day] = date.split('-').map(Number);
+    const [year, month, day] = date.slice(0, 10).split('-').map(Number);
     return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(new Date(year, month - 1, day));
+  }
+
+  formatTime(timestamp: string): string {
+    return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(timestamp));
   }
 
   private sortRecipes(recipes: RecipePreview[], column: SortColumn, direction: SortDirection): RecipePreview[] {

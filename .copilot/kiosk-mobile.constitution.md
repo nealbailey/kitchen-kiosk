@@ -1,7 +1,7 @@
 # Kitchen-Kiosk Mobile Constitution
 
 **Status:** Project baseline for the first release  
-**Version:** 1.3; amended with maintainer approval on 2026-10-23
+**Version:** 1.4; amended with maintainer approval for automatic foreground sync
 **Product:** Kitchen-Kiosk Mobile  
 **Parent project:** [Kitchen-Kiosk](https://github.com/nealbailey/kitchen-kiosk)  
 **Primary deliverable:** An installable Android APK that provides a polished, offline, read-only recipe-book experience.
@@ -18,7 +18,7 @@ The first release is deliberately small in scope: it is a read-only recipe reade
 
 1. Deliver an attractive, simple, touch-friendly recipe experience on an Android tablet.
 2. Make all synchronized recipe content available offline.
-3. Provide one explicit **Synchronize** action to refresh the local recipe collection.
+3. Refresh the local recipe collection automatically when the app opens and the home server permits synchronization.
 4. Extend the existing Kitchen-Kiosk API with bounded, read-only mobile sync operations without NAS photo enumeration.
 5. Keep the mobile application separate from the existing web frontend and minimize disruption to the current product.
 6. Make synchronization resilient: a failed or interrupted refresh must not destroy the last known-good local recipe collection.
@@ -36,7 +36,7 @@ A family member searches recipes by title and/or filters by category or author u
 A family member opens a recipe and sees its available text details, ingredients, instructions, categories, author, and whether the family recommends it, in a legible tablet/phone layout. Lists show each recipe's author and recommended (thumbs-up) indicator so same-named recipes can be told apart without opening them.
 
 ### UC-04: Synchronize at the owner's home
-The user connects to the home LAN and opens the app. A lightweight authenticated check returns sync availability and a cached collection revision. Show the prominent **Synchronize** action only if the server allows sync and its revision differs from the device's last successfully committed revision. On first use, show **Download recipes** when available, even for an empty collection. When revisions match, hide the prominent action and provide a quiet status/manual-check entry. After the user taps it, fetch the manifest/categories and changed bodies, validate, and atomically commit. Losing connectivity preserves the previous collection.
+The user connects to the home LAN and opens the app. A lightweight authenticated check returns sync availability and a cached collection revision. When the server permits synchronization and the revision differs from the device's last committed revision, automatically fetch the manifest/categories and changed bodies, validate, and atomically commit. The first successful sync establishes a baseline even for an empty collection. Losing connectivity preserves the previous collection. Show truthful availability and sync status; a manual retry remains useful.
 
 ### UC-05: Recover from synchronization failure
 If the server is unavailable, a request fails, a download is incomplete, or the response is invalid, the app reports a clear failure and continues to show the previously synchronized dataset.
@@ -52,7 +52,7 @@ The user can see the last successful synchronization time and a useful summary o
 - Recipe search plus category and author filtering, implemented locally.
 - Recipe author username and the read-only recommended indicator (any family member has favorited the recipe), matching the web app's thumbs-up.
 - Recipe detail view, ingredients, and instructions.
-- Explicit, user-initiated manifest-based synchronization over the home LAN.
+- Automatic foreground manifest-based synchronization over the home LAN when updates are available.
 - Initial full recipe-body download; subsequent downloads include only new/changed bodies.
 - Removal of server-deleted recipes on successful sync and refresh of the category catalog.
 - Lightweight authenticated availability checks on open/resume and connectivity changes; visible unavailable/error status when sync cannot run.
@@ -66,7 +66,7 @@ The user can see the last successful synchronization time and a useful summary o
 - User accounts, login, profiles, or role management in the mobile app.
 - Creating, editing, deleting, or writing recipe data.
 - Marking or unmarking favorites, per-user favorite lists, ratings, comments, or other user-generated data. Storing user records beyond the author username.
-- Automatic/background recipe synchronization (lightweight availability checks are allowed).
+- Background recipe synchronization when the app is not active.
 - Remote synchronization from outside the owner's home LAN.
 - Direct connections from the mobile app to MySQL.
 - All photo display, photo metadata synchronization, thumbnail downloads/caching, and original-photo downloads.
@@ -122,7 +122,7 @@ The existing workstation has used Node.js 22 and npm 10.9.8; confirm compatibili
 ## 6. Architecture and Data Flow
 
 1. On open/resume and connectivity changes, a throttled authenticated check returns availability and cached collection revision; it never downloads the collection. Optional foreground-only periodic checks require a defined modest interval; no background polling or notifications.
-2. Only tapping Synchronize starts manifest and recipe-body transfers.
+2. While the app is active, an available changed revision starts a bounded manifest and recipe-body transfer automatically.
 3. Compare the complete manifest against locally committed revisions; fetch all bodies initially and only new/changed ones subsequently.
 4. Refresh categories and determine deletions from the complete authoritative manifest, never an incomplete page or failed response.
 5. Validate schema, completeness, references, and body revisions. Conflicting concurrent changes require safe retry/failure, not mixed-version activation.
@@ -134,7 +134,7 @@ The mobile app must never connect directly to MySQL. It must not expose write ac
 ## 7. Synchronization and Data Integrity Principles
 
 - **Manifest-based refresh:** Transfer a complete lightweight inventory, but only changed recipe bodies; no date-only high-water mark.
-- **Explicit action:** Synchronization occurs only after the user taps the button.
+- **Foreground automation:** Synchronize available updates automatically while the app is active; never require connectivity for local reading.
 - **Validate before activation:** Verify responses, schema, complete manifest, categories, required fields, body revisions, and relationship integrity before applying changes.
 - **Preserve last-known-good data:** Failed or interrupted synchronization must not leave the app with a partially replaced recipe collection.
 - **Atomic activation:** Stage/validate changes, then transactionally apply upserts, deletions, categories, revisions, and last-success metadata. Partial refreshes must not become visible.
@@ -191,7 +191,7 @@ The first release is acceptable when:
 ## 11. Project Governance
 
 This constitution defines the stable product intent and architectural guardrails:
-offline-first, read-only, home-LAN availability, explicit manifest-based text
+offline-first, read-only, home-LAN availability, automatic foreground manifest-based text
 synchronization, and safe transactional refreshes. Photo support is deferred.
 
 The [specification](kiosk-mobile.spec.md) retains feature/acceptance checklists;
@@ -205,6 +205,7 @@ and verified behavior change.
 | 1.1 | 2026-10-22 | Maintainer explicitly approved text-only v1, full ID/revision manifest with changed-body transfers, deletion reconciliation, and lightweight authenticated availability checks. Supersedes full-body/photo snapshot scope and the prohibition on incremental recipe transfers. No implementation claimed. |
 | 1.2 | 2026-10-22 | Maintainer approved cached collection-revision checks: prominent Sync only for available updates/first download, quiet status/manual checks otherwise; persist revision only with successful data commit. Phase 1 must define invalidation/rebuild and external-write refresh behavior. |
 | 1.3 | 2026-10-23 | Maintainer required author username display/filtering and the read-only recommended (any-user favorite) indicator. Favorite editing, per-user favorites, and other user data remain excluded. |
+| 1.4 | Recorded 2026-11-12 | Maintainer requested automatic synchronization on app open when the home server is available; supersedes the manual-only transfer rule. Exact approval date not recorded. No background sync is implied. |
 
 ## 12. Repository and Verification Notes
 

@@ -1,6 +1,6 @@
 # Kitchen-Kiosk Mobile: Phased Development Plan
 
-- **Status:** Agreed scope and layout; implementation not started.
+- **Status:** Implementation in progress; first live sync verified on the API 37 emulator (2026-11-12).
 - **Created:** 2026-10-22.
 - **Deliverable:** A signed, sideloadable Android APK for an offline recipe reader.
 - **Product rules:** [Mobile constitution](kiosk-mobile.constitution.md).
@@ -30,18 +30,22 @@ Confirmed with the maintainer on 2026-10-22:
 | API base | `https://recipes.baileysoft.lan/api` |
 | Certificate prerequisite | Baileysoft LAN CA must already be installed on each device |
 | Distribution | Signed APK, installed directly; no Play Store or paid cloud build service required |
-| Scope | Read-only, no login/accounts or writes; explicit manifest-based sync; offline browsing |
+| Scope | Read-only, no login/accounts or writes; automatic foreground manifest-based sync; offline browsing |
 | Transfers | Complete lightweight ID/revision manifest and category catalog each sync; only new/changed recipe bodies; remove server-deleted recipes after successful sync |
-| Availability | Throttled authenticated cached collection-revision checks on open/resume/connectivity changes; prominent Sync only for updates/first download when server permits; quiet status/manual check otherwise; never automatic recipe sync |
+| Availability | Throttled authenticated cached collection-revision checks on open/resume/connectivity changes; automatically synchronize available changes in the foreground; no background polling |
 | Photos | All photo display/download/cache deferred from v1; photo indexing is separate future work |
 | API-first delivery | Implement/test new endpoints in development `Kiosk.Api`, approve/deploy compatible release, then integrate APK against live text data; no photo dependency |
 | Sync API contract | Version 1 approved and implemented locally (D-017): shared key header plus server switch, alphabetical ingredients, API-write invalidation only, single API process, about 500 recipes, 100-id batches |
+| Mobile key supply | Maintainer-confirmed 2026-11-12 (D-020): embed the limited-scope shared key in the APK at build time from Git-ignored `Kiosk.Mobile/src/assets/mobile-connection.json`. After server-side revocation, restoring sync requires a rebuilt APK; an in-app prompt for a replacement key is deferred to a later phase |
+| Status notifications | Maintainer-requested 2026-11-12: sync/status messages move off Home into a header notification bell next to the server chip. The bell always shows the latest message; a **!** indicator appears only for completed syncs and errors, never for merely going online/offline. Later the same day the server status chip was removed from the header; its state is now the first line of the bell panel |
+| Orientation (first release) | Maintainer-requested 2026-11-12: lock the app to portrait with `android:screenOrientation="portrait"`. This supersedes the spec's both-orientations, landscape-first tablet goal for the first release; landscape is deferred. Android 16+ ignores the lock on screens 600 dp and wider for apps targeting SDK 36, but the current tablets run Android 13–14 |
+| Manual refresh | Maintainer-requested 2026-11-12: a refresh button just left of the bell, shown only while the server is online, triggers a sync. Limited to 5 manual attempts per rolling 30 minutes to protect the server; automatic checks are not counted |
 
 **Still to confirm before the relevant phase:** S22+ model variant/installed OS,
 device display/WebView/ABI/storage measurements, approved server deployment
 artifact/runtime and rollback procedure, exact installed Android Studio/JBR patch,
-how the mobile key is supplied to builds, and final
-SQLite plugin approval. Android 13+ is a support target,
+and final SQLite plugin approval. (How the mobile key is supplied was decided on
+2026-11-12; see *Mobile key supply* above.) Android 13+ is a support target,
 not a claim that untested future
 Android versions already work.
 
@@ -495,8 +499,8 @@ dependency/SDK downloads need internet; offline app use does not.
   enabled server; first use shows Download recipes, including an empty collection.
   Equal revisions hide prominent Sync. Keep quiet status/Check for updates and
   explicit failure/retry feedback; report unavailable, unauthorized, disabled,
-  rate-limited, or pending revisions without repeated alerts. No recipe download
-  without tapping Sync; browsing remains local. Optional foreground-only periodic
+  rate-limited, or pending revisions without repeated alerts. Automatically sync
+  available updates while active; browsing remains local. Optional foreground-only periodic
   checks need a defined modest interval; no background polling or notifications.
 - [ ] Test stale availability and connection loss after tapping Sync/after leaving
   the LAN. Revalidate on tap and preserve data on failure. Reachability is not
@@ -529,7 +533,7 @@ No production API deployment changes occur without approval.
   resources), and convert `&nbsp;`/U+00A0 to normal spaces so long lines wrap
   on phones.
 - [ ] Provide first-launch/no-data, no-results, database-error,
-  syncing, and sync-failure states. Never trigger automatic synchronization.
+  syncing, and sync-failure states. Automatic synchronization is foreground-only.
 - [ ] Make layouts readable in landscape, usable on phone-sized screens, and
   safe under rotation, font scaling, system bars, and Android Back navigation.
 - [ ] Prevent remote image, CSS, or instruction resources from making implicit
@@ -541,7 +545,7 @@ after an offline restart; reading requires no API or photo requests.
 
 ### Phase 5 - Implement transactional manifest-based synchronization
 
-**Goal:** Explicit refresh that cannot destroy the last good collection.
+**Goal:** Automatic foreground refresh that cannot destroy the last good collection.
 
 - [ ] Add one Synchronize action, overlap prevention, progress, timeouts,
   actionable errors, last attempt, last success, and active recipe count.
@@ -670,11 +674,12 @@ latest release as a tested project pin:
 
 | Milestone | Status | Evidence / next step |
 | --- | --- | --- |
-| Planning | Complete | Text-only manifest scope and cached collection-revision UX approved 2026-10-22; prominent Sync only for updates/first use, quiet status/manual check otherwise; recipe transfers remain explicit |
+| Planning | Revised | Text-only manifest scope retained; maintainer requested automatic synchronization on app open, replacing manual-only transfers |
 | Phase 0 | Ready for API-first work; integration gates open | Desktop inventory and compatible candidate pins recorded; S23+ Android 16 confirmed; app identity, orientation, primary tablet, photo scope, and API-first/live-integration sequence agreed. Device measurements, S22+ OS, approved server deployment, ingredient order, and final SQLite approval pending |
 | Phase 1 | Complete 2026-10-23 | Contract v1 (D-017, D-018) with 14 passing tests; deployed by maintainer; live status/manifest/body checks passed (477 recipes, 22 categories, 46.9 KB manifest in 0.065 s). Instructions are rich-text HTML; reader must sanitize and normalize `&nbsp;` |
 | Phase 2 (current) | In progress | Starter debug APK builds and installs/launches in an API 37 emulator. Manual installation and acceptance on physical targets remain open; the S23+ is next |
-| Phases 3-7 | Not started | No mobile HTTPS, SQLite, synchronization, or APK acceptance claims |
+| Phases 3-5 | In progress; emulator milestone reached 2026-11-12 | Native HTTP, SQLite snapshot storage, validation, foreground sync coordinator, and reader integration implemented. Live authenticated first sync (478 recipes), no-change recheck, offline relaunch, and fail-closed TLS without the CA verified on the API 37 emulator (debug). Physical devices, signed release, reboot, and failure injection remain open |
+| Phases 6-7 | Not started | Device acceptance and signed release remain pending |
 
 For each completed milestone, add a concise result here: date, commands, exact
 versions, device/Android version, debug or release variant, outcome, and remaining
@@ -705,8 +710,141 @@ the terminal build explicitly selected Temurin 21. Gradle emitted an SDK XML
 version 4 compatibility warning but completed successfully.
 See the [mobile setup guide](../Kiosk.Mobile/README.md).
 
-**Next step:** Transfer and manually install the debug APK on the S23+ (SM-S916U)
-and record its Android/device facts. ADB is optional for installation and remains
-useful for automated device queries. The Tab S7 FE remains the primary tablet
-acceptance device when available. The live mobile API is available for Phase 3
-TLS work. Photo indexing and synchronization remain deferred.
+**Sync progress (2026-11-12):** Native HTTP and an unencrypted SQLite snapshot
+store have been wired to the reader. A foreground coordinator checks status and
+downloads changed bodies automatically, validates before committing, and keeps
+the previous snapshot on failure. Browser development uses synthetic fixtures;
+Android never substitutes fixtures for missing data. `GOMAXPROCS=2
+NG_BUILD_MAX_WORKERS=1 npm test -- --watch=false` passed 34 tests; `npm run lint`
+passed. The API 37 debug APK built and launched, and the emulator created
+`kiosk_recipesSQLite.db`; it displayed the unconfigured state. This proves
+database initialization only, not a successful write, persistence, TLS trust,
+or real-data synchronization. The connection file and mobile key were absent.
+The SQLite plugin packages SQLCipher; native compatibility and its export notice
+still require review before release. No physical-device acceptance is claimed.
+
+**First live sync on the emulator (2026-11-12):** The maintainer provisioned the
+limited-scope key. It was first saved at the `Kiosk.Mobile/` root, which is
+neither packaged nor ignored. It was moved to the ignored
+`src/assets/mobile-connection.json`, and `/mobile-connection.json` was added to
+`Kiosk.Mobile/.gitignore` as a safeguard. The key
+was validated with an authenticated host `GET /api/mobile/status` (HTTP 200,
+contract 1, sync enabled, 478 recipes, 22 categories). It was never printed.
+The VS Code *Build Preview APK* steps rebuilt the debug APK, and the packaged
+`assets/public/assets/mobile-connection.json` was confirmed. The APK was installed on `emulator-5554`
+(`Medium_Phone_API_37.0`, API 37). Observed results:
+
+| Check | Result |
+| --- | --- |
+| Launch without LAN CA | Native `CapacitorHttp` status request failed closed: `SSLHandshakeException: Trust anchor for certification path not found`; empty shelf kept |
+| Install CA | Public `BaileySoft LAN CA` (expires 2036) installed via Settings as a user CA; listed under *Trusted credentials > User* |
+| First sync on relaunch | Status, manifest, five `POST /recipes` batches (100-id maximum), one SQLite snapshot write, post-commit status recheck. UI: "478 added, 0 updated, 0 removed", *Server online* |
+| Force-stop, relaunch online | Only one status request; no manifest or bodies (equal revision) |
+| Force-stop, relaunch in airplane mode | Recipes rendered from SQLite; *Unavailable* badge and sync-failure note; last saved data retained |
+| Recipe detail | Author, recommended flag, ingredients, and sanitized ordered instructions rendered |
+
+This is emulator debug-build evidence through the real native request stack.
+It is not physical-device acceptance, signed-release, reboot, or Android 13/14/16
+evidence. No code changed in this step. Unit tests were not rerun.
+
+**Outstanding issues (2026-11-12):**
+
+- Debug builds log full `CapacitorHttp` request data (including the
+  `X-Kiosk-Mobile-Key` header) to logcat. Capacitor's default logging behavior
+  should suppress this in release builds; verify before Phase 7 and consider
+  `loggingBehavior: 'none'` if it does not.
+- An automatic check that fails offline shows "Synchronization failed. Check LAN
+  access and certificate trust…". The constitution asks for quiet unavailable
+  status without alerts unless the user started the sync. Review the wording
+  and prominence during Phase 3/6 UX acceptance. *Resolved later the same day by
+  the notification bell; see below.*
+- Key revocation currently strands installed apps on their last-good data until
+  a rebuilt APK is installed. The in-app replacement-key prompt is deferred to a
+  later phase (D-020) and is not part of v1 acceptance.
+- Still pending: physical devices (S23+ next, Tab S7 FE primary), signed
+  release trust, reboot persistence, invalid-hostname/disabled/rate-limited
+  cases, interrupted-transfer/process-death preservation, deletion and
+  changed-body incremental syncs against live edits, SQLCipher export notice,
+  and committing the mobile project and lockfile.
+
+**Notification bell (2026-11-12):** At the maintainer's request, the Home-page
+status line was removed. All sync and status messages now appear in a bell
+popover next to the server chip. `MobileApi` now classifies native transport
+failures. Certificate/SSL errors become `tls_failed`, which is reported as an
+error. Every other connection failure becomes `unreachable`, which is quiet, like
+going offline. `RecipeLibrary` keeps the current message with its time, plus an
+in-memory notice list (20 entries) and an `unread` flag. Only completed syncs and
+errors set the flag; an identical repeat does not set it again. `npm test --
+--watch=false` passed 40 tests (6 new), and `npm run lint` passed. On the API 37
+emulator (debug):
+
+| Check | Result |
+| --- | --- |
+| Relaunch, unchanged revision | No status text on Home; bell without indicator; panel shows *Recipes are up to date.* with time |
+| Cleared app data, relaunch (first sync) | Bell shows **!**; panel shows "Recipes synchronized: 478 added, 0 updated, 0 removed."; indicator clears on open |
+| Airplane mode while running, then relaunch offline | *Unavailable* chip, no indicator; panel shows "Home server not reachable. Downloaded recipes are still available." |
+| Airplane mode off | Connectivity listener rechecked automatically; *Server online*, *Recipes are up to date.*, no indicator |
+
+An inline `ion-popover` is moved to the app root, so the page theme variables
+were also applied to `.notification-popover`. The `tls_failed` path is covered
+by unit tests only; it was not repeated on the emulator.
+
+**Outstanding (notifications):** Activity history is not persisted, so after a
+restart only the current status is shown.
+
+**Manual refresh (2026-11-12):** This closes the missing *Check for updates* gap.
+`RecipeLibrary.refreshNow()` skips the automatic 30-second throttle. It is
+capped at 5 attempts per rolling 30 minutes (`MANUAL_REFRESH_LIMIT`,
+`MANUAL_REFRESH_WINDOW_MS`). Attempt times are persisted to `localStorage`, with
+an in-memory fallback. A server `Retry-After` is now tracked separately, so
+manual refreshes honor it too. Taps during a running check reuse that check and
+are not counted. Hitting the limit records an error notice with the next
+available time. `npm test -- --watch=false` passed 44 tests (4 new), and
+`npm run lint` passed. On the API 37 emulator, the button appears between
+*Server online* and the bell. Six taps about 3 s apart produced exactly 5
+`/api/mobile/status` requests. The 6th tap dimmed the button, showed **!**, and
+put "Manual refresh is limited to 5 times every 30 minutes. Try again after
+10:40 AM." in the bell. After a force-stop and relaunch, the automatic launch
+check ran and a manual tap was still blocked. Not yet observed on the device:
+the button re-enabling when the window expires (unit-tested only) and its
+behavior on the tablet layout. Remaining limitation: the cap applies only to
+the button. Relaunching the app still triggers the normal automatic check;
+server-side rate limiting remains the real protection.
+
+**Header cleanup (2026-11-12):** At the maintainer's request, the server status
+chip was removed. The bell panel now opens with "Home server: <state>", shown
+with a green, amber, or red dot. The bell's aria-label carries the state, and
+the refresh button sits just left of the bell. Tests (44) and lint passed. On
+the emulator, the header shows only the brand, refresh, and bell. The online
+panel showed "Home server: Online" with "Recipes are up to date.". In airplane
+mode, the refresh button was hidden and the panel showed "Home server:
+Unavailable" with the offline message. Earlier evidence in this section that
+mentions the *Server online* chip predates this change. Follow-up: the label
+now shows the configured API host name (`MobileApi.serverName()` reads the
+hostname from `apiBase`). The line was then reordered to dot, state, then
+host; the emulator panel shows "● Online: recipes.baileysoft.lan"; when the build is not configured, the label falls back to *Home server*.
+
+**Portrait lock (2026-11-12):** The lock was added to `MainActivity`. On the
+API 37 emulator with auto-rotate off and `user_rotation=1` (landscape), the
+display stayed at `ROTATION_0` (1080x2400) and the app stayed portrait. Not yet
+checked on the S23+ or the tablets. The Tab S7 FE (the primary tablet) will now
+run in portrait.
+
+**Launcher icon (2026-11-12):** At the maintainer's request, the stock
+Capacitor icon was replaced with a cooking icon. It is an adaptive vector: a
+white fork and knife (Ionicons `restaurant` glyph, MIT, matching the in-app
+brand mark) on `#B94A1D`, with a monochrome layer for themed icons. The legacy
+PNGs were regenerated, and the unreferenced `ic_launcher_foreground.png` files
+were removed. The emulator app drawer shows the new icon. Follow-up the same
+day: the stock Capacitor splash (blue "X" PNGs) was replaced. The new splash is
+a `drawable/splash.xml` layer list (orange plus the fork-and-knife vector),
+plus the Android 12+ splash attributes on the launch theme. A screen recording
+of a cold launch on the emulator showed the orange fork-and-knife splash, then
+the app, with no stock artwork. The same recording showed a pre-existing
+"Your shelf is empty" flash for about 0.5 s while the SQLite snapshot loads;
+it is not addressed yet.
+
+**Next step:** Install the debug APK with the embedded key on the S23+ (CA
+preinstalled), repeat the first-sync/offline checks, then exercise an
+incremental sync by editing or favoriting one recipe on the server. The Tab S7 FE
+remains the primary tablet acceptance device. Photo work remains deferred.

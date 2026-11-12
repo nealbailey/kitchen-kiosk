@@ -3,8 +3,8 @@
 ## Document status and evidence
 
 - **Status:** Current implementation baseline, with limitations called out below.
-- **Version:** 1.4.
-- **Last reviewed:** 2026-10-22.
+- **Version:** 1.5.
+- **Last reviewed:** 2026-11-12.
 - **Governance:** [Project constitution](constitution.md).
 - **Baseline:** Git HEAD `36fe1e9` plus the local .NET 10 migration and documentation
   changes from the 2026-10-22 working session. These changes were not committed
@@ -151,6 +151,10 @@ Do not upgrade EF or its Identity stores independently of provider compatibility
   need a service restart. Global
   rate/concurrency limits apply. No photo or NAS access.
 - Details: [mobile sync API guide](../Kiosk.Api/README.md#mobile-sync-apimobile).
+- The Kitchen Kiosk Mobile client first synchronized against this deployment
+  on 2026-11-12 (API 37 emulator, debug build): 478 recipes, 22 categories. Its
+  shared key is embedded in the APK (D-020). Device acceptance is pending; see
+  the [mobile plan](kiosk-mobile.plan.md#7-progress-and-evidence).
 
 ## 5. Hosting and configuration
 
@@ -341,6 +345,8 @@ not independent runtime verification or evidence that an old defect stays fixed.
 | D-016 | 2026-10-22 | Maintainer-approved sync UX refinement; implementation pending | Lightweight authenticated status returns cached collection revision; prominent Sync only for enabled/compatible available updates or first download, hidden when revisions match, with quiet status/manual checking otherwise. Commit the manifest collection revision only with successfully synchronized data; preserve revision/error feedback on failure. Phase 1 must cover write invalidation, coalesced rebuilds, direct database refresh and cache lifecycle, without per-check full scans. See [mobile constitution](kiosk-mobile.constitution.md), [specification](kiosk-mobile.spec.md), and [plan](kiosk-mobile.plan.md). |
 | D-017 | 2026-10-22 | Maintainer-approved Phase 1 contract; deployed and smoke-tested 2026-10-23 | Shared key in `X-Kiosk-Mobile-Key` plus `MobileSync__Enabled` switch, fail-closed, global rate/concurrency limits; ingredients ordered case-insensitive alphabetically; manifest cache invalidated by API writes only (direct MySQL edits need restart); single API process assumed; ~500 production recipes, 100-id body batches. SHA-256 content revisions; client validates body revisions against the manifest and restarts on mismatch. See [API guide](../Kiosk.Api/README.md#mobile-sync-apimobile) and [plan](kiosk-mobile.plan.md). |
 | D-018 | 2026-10-23 | Maintainer-required contract addition; deployed and smoke-tested 2026-10-23 | Recipe bodies include `author` (owner username only) and `recommended` (any user has favorited, matching the web thumbs-up), both covered by the recipe revision. Favorite add/remove and user delete (cascades favorites) invalidate the manifest. Mobile shows author/recommended and filters by author locally; marking favorites and other user data remain excluded. Contract stays version 1 because it was amended before its first deployment. Constitution amended to 1.3. |
+| D-019 | Recorded 2026-11-12 | Maintainer-approved mobile sync change; emulator-verified 2026-11-12 | Automatically sync available changes when the app opens on the home network, superseding the manual-only portions of D-015 and D-016. The local coordinator also checks on foreground resume and connectivity restoration. Automatic first sync, no-change recheck, and offline relaunch observed on the API 37 emulator; physical-device and release acceptance remain unverified. See the [mobile plan](kiosk-mobile.plan.md). |
+| D-020 | 2026-11-12 | Maintainer-confirmed; implemented and emulator-verified | Embed the limited-scope `MobileSync__ApiKey` value in the APK at build time from Git-ignored `Kiosk.Mobile/src/assets/mobile-connection.json`. The key is extractable and is not app attestation. If an administrator revokes or rotates it, devices keep last-good data and need a rebuilt APK. An in-app replacement-key prompt is deferred to a later phase. No administrator, JWT, or database secret is embedded. See the [mobile README](../Kiosk.Mobile/README.md#android-sync-configuration) and [mobile specification](kiosk-mobile.spec.md). |
 
 ## 9. Validation record and known gaps
 
@@ -391,6 +397,9 @@ Known limitations and follow-up candidates, not approved implementation tasks:
 - The maintainer reports an existing production deployment from `release-mysql`.
   Its exact deployed commit, runtime, deployment method, and operational checks
   remain unrecorded; do not equate the local .NET 10 baseline with that deployment.
+- Mobile debug builds log Capacitor HTTP request headers, including the mobile
+  sync key, to Android logcat. Release-build behavior is unverified (tracked in
+  the [mobile plan](kiosk-mobile.plan.md#7-progress-and-evidence)).
 
 ## 10. Supporting documents and future intake
 
@@ -403,8 +412,9 @@ Known limitations and follow-up candidates, not approved implementation tasks:
 | [Docker quickstart](../quickstart.md) | Container operations and acceptance checks |
 | [Copilot instructions](../.github/copilot-instructions.md) | Startup reading guidance for supported clients |
 | [Mobile constitution](kiosk-mobile.constitution.md) | First-release companion-app product boundaries; not implemented functionality |
-| [Mobile specification](kiosk-mobile.spec.md) | Mobile feature/acceptance checklist; implementation pending |
-| [Mobile execution plan](kiosk-mobile.plan.md) | Phased Pop!_OS/VS Code setup, confirmed Android 13+ scope and LAN decisions, build/release gates; no APK verification yet |
+| [Mobile specification](kiosk-mobile.spec.md) | Mobile feature/acceptance checklist; implementation in progress |
+| [Mobile execution plan](kiosk-mobile.plan.md) | Phased Pop!_OS/VS Code setup, confirmed Android 13+ scope and LAN decisions, build/release gates, progress evidence (emulator sync verified; device acceptance pending) |
+| [Mobile README](../Kiosk.Mobile/README.md) | Mobile build, key provisioning, emulator CA setup, and current implementation status |
 | [Repository branches](https://github.com/nealbailey/kitchen-kiosk/branches) | Historical branch context; reviewed refs and migration milestones are recorded in section 8 |
 
 Mobile notes were reviewed for planning on 2026-10-22; their proposed endpoint and
@@ -421,3 +431,4 @@ and incorporate accepted changes using the constitution's intake process.
 | 1.2 | 2026-10-22 | Indexed reviewed mobile product notes and the phased execution plan; kept planned mobile functionality distinct from the implemented baseline. |
 | 1.3 | 2026-10-22 | Recorded the locally implemented, undeployed mobile text-sync endpoints, settings, and decision D-017. |
 | 1.4 | 2026-10-23 | Added mobile author/recommended fields (D-018) and corrected `release-mysql` to .NET 10 self-contained. |
+| 1.5 | 2026-11-12 | Recorded APK-embedded mobile key with deferred re-key prompt (D-020), first live emulator sync (D-019 status), and the debug-log key exposure gap. Mobile server state and status messages moved into a header notification bell, plus a manual refresh button limited to 5 attempts per 30 minutes; the first mobile release is locked to portrait and uses a fork-and-knife launcher icon and matching splash (details in the [mobile plan](kiosk-mobile.plan.md#7-progress-and-evidence)). |

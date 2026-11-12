@@ -7,6 +7,36 @@
       <span>Kitchen Kiosk</span>
     </button>
     <span *ngIf="isPreview" class="preview-badge" slot="end"><span></span>Preview set</span>
+    <div *ngIf="library.native" class="header-status" slot="end">
+      <button *ngIf="library.reachable()" type="button" class="header-icon-button refresh-button" [class.refreshing]="library.busy()" [class.limited]="library.refreshBlockedUntil() !== null" [disabled]="library.busy()" [attr.aria-disabled]="library.refreshBlockedUntil() !== null" [attr.aria-label]="refreshLabel()" (click)="library.refreshNow()">
+        <ion-icon name="refresh-outline" aria-hidden="true"></ion-icon>
+      </button>
+      <button id="notification-bell" type="button" class="header-icon-button notification-bell" [attr.aria-label]="'Notifications. ' + library.serverName() + ' ' + serverStatus().label.toLowerCase() + (library.unread() ? '. New messages' : '')">
+        <ion-icon name="notifications-outline" aria-hidden="true"></ion-icon>
+        <span *ngIf="library.unread()" class="notification-alert" aria-hidden="true">!</span>
+      </button>
+      <ion-popover trigger="notification-bell" triggerAction="click" side="bottom" alignment="end" class="notification-popover" (willPresent)="library.markRead()">
+        <ng-template>
+          <div class="notification-panel">
+            <p class="server-state" [attr.data-state]="serverStatus().state"><span class="server-dot" aria-hidden="true"></span><strong>{{ serverStatus().label }}:</strong><span class="server-name">{{ library.serverName() }}</span></p>
+            <section aria-labelledby="notification-current">
+              <h2 id="notification-current">Current status</h2>
+              <p class="notification-text" role="status">{{ library.message() }}</p>
+              <time *ngIf="library.messageTime() as time">{{ formatTime(time) }}</time>
+            </section>
+            <section *ngIf="recentNotices().length" aria-labelledby="notification-recent">
+              <h2 id="notification-recent">Recent activity</h2>
+              <ul class="notification-list">
+                <li *ngFor="let notice of recentNotices()" [class.notice-error]="notice.kind === 'error'">
+                  <ion-icon [name]="notice.kind === 'error' ? 'alert-circle-outline' : 'checkmark-circle-outline'" aria-hidden="true"></ion-icon>
+                  <div><p class="notification-text">{{ notice.text }}</p><time>{{ formatTime(notice.time) }}</time></div>
+                </li>
+              </ul>
+            </section>
+          </div>
+        </ng-template>
+      </ion-popover>
+    </div>
   </ion-toolbar>
 </ion-header>
 
@@ -20,10 +50,10 @@
       <p class="detail-summary">{{ recipe.summary }}</p>
       <div class="detail-columns">
         <section aria-labelledby="ingredients-title"><h2 id="ingredients-title"><ion-icon name="cart-outline" aria-hidden="true"></ion-icon>Ingredients</h2><ul class="ingredient-list"><li *ngFor="let ingredient of recipe.ingredients">{{ ingredient }}</li></ul></section>
-        <section aria-labelledby="instructions-title"><h2 id="instructions-title"><ion-icon name="reader-outline" aria-hidden="true"></ion-icon>Instructions</h2><ol class="instruction-list"><li *ngFor="let step of recipe.instructions">{{ step }}</li></ol></section>
+        <section aria-labelledby="instructions-title"><h2 id="instructions-title"><ion-icon name="reader-outline" aria-hidden="true"></ion-icon>Instructions</h2><div *ngIf="recipe.instructionsHtml !== undefined; else previewInstructions" class="recipe-instructions" [innerHTML]="recipe.instructionsHtml"></div><ng-template #previewInstructions><ol class="instruction-list"><li *ngFor="let step of recipe.instructions">{{ step }}</li></ol></ng-template></section>
       </div>
     </article>
-    <ng-template #missingRecipe><div class="empty-state"><ion-icon name="book-outline"></ion-icon><h1>Recipe not found</h1><a routerLink="/home" [queryParams]="{recipe: null}" queryParamsHandling="merge">Back to recipes</a></div></ng-template>
+    <ng-template #missingRecipe><div class="empty-state"><ion-icon name="book-outline"></ion-icon><h1>{{ library.native && !library.ready() ? 'Loading recipes' : 'Recipe not found' }}</h1><a routerLink="/home" [queryParams]="{recipe: null}" queryParamsHandling="merge">Back to recipes</a></div></ng-template>
   </main>
   <main [hidden]="detailRequested" class="content-frame" [ngSwitch]="activeTab">
     <section *ngSwitchCase="'home'" aria-label="Home">

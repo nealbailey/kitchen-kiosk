@@ -372,3 +372,6 @@ kiosk.tar.gz
 
 # Temporary device reference photos; sanitized inventory is in the mobile plan
 /.copilot/tablets/
+
+# Api key for mobile connection
+.Kiosk.Mobile/mobile-connection.json

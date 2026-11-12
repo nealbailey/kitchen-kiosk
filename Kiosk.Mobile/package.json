@@ -21,12 +21,17 @@
     "@angular/platform-browser": "22.2.3",
     "@angular/platform-browser-dynamic": "22.2.3",
     "@angular/router": "22.2.3",
+    "@capacitor-community/sqlite": "8.1.1",
     "@capacitor/android": "8.5.3",
+    "@capacitor/app": "8.1.2",
     "@capacitor/core": "8.5.3",
+    "@capacitor/network": "8.0.1",
     "@ionic/angular": "9.0.9",
+    "dompurify": "3.4.17",
     "ionicons": "8.1.0",
     "rxjs": "7.8.2",
-    "tslib": "2.9.1"
+    "tslib": "2.9.1",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@angular/build": "22.2.4",

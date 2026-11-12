@@ -1,8 +1,9 @@
 # Kitchen-Kiosk Mobile Specification
 
-- **Status:** Approved v1 scope; implementation pending.
-- **Last revised:** 2026-10-22.
-- **Product rules:** [Mobile constitution](kiosk-mobile.constitution.md), version 1.3.
+- **Status:** Approved v1 scope; implementation in progress (first live sync
+  verified on the API 37 emulator 2026-11-12; device acceptance pending).
+- **Last revised:** 2026-11-12.
+- **Product rules:** [Mobile constitution](kiosk-mobile.constitution.md), version 1.4.
 - **Execution guide:** [Phased development plan](kiosk-mobile.plan.md).
 - **Parent context:** [Application specification](app.spec.md).
 
@@ -23,10 +24,10 @@ or APK is implemented merely because it is specified here.
   from the device's committed revision. Equal revisions hide the prominent action.
 - [ ] Before the first successful sync, show Download recipes when available;
   retain a quiet status/Check for updates entry and clear user-initiated failure/retry feedback.
-- [ ] Open/resume and connectivity changes trigger bounded availability checks,
-  not automatic recipe synchronization; checks have timeouts and do not overlap.
-- [ ] The first explicit sync downloads the manifest, categories, and all recipe bodies.
-- [ ] Later explicit syncs download the complete lightweight ID/revision manifest
+- [ ] Open/resume and connectivity changes trigger bounded availability checks
+  and automatic foreground synchronization for available changes; checks have timeouts and do not overlap.
+- [ ] The first sync downloads the manifest, categories, and all recipe bodies.
+- [ ] Later syncs download the complete lightweight ID/revision manifest
   and categories, but only new/changed recipe bodies.
 - [ ] Successful sync removes local recipes absent from the complete authoritative manifest.
 - [ ] Failed, interrupted, invalid, or concurrently inconsistent sync preserves
@@ -102,7 +103,8 @@ live text sync works with no dependency on photo availability or indexing.
 
 - [ ] Install missing Android Studio/SDK/JDK components on Pop!_OS, following the
   compatible version matrix and beginner-friendly steps in the execution guide.
-- [ ] Scaffold separate `Kiosk.Mobile/` Ionic Angular/Capacitor project.
+- [x] Scaffold separate `Kiosk.Mobile/` Ionic Angular/Capacitor project
+  (2026-11-10; see plan Phase 2 progress).
 - [ ] Set app name/ID and minimum/compile/target SDK; version native configuration
   and lockfile, excluding local paths, build output, and signing secrets.
 - [ ] Build/install/launch a starter APK from VS Code's terminal on the Tab S7 FE;
@@ -129,6 +131,12 @@ live text sync works with no dependency on photo availability or indexing.
 **Exit criteria:** Prominent Sync reflects available updates, not mere LAN presence;
 invalid trust fails, and offline reading stays independent of all checks.
 
+Emulator evidence (2026-11-12, API 37 debug): native HTTP reached the live API
+with the embedded key, and a missing CA failed closed. The first sync committed 478
+recipes, an equal revision triggered only a status check, and airplane-mode
+relaunch read SQLite. Items stay unchecked until verified on target devices and
+in a signed release ([plan](kiosk-mobile.plan.md#7-progress-and-evidence)).
+
 ## Phase 4 - Offline Reader and SQLite
 
 - [ ] Prototype the Home/Search/Categories/Authors navigation, with a fixed
@@ -143,7 +151,7 @@ invalid trust fails, and offline reading stays independent of all checks.
   author and recommended indicators on list cards and details, and
   readable ordered ingredients and safely formatted instructions (stored
   rich-text HTML: allow-list sanitize; turn `&nbsp;` into normal spaces).
-- [ ] Support both orientations, landscape-first tablets, phone-sized viewports,
+- [ ] Support portrait (first release; both orientations and landscape-first tablets deferred), phone-sized viewports,
   text scaling, system bars, accessible touch targets, and Android Back.
 - [ ] Provide first-launch/empty/no-results/database-error/sync-status states.
 - [ ] Ensure embedded images/styles/links cannot initiate implicit external
@@ -154,7 +162,7 @@ invalid trust fails, and offline reading stays independent of all checks.
 
 ## Phase 5 - Transactional Manifest-Based Synchronization
 
-- [ ] Only tapping Sync starts collection transfer; prevent overlapping attempts.
+- [ ] Automatically transfer available changes in the foreground; prevent overlapping attempts.
 - [ ] Obtain/validate a complete authoritative manifest and category catalog.
 - [ ] Compare committed local IDs/revisions; fetch all missing/changed bodies in
   bounded requests and reuse unchanged validated local bodies.
@@ -182,7 +190,7 @@ transactional, and transfers only required recipe bodies without photo work.
   and disk use against agreed thresholds before sign-off.
 - [ ] Test long instructions, Unicode, many recipes/categories, rotation, text
   scaling, and phone/tablet layouts.
-- [ ] Verify no recipe transfer without tapping Sync and no photo/NAS work.
+- [ ] Verify foreground-only automatic transfers and no photo/NAS work.
 - [ ] Preserve relevant existing web/API behavior; distinguish baseline failures.
 
 **Exit criteria:** Maintainer accepts the actual devices' offline/recovery UX;
@@ -202,6 +210,14 @@ no data-loss defects or unverified device claims.
 - [ ] Prepare a pre-synced gift tablet only if gifting is chosen.
 
 **Exit criteria:** Tested signed APK, safe update path, signing backup, and owner instructions.
+
+## Deferred to a later phase (not v1 acceptance)
+
+- [ ] Prompt the user for a replacement mobile sync key when the server reports
+  the embedded key invalid (for example after an administrator revokes it), and
+  store it locally. Until then, revocation leaves devices on their last-good data
+  until a rebuilt APK is installed (D-020). Requires its own design and approval
+  because it adds a settings-style UI beyond the v1 reader.
 
 ## 3. Contract checklist (implemented contract version 1; see API guide)
 
@@ -235,7 +251,7 @@ partial manifest.
 | Partial manifest/duplicate IDs/invalid schema | Reject; keep last-good data and last success |
 | Edit/delete during transfer | Safely retry/fail via agreed protocol; no mixed activation |
 | JSON transfer interrupted/process killed/low storage | Previous committed collection remains usable |
-| Open/resume/connectivity change | Bounded authenticated availability check, no automatic recipe transfer |
+| Open/resume/connectivity change | Bounded authenticated availability check; automatically sync available changes while active |
 | Reachable and equal collection revision | Prominent Sync hidden; quiet up-to-date/status/manual-check entry |
 | Reachable and different revision | Show updates action only if compatible and sync enabled; includes deletions/category-only changes |
 | No committed revision, including empty server | Show Download recipes when available; valid empty sync establishes baseline |
@@ -257,17 +273,20 @@ partial manifest.
 | Devices | Android 13+; EM101A on 13, SM-P613/SM-T733 on 14, S23+ SM-S916U on 16; S22+ OS pending |
 | Primary tablet | Tab S7 FE SM-T733 |
 | Inventory | [Device details and setup checks](kiosk-mobile.plan.md#device-inventory-for-phase-2) |
-| Orientation | Both orientations; landscape-first tablet layout |
+| Orientation | **First release: portrait only** (maintainer request, 2026-11-12; manifest lock on `MainActivity`). The original goal of both orientations with a landscape-first tablet layout is deferred to a later release |
 | Distribution | Signed sideloaded APK; gifting optional |
 | Server | API-first development/test, approved compatible deployment, live LAN integration |
 | API base | `https://recipes.baileysoft.lan/api` |
 | CA | Baileysoft LAN CA preinstalled; app trust verified in debug and signed release |
 | Sync | Complete lightweight manifest/categories, only new/changed bodies, authoritative deletion on success |
-| Availability | Throttled authenticated cached collection-revision checks; prominent action only for updates/first download; quiet status/manual check otherwise; no automatic recipe sync |
+| Availability | Throttled authenticated cached collection-revision checks; automatic foreground synchronization for available updates; quiet status and retry |
 | Photos | All display/download/cache deferred from v1; photo indexing is separate future work |
 | Exclusions | Accounts/login UI, writes, direct MySQL, remote sync, background recipe sync |
 | Failure | Preserve last-good complete collection and last-success metadata |
 | Access controls | `X-Kiosk-Mobile-Key` shared key, `MobileSync__Enabled` switch, fail-closed, global rate/concurrency limits (D-017) |
+| Key supply | Shared key embedded in the APK at build time from Git-ignored `src/assets/mobile-connection.json`; it is extractable and revocable. Revocation requires a rebuilt APK; in-app replacement-key prompt deferred to a later phase (D-020) |
+| Status notifications | Header bell holds the server state, labeled with the configured API host name (first line of its panel; no header chip) and all sync/status messages; the latest message is always shown there. A **!** indicator marks completed syncs and errors only; online/offline/unreachable changes are quiet (maintainer request, 2026-11-12) |
+| Manual refresh | Refresh button just left of the bell, visible only while the server is online; at most 5 manual syncs per rolling 30 minutes (persisted across restarts), dimmed with a bell notice at the limit (maintainer request, 2026-11-12) |
 | Author/recommended | Display author username and the web app's any-user thumbs-up; filter by author locally; no favorite editing (D-018) |
 | Ingredient order | Case-insensitive alphabetical; no authored-order migration |
 | Revision freshness | Invalidated by API writes; direct MySQL edits need a service restart; single API process |

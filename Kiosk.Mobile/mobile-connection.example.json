@@ -1,0 +1,4 @@
+{
+  "apiBase": "https://recipes.baileysoft.lan/api",
+  "mobileKey": "REPLACE_WITH_THE_LIMITED_SCOPE_MOBILE_SYNC_KEY"
+}
