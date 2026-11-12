@@ -3,12 +3,24 @@ import { RouterModule } from '@angular/router';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
+import { IonContent } from '@ionic/angular/lazy';
 import { vi } from 'vitest';
 
 import { HomePageModule } from './home.module';
 import { HomePage } from './home.page';
 import { RecipeLibrary } from '../core/recipe-library.service';
 import { MobileSnapshot } from '../core/mobile-sync';
+
+let scrollElement: HTMLElement;
+
+beforeEach(() => {
+  scrollElement = document.createElement('div');
+  vi.spyOn(IonContent.prototype, 'getScrollElement').mockResolvedValue(scrollElement);
+  vi.spyOn(IonContent.prototype, 'scrollToPoint').mockResolvedValue();
+});
+
+afterEach(() => vi.restoreAllMocks());
 
 describe('HomePage', () => {
   let component: HomePage;
@@ -154,6 +166,17 @@ describe('HomePage with saved recipes', () => {
     expect(fixture.componentInstance.filteredRecipes.map(recipe => recipe.title)).toEqual(['Saved soup']);
   });
 
+  it('sorts categories by name rather than ID without changing the saved snapshot', () => {
+    const categories = [{ id: 1, name: 'Soup' }, { id: 2, name: 'Breakfast' }, { id: 3, name: 'Dinner' }];
+    snapshot.set({ ...saved, categories });
+    const fixture = TestBed.createComponent(HomePage);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.categories.map(category => category.name)).toEqual(['Breakfast', 'Dinner', 'Soup']);
+    expect(snapshot()?.categories).toEqual(categories);
+    expect(fixture.componentInstance.recipes[0].category.id).toBe(1);
+  });
+
   it('keeps status messages in the notification bell and flags unread notices', () => {
     const fixture = TestBed.createComponent(HomePage);
     fixture.detectChanges();
@@ -192,22 +215,22 @@ describe('HomePage with saved recipes', () => {
     expect(button.getAttribute('aria-label')).toContain('limit');
   });
 
-  it('opens recipes at the top and restores the list position on Back', () => {
+  it('opens recipes at the top and restores the list position on Back', async () => {
     params.next(convertToParamMap({}));
     const fixture = TestBed.createComponent(HomePage);
     fixture.detectChanges();
-    const scrollElement = { scrollTop: 0 };
-    const content = { scrollToPoint: vi.fn().mockResolvedValue(undefined) };
-    Object.assign(fixture.componentInstance as object, { content, scrollElement });
+    const ionContent = fixture.debugElement.query(By.directive(IonContent)).injector.get(IonContent);
+    expect(fixture.componentInstance).toEqual(expect.objectContaining({ content: ionContent }));
+    await fixture.whenStable();
 
     scrollElement.scrollTop = 1800;
     params.next(convertToParamMap({ recipe: '7' }));
     fixture.detectChanges();
-    expect(content.scrollToPoint).toHaveBeenLastCalledWith(0, 0, 0);
+    expect(ionContent.scrollToPoint).toHaveBeenLastCalledWith(0, 0, 0);
 
     scrollElement.scrollTop = 40;
     params.next(convertToParamMap({}));
     fixture.detectChanges();
-    expect(content.scrollToPoint).toHaveBeenLastCalledWith(0, 1800, 0);
+    expect(ionContent.scrollToPoint).toHaveBeenLastCalledWith(0, 1800, 0);
   });
 });

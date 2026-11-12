@@ -153,7 +153,10 @@ Do not upgrade EF or its Identity stores independently of provider compatibility
 - Details: [mobile sync API guide](../Kiosk.Api/README.md#mobile-sync-apimobile).
 - The Kitchen Kiosk Mobile client first synchronized against this deployment
   on 2026-11-12 (API 37 emulator, debug build): 478 recipes, 22 categories. Its
-  shared key is embedded in the APK (D-020). Device acceptance is pending; see
+  shared key is embedded in the APK (D-020). On 2026-11-12 the maintainer reported
+  the debug APK installed and working on a phone, with functional user acceptance
+  testing underway over the next few weeks. Final acceptance and signed release
+  validation remain pending; see
   the [mobile plan](kiosk-mobile.plan.md#7-progress-and-evidence).
 
 ## 5. Hosting and configuration
@@ -413,7 +416,7 @@ Known limitations and follow-up candidates, not approved implementation tasks:
 | [Copilot instructions](../.github/copilot-instructions.md) | Startup reading guidance for supported clients |
 | [Mobile constitution](kiosk-mobile.constitution.md) | First-release companion-app product boundaries; not implemented functionality |
 | [Mobile specification](kiosk-mobile.spec.md) | Mobile feature/acceptance checklist; implementation in progress |
-| [Mobile execution plan](kiosk-mobile.plan.md) | Phased Pop!_OS/VS Code setup, confirmed Android 13+ scope and LAN decisions, build/release gates, progress evidence (emulator sync verified; device acceptance pending) |
+| [Mobile execution plan](kiosk-mobile.plan.md) | Phased Pop!_OS/VS Code setup, confirmed Android 13+ scope and LAN decisions, build/release gates, progress evidence (emulator sync verified; phone debug installation reported and functional UAT in progress) |
 | [Mobile README](../Kiosk.Mobile/README.md) | Mobile build, key provisioning, emulator CA setup, and current implementation status |
 | [Repository branches](https://github.com/nealbailey/kitchen-kiosk/branches) | Historical branch context; reviewed refs and migration milestones are recorded in section 8 |
 

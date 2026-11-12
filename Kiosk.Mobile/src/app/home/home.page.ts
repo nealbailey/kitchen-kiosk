@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, Injector, ViewChild, afterNextRender, computed, inject } from '@angular/core';
-import { IonContent } from '@ionic/angular';
+import { IonContent } from '@ionic/angular/lazy';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { environment } from '../../environments/environment';
@@ -168,12 +168,12 @@ export class HomePage implements AfterViewInit {
 
   private readonly readerData = computed(() => {
     if (this.isPreview) {
-      return { recipes: PREVIEW_RECIPES, categories: PREVIEW_CATEGORIES, authors: PREVIEW_AUTHORS };
+      return { recipes: PREVIEW_RECIPES, categories: [...PREVIEW_CATEGORIES].sort((left, right) => left.name.localeCompare(right.name)), authors: PREVIEW_AUTHORS };
     }
     const snapshot = this.library.snapshot();
     const categories: CategoryPreview[] = (snapshot?.categories ?? []).map(category => ({
       ...category, icon: 'restaurant-outline', accent: '#f0885a',
-    }));
+    })).sort((left, right) => left.name.localeCompare(right.name));
     const categoryById = new Map(categories.map(category => [category.id, category]));
     const authorById = new Map<string, AuthorPreview>();
     const recipes: RecipePreview[] = (snapshot?.recipes ?? []).map(recipe => {

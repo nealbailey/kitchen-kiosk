@@ -1,6 +1,6 @@
 # Kitchen-Kiosk Mobile: Phased Development Plan
 
-- **Status:** Implementation in progress; first live sync verified on the API 37 emulator (2026-11-12).
+- **Status:** Debug APK installed and working on a phone (maintainer-reported 2026-11-12); functional user acceptance testing underway over the next few weeks.
 - **Created:** 2026-10-22.
 - **Deliverable:** A signed, sideloadable Android APK for an offline recipe reader.
 - **Product rules:** [Mobile constitution](kiosk-mobile.constitution.md).
@@ -25,7 +25,7 @@ Confirmed with the maintainer on 2026-10-22:
 | Device support | Android 13 and newer; set the product minimum to API 33 |
 | Available test devices | EM101A on Android 13; two Samsung tablets on Android 14; Galaxy S23+ on Android 16; S22+ OS pending confirmation |
 | Primary tablet | Galaxy Tab S7 FE (SM-T733), confirmed 2026-10-22 |
-| Orientation | Both orientations supported; landscape-first tablet design, confirmed 2026-10-22 |
+| Orientation | First release is portrait-only (2026-11-12); supersedes the original landscape-first, both-orientations goal |
 | Application identity | Kitchen Kiosk / `com.baileysoft.kiosk.mobile`, confirmed 2026-10-22 |
 | API base | `https://recipes.baileysoft.lan/api` |
 | Certificate prerequisite | Baileysoft LAN CA must already be installed on each device |
@@ -312,6 +312,14 @@ transfer/cache, and NAS indexing require a separate future scope decision.
 
 ## 4. Phases and exit gates
 
+**Checklist reconciliation (2026-11-12):** Every phase bullet was reviewed
+against source, tracked files, and the evidence in section 7. Checked items
+mean the stated implementation or verification is complete at the scope
+described, not that every device or release variant passed. Mixed items are
+split or annotated so completed work is visible without hiding remaining
+tests. Phone operation is maintainer-reported; UAT is ongoing. No new runtime
+tests were performed for this documentation review.
+
 ### Phase 0 - Confirm the baseline and compatibility choices
 
 **Goal:** Know what we are targeting before installing or generating anything.
@@ -322,20 +330,21 @@ transfer/cache, and NAS indexing require a separate future scope decision.
   two phone targets (see device inventory; images no longer required).
 - [ ] Finish device measurements and S22+ inventory: screen sizes, USB availability,
   Android System WebView versions, CPU ABIs, and storage. Primary tablet is confirmed.
-- [x] Confirm portrait behavior: support both orientations, landscape-first.
+- [x] Confirm orientation: portrait-only for the first release (2026-11-12);
+  landscape support is deferred.
 - [x] Review current Ionic/Angular, Capacitor, SQLite plugin, Node, JDK,
   Android Gradle Plugin (AGP), and SDK compatibility as one version matrix.
-  Record exact candidate versions; combined build verification remains Phase 2 work.
+  Exact versions and successful combined debug builds are recorded in section 7.
 - [ ] Approve the SQLite candidate after reviewing its SQLCipher notice and
   verifying native device packaging in the local-storage proof.
 - [x] Choose application name/ID: Kitchen Kiosk / `com.baileysoft.kiosk.mobile`.
-- [ ] Apply `minSdk` 33 and compile/target SDK 36 during scaffolding;
+- [x] Apply `minSdk` 33 and compile/target SDK 36 during scaffolding;
   Minimum supported Android and compile/target SDK are different settings.
 - [x] Confirm production LAN route and desktop TLS access; maintainer confirms
   production `release-mysql` and development `Kiosk.Api` as endpoint work target.
-- [ ] Verify the approved deployed availability/manifest/body operations at the
+- [x] Verify the approved deployed availability/manifest/body operations at the
   existing LAN HTTPS base before Phase 3; no separate dev-device URL is required.
-- [ ] Finalize text revision coverage, source ordering, optional fields, complete
+- [x] Finalize text revision coverage, source ordering, optional fields, complete
   manifest semantics, and concurrent-change behavior; photo work is deferred.
 
 **Exit gate:** Device inventory and version matrix recorded; unresolved server
@@ -370,47 +379,55 @@ key returned `401`; and a favorite toggle in the web app changed
 recipes use `&nbsp;` between every word, so the mobile reader must sanitize
 HTML and normalize non-breaking spaces so text wraps (Phase 4).
 
-The checklist below is the original design checklist; all items are satisfied.
+The API milestone is delivered. The checklist below now distinguishes completed
+contract work from broader tests and operational evidence not yet recorded.
 
-- [ ] Finalize versioned DTOs/routes for authenticated availability (no collection
+- [x] Finalize versioned DTOs/routes for authenticated availability (no collection
   scan), complete recipe ID/revision manifest plus categories, and bounded
   requested-body retrieval. Exclude photos, user ids/emails, secrets, and host paths;
   include only author username and recommended flag (D-018).
-- [ ] Define deterministic revision coverage over all reader-visible recipe
+- [x] Define deterministic revision coverage over all reader-visible recipe
   text, ingredients, and category relationships. Refresh category catalog even
   for category-only changes; do not use recipe `Date` as a sole high-water mark.
-- [ ] Define cached opaque collection revision covering the whole manifest and
+- [x] Define cached opaque collection revision covering the whole manifest and
   category catalog; status returns it cheaply. Wire invalidation after every
   relevant successful API write and serialize/coalesce rebuilds. Define direct-DB
   change freshness, restart/multiple-instance behavior, and pending/error status.
   Verify repeated unchanged checks perform no full collection scan/hash rebuild.
-- [ ] Define complete inventory/empty semantics, expected body revisions, bounded
+- [x] Define complete inventory/empty semantics, expected body revisions, bounded
   batching, retry limits, and coherent manifest/catalog validation under concurrent
-  updates or deletion. Content hashes are a candidate, not a finalized protocol.
+  updates or deletion. SHA-256 content revisions are the approved protocol.
   Recheck consistency before commit; failure must preserve last-good local data.
-- [ ] Finalize dedicated key, server switch, fail-closed configuration, and
+- [x] Finalize dedicated key, server switch, fail-closed configuration, and
   rate/concurrency policies before implementing access. APK keys are extractable;
   do not claim app attestation or make existing public routes private by implication.
-- [ ] Implement using repository conventions and explicit HTTP errors, resource
+- [x] Implement using repository conventions and explicit HTTP errors, resource
   bounds, cancellation, and no recipe writes or photo/NAS dependencies.
 - [ ] Test full inventory beyond normal pagination, first/no-change sync,
   backdated additions, tied dates, deleted recipes, category/ingredient-only edits,
   null/optional values, Unicode/HTML, invalid/incomplete requests, and races.
+  **Partial:** API inventory/body/request tests and client first/no-change,
+  deletion, malformed-manifest, category-refresh, and revision-mismatch tests
+  exist. The full scenario list, including real cross-request races, is not
+  verified; retain this broader acceptance item.
 - [ ] Test collection revision stability, all relevant write invalidations,
   direct database refresh policy, cache cold/stale/failure behavior, and coalesced
   concurrent checks. Never return a misleading equal/current revision on failure.
   Assert zero photo enumeration calls. Use synthetic text fixtures locally.
-- [ ] Document all operations and the concurrency protocol in the API guide. Run focused API
+  **Partial:** cached status, recipe/category/favorite invalidation, coalescing,
+  pending writes, revision sensitivity, and no-photo dependency have API tests.
+  Full cold/stale/failure and direct-database restart coverage is not recorded.
+- [x] Document all operations and the concurrency protocol in the API guide. Run focused API
   tests and relevant regressions; distinguish existing baseline failures.
-- [ ] Deploy the endpoint to the LAN only with approval, backup/rollback guidance,
-  and verification against the actual `/kiosk` proxy path.
-  Confirm the live runtime/deployment method and release artifact first: do not
-  accidentally bundle an unapproved .NET runtime upgrade or unrelated changes.
-  Preserve the web app, database, provisioned photos, secrets, and existing routes.
-- [ ] After approved deployment, verify live availability, full manifest/category
-  completeness, and bounded recipe bodies through `/kiosk/api`. Record counts
-  and request sizes rather than private text; demonstrate existing web/API smoke
-  checks and rollback. Photo/NAS availability must not affect mobile v1 operations.
+- [x] Deploy the approved endpoint to the LAN (maintainer-reported 2026-10-23,
+  self-contained .NET 10); verify mobile operations and the existing categories
+  endpoint through `/kiosk/api`. See live smoke evidence above.
+- [x] Verify live full manifest/category counts and bounded body operations;
+  record counts and request sizes without private text. The Android app also
+  verified the current `https://recipes.baileysoft.lan/api` base on 2026-11-12.
+- [ ] Record the exact deployed artifact/commit and deployment method, backup/
+  rollback procedure and rollback rehearsal. Deployment success does not prove
+  these operational checks were completed.
 
 **Exit gate:** Approved deployed text operations are versioned, complete,
 bounded, and tested under concurrent changes. No photo/NAS work; contract is
@@ -431,8 +448,9 @@ sufficient for subsequent offline-reader integration, not a domain-entity dump.
 | VS Code support | Angular Language Service and existing web/C# tools as useful. Mobile extensions are optional, not prerequisites for building. |
 | Real device + USB cable | Enable Developer options and USB debugging, authorize this desktop, and verify `adb devices -l`. Resolve Linux udev/USB permissions if needed. |
 
-- [ ] Complete the inventory first, then install only missing tools. Document
-  Pop!_OS-specific packages/permissions actually needed, not speculative commands.
+- [x] Inspect the workstation and install missing build tools; document the
+  actual Pop!_OS setup and verified toolchain in section 7.
+  Full target-device measurements remain open in Phase 0.
 - [x] Record SDK/JDK paths and verify the terminal toolchain. For this workstation,
   use `JAVA_HOME=~/opt/jdk-21.0.13+9` and `ANDROID_HOME=~/Android/Sdk`; the
   command-line tools work when those paths are supplied to the process.
@@ -440,33 +458,39 @@ sufficient for subsequent offline-reader integration, not a domain-entity dump.
   smoke coverage, but does not replace the required Android 13+ hardware test.
 - [x] Scaffold Ionic Angular into `Kiosk.Mobile/` using compatible versioned
   tooling. Add Capacitor Android and set `minSdk` 33.
-- [ ] Commit the npm lockfile and native project source; configure focused ignore
+- [x] Commit the npm lockfile and native project source; configure focused ignore
   rules for Android local settings, outputs, signing material, and caches.
+  Source and lockfile are tracked in `8d2f605`; subsequent local edits remain
+  separate worktree changes.
 - [x] Build the starter web assets, synchronize Capacitor, assemble a debug APK,
   and install/launch it in the API 37 emulator.
-- [ ] Transfer and install the debug APK on available target hardware; use the
-  S23+ first while the Tab S7 FE is inaccessible. ADB is optional for install.
+- [x] Transfer and install the debug APK on a physical phone; the maintainer
+  reports it working and undergoing UAT on 2026-11-12. The exact phone model/OS
+  and installed build are not yet recorded; do not infer S23+ coverage.
 - [ ] Follow the device-inventory setup checks above. Demonstrate the first
   install on the agreed primary tablet, then smoke-test that same APK on the
   other two tablets and both phones as they become available.
-- [ ] Add clearly named mobile VS Code tasks without replacing API/Web tasks.
+- [x] Add clearly named mobile VS Code tasks without replacing API/Web tasks.
   Record a clean install/build sequence in the mobile README.
 
 **Exit gate:** A starter APK launches on a real Android 13+ device. Repeating the
 build from VS Code's terminal works without relying on Android Studio being open.
 Record the other four device results separately; pending devices are not passes.
 
-**Typical loop after scaffolding** (commands are planned, not run yet):
+**Verified debug build loop** (requires the local key asset for live sync):
 
 ```bash
 cd Kiosk.Mobile
 npm ci                         # First checkout or lockfile/dependency changes
-npm run build                  # Build packaged web assets
+npm run build:preview -- --source-map=false
 npx cap sync android           # Copy assets and synchronize native plugins
-cd android
-./gradlew assembleDebug
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+./android/gradlew -p android assembleDebug
+adb -e install -r android/app/build/outputs/apk/debug/app-debug.apk
 ```
+
+Use the JDK/SDK paths and worker limits in the mobile VS Code task or
+[README](../Kiosk.Mobile/README.md). `adb -e` selects the emulator; direct phone
+sideloading has also been reported successful.
 
 `npx cap run android` can build/install/launch interactively after assets are
 built. Browser preview is useful for layout but does not prove native SQLite,
@@ -478,36 +502,42 @@ dependency/SDK downloads need internet; offline app use does not.
 
 **Goal:** Eliminate DNS, trust, proxy, and request-stack surprises early.
 
-- [ ] Confirm the Baileysoft LAN CA is installed as a CA certificate, not merely
-  copied onto the device. Check hostname, expiry, complete chain, and LAN DNS.
-- [ ] Add Android Network Security Configuration referenced by the manifest.
+- [x] Confirm the Baileysoft LAN CA is installed as a CA certificate on the
+  emulator, with successful hostname/TLS and LAN DNS verification. The observed
+  CA expires in 2036; trust failure before installation is recorded in section 7.
+  Per-device evidence remains part of acceptance.
+- [x] Add Android Network Security Configuration referenced by the manifest.
   Permit the user-installed CA store for the exact LAN API hostname only;
   preserve certificate/hostname verification and disallow cleartext traffic.
   This must apply to release builds, not only `debug-overrides`.
-- [ ] Choose and test the actual request path (WebView fetch versus Capacitor
+- [x] Choose and test the actual request path (WebView fetch versus Capacitor
   native HTTP) for availability/manifest/body JSON. Record behavior on the selected
   versions; a browser's certificate acceptance is not app-level proof.
-- [ ] If WebView requests require CORS, allow only the verified mobile origin
-  for read-only endpoints. Do not enable permissive global production CORS.
-  A native request path may avoid CORS but still requires verified TLS trust.
-- [ ] Fetch availability, manifest/categories, and bounded body responses with
-  `/kiosk/api` retained exactly once; reject HTML proxy/login error responses.
-- [ ] Implement bounded authenticated availability checks on open/resume and
+- [x] Resolve the CORS decision: mobile sync uses native `CapacitorHttp`,
+  so no mobile WebView CORS expansion was needed. TLS validation stays enabled.
+- [x] Fetch availability, manifest/categories, and bounded body responses using
+  the configured API base exactly once. The historical server smoke test used
+  `/kiosk/api`; the current Android build uses `/api`. JSON schema validation
+  rejects HTML proxy/login responses rather than activating them as recipes.
+- [x] Implement bounded authenticated availability checks on open/resume and
   connectivity changes, with timeout/debounce/no overlap and a lightweight recheck
   action. Compare cached server collection revision to the device's committed
-  revision. Show prominent updates/Sync only on mismatch and available/compatible/
-  enabled server; first use shows Download recipes, including an empty collection.
-  Equal revisions hide prominent Sync. Keep quiet status/Check for updates and
-  explicit failure/retry feedback; report unavailable, unauthorized, disabled,
-  rate-limited, or pending revisions without repeated alerts. Automatically sync
-  available updates while active; browsing remains local. Optional foreground-only periodic
-  checks need a defined modest interval; no background polling or notifications.
+  revision and automatically sync available changes while active, including the
+  first download. The later approved UX uses the bell for status/errors and an
+  online-only refresh icon (5 manual attempts per rolling 30 minutes), not the
+  original prominent Sync/Download buttons. Equal-revision and offline checks
+  are quiet. No periodic polling or background sync is configured.
 - [ ] Test stale availability and connection loss after tapping Sync/after leaving
   the LAN. Revalidate on tap and preserve data on failure. Reachability is not
   LAN identity or authorization; LAN routing/firewall and TLS remain necessary.
+  **Partial:** airplane-mode behavior and failed-transfer preservation have
+  emulator/unit evidence; a real connection loss during manual sync and
+  leaving-LAN acceptance remain open.
 - [ ] Prove success with the CA installed and failure without valid trust, with
   an invalid hostname/certificate, and outside the LAN. Never use trust-all code,
   `curl -k` as acceptance evidence, or a release live-reload server URL.
+  **Partial:** successful trust and missing-CA rejection are emulator-verified;
+  invalid-hostname and outside-LAN cases remain open.
 - [ ] Exercise a minimally signed release build as well as debug on available
   Android 13, 14, and 16 devices; keep the signing key safe from the start.
 
@@ -519,13 +549,17 @@ No production API deployment changes occur without approval.
 
 **Goal:** A comfortable offline recipe book before network synchronization.
 
-- [ ] Select a maintained Capacitor-compatible SQLite plugin; prove native
-  SQLite operations before building abstractions around it.
-- [ ] Define local schema/migrations and repositories for recipes, categories,
-  ingredients, committed revisions, staging, and sync status.
-- [ ] Seed synthetic text-only fixtures into SQLite in debug/test
-  builds only. Never substitute an in-memory/browser fallback for native proof.
-- [ ] Build list/detail navigation, local title search and category/author filters,
+- [x] Integrate `@capacitor-community/sqlite` and prove native snapshot reads,
+  writes, and persistence across force-stop/relaunch on the emulator.
+  Final plugin approval/export-notice review remains open in Phase 0.
+- [x] Define schema version 1 and the snapshot repository for recipes, categories,
+  ingredients, committed collection revision, and last-success time. The actual
+  design is one validated JSON snapshot row, transactionally replaced, rather
+  than separate entity/staging tables. No schema upgrade has yet been needed.
+- [x] Keep synthetic text fixtures confined to browser preview and unit tests;
+  Android uses only its real SQLite data and never falls back to fixtures.
+  The original proposed native fixture-seeding task was not needed for live proof.
+- [x] Build list/detail navigation, local title search and category/author filters,
   author and recommended (thumbs-up) indicators on cards and details,
   ingredients and safe formatted instructions; no photo UI. Instructions are
   stored rich-text HTML (paragraphs, bold/italic, lists, `<br />`, entities):
@@ -534,11 +568,18 @@ No production API deployment changes occur without approval.
   on phones.
 - [ ] Provide first-launch/no-data, no-results, database-error,
   syncing, and sync-failure states. Automatic synchronization is foreground-only.
-- [ ] Make layouts readable in landscape, usable on phone-sized screens, and
-  safe under rotation, font scaling, system bars, and Android Back navigation.
-- [ ] Prevent remote image, CSS, or instruction resources from making implicit
+  **Partial:** empty/no-results and database/sync-error feedback exist; the
+  startup "Your shelf is empty" flash while SQLite loads remains unresolved.
+- [x] Implement phone-sized reader layouts, first-release portrait lock,
+  fixed navigation, detail-at-top, and list-position restoration on Back.
+  Emulator checks passed; phone operation is maintainer-reported.
+- [ ] Complete font scaling, system-bar, Android system Back, and tablet layout
+  acceptance. Landscape-first acceptance is deferred, not a first-release gate.
+- [x] Prevent remote image, CSS, or instruction resources from making implicit
   network requests; text-only v1 has no image/file cache.
 - [ ] Demonstrate restart/reboot persistence and browsing with the network off.
+  **Partial:** force-stop/reopen in airplane mode passed on the emulator.
+  Full reboot and target-device evidence remain open.
 
 **Exit gate:** Native SQLite-backed browsing, filtering, and text details work
 after an offline restart; reading requires no API or photo requests.
@@ -547,28 +588,42 @@ after an offline restart; reading requires no API or photo requests.
 
 **Goal:** Automatic foreground refresh that cannot destroy the last good collection.
 
-- [ ] Add one Synchronize action, overlap prevention, progress, timeouts,
-  actionable errors, last attempt, last success, and active recipe count.
-- [ ] Validate status/content type, schema version, IDs/revisions, complete
-  authoritative manifest, category catalog, and required fields.
-- [ ] Compare committed local revisions; fetch all bodies initially, then only
+- [x] Add automatic synchronization and one manual refresh action with overlap
+  prevention, progress/status feedback, timeouts, errors, and the manual limit.
+- [x] Track last attempt in memory, last successful commit time in the snapshot,
+  and active recipe count. Added/updated/removed counts appear in the bell.
+- [ ] Expose last successful sync time and a clearly distinguished last attempt
+  in the status UI. Current message time is not a last-success timestamp.
+- [x] Validate JSON response shapes, contract version, IDs/revisions, manifest
+  counts when matching status, category references, and required fields.
+  JSON/schema parsing rejects non-JSON responses; an explicit HTTP Content-Type
+  header check is not implemented.
+- [x] Compare committed local revisions; fetch all bodies initially, then only
   missing/changed bodies in bounded batches. Unchanged sync fetches zero bodies.
-- [ ] Reuse validated unchanged local rows; stage new/changed bodies and
+- [x] Reuse validated unchanged local recipes; stage new/changed bodies in memory and
   authoritative deletions. Never infer a deletion from partial/failed inventory.
-- [ ] Validate expected revisions and the agreed concurrent-change protocol
+- [x] Validate expected revisions and the agreed concurrent-change protocol
   before activation. Changes during transfer require bounded retry or explicit
   failure, never mixed-version activation. Category-only changes must be covered.
-- [ ] Atomically commit upserts, deletes, categories, revisions, and last-success
+- [x] Atomically commit the resulting recipes, deletions, categories, revisions, and last-success
   metadata plus the corresponding manifest collection revision in SQLite.
   Interrupted sync must not expose partial results or advance the revision.
   Never store a newer status revision without its data. Recheck availability after
   commit so changes made during sync can still indicate newer updates.
-- [ ] Clean abandoned staging safely on restart without deleting active data.
-  Storage exhaustion, cancellation, process death, schema errors, or unavailable
-  server leave the prior collection intact. Never clear active data to make room.
-- [ ] Report added/updated/removed counts, active count, last attempt/success,
-  and errors. Allow validated empty inventory to remove all only on successful commit.
-- [ ] Prove no photo requests, metadata retrieval, cache, or NAS enumeration.
+  One parameterized SQLite transaction replaces the complete snapshot row;
+  store unit tests and live emulator first-sync/relaunch support this design.
+  Interrupted-write/process-death behavior still requires device fault injection.
+- [x] Avoid abandoned disk staging: staging is memory-only and is discarded on
+  restart; the previous SQLite snapshot is never cleared to make room.
+- [ ] Verify preservation under storage exhaustion, cancellation, and process
+  death around commit. Failed transfer/schema/revision checks are unit-tested,
+  but these native failure cases have not been exercised.
+- [x] Report sync counts and errors and handle an authoritative empty inventory
+  only by successful commit (unit-tested). Last-attempt/success display is the
+  separate open UI item above.
+- [x] Keep mobile sync text-only: no photo requests, metadata, cache, or NAS
+  operations in the client path; sanitized instructions remove remote resources.
+  API no-photo dependency and sanitizer behavior have tests.
 
 **Exit gate:** First/repeat/changed/deleted/empty/no-change refreshes work; only
 required bodies transfer and injected failures preserve a complete usable dataset.
@@ -577,28 +632,45 @@ required bodies transfer and injected failures preserve a complete usable datase
 
 **Goal:** Verify the gift experience, not just a successful compilation.
 
+**Status:** Phone debug UAT is in progress (maintainer-reported). The bullets
+below are acceptance coverage, not another list of missing implementation.
+Unit/emulator results support progress but do not complete a multi-device
+release-candidate test matrix.
+
 - [ ] Run the specification's test matrix on release-candidate builds, including
   empty collection, many recipes/categories, long instructions, and special characters.
 - [ ] Sync, enable airplane mode, force-stop/reopen, then reboot and read again.
-- [ ] Verify reading generates no content requests; availability checks never
-  download recipes. Inspect sanitized instructions for implicit image/style requests.
+  Force-stop/reopen offline passed on the emulator; reboot and release/device
+  coverage remain open.
+- [ ] Verify reading generates no content requests. The status request itself
+  never downloads recipes; a changed revision intentionally starts automatic
+  foreground sync (D-019). Inspect sanitized instructions for implicit
+  image/style requests on the release candidate.
 - [ ] Interrupt manifest/body downloads and kill the process around activation.
   Test malformed/incomplete manifests, unsupported schemas, TLS errors, full
   storage, and database failures.
 - [ ] Confirm removed recipes disappear only after complete successful commit;
   repeat/no-change sync leaves no duplicates and transfers zero unchanged bodies.
+  Deletion/empty behavior is unit-tested; live no-change sync is emulator-verified.
+  Real edited/deleted recipes still need device acceptance.
 - [ ] Test backdated/tied-date changes, category/ingredient-only changes, races
   between manifest/body operations, and leaving the LAN after availability succeeds.
-- [ ] Test up-to-date devices remain visually quiet, changes show the action,
-  first-use empty inventory shows Download recipes, and failed/pending checks
-  never claim "up to date". Check revision persistence and post-sync refresh races.
+- [ ] Test the approved bell/refresh UX on release-candidate devices: equal
+  revisions and connectivity changes stay quiet; completed syncs/errors flag
+  the bell; first-use sync is automatic. Check failed/pending states, revision
+  persistence, and post-sync refresh races. Quiet/badge/manual-limit behavior
+  already has unit and debug-emulator evidence.
 - [ ] Confirm NAS/photo failures do not affect any mobile v1 operation.
 - [ ] Check layout, touch targets, text scaling, rotation, Back, and WebView
   behavior on available phones/tablets; record device-specific results.
 - [ ] Measure startup, search/filter response, first/incremental sync time,
   manifest/body transfer sizes, and disk usage on
   the actual collection; agree measurable usability thresholds before sign-off.
-- [ ] Confirm API/Web regressions relevant to the endpoint remain unchanged.
+- [x] Record API regression baseline and relevant endpoint smoke results:
+  the 2026-10-23 API suite had 27 passes and the same two known baseline failures;
+  live categories continued returning 200 after deployment.
+- [ ] Repeat relevant API/Web smoke checks for the final release candidate;
+  do not treat the historical baseline as current full-regression acceptance.
 
 **Exit gate:** Acceptance evidence on all five target devices and Android 13,
 14, and 16 (physical device or identified emulator where necessary), no
@@ -609,8 +681,14 @@ need regression testing before being described as verified.
 
 **Goal:** Install the actual deliverable and make future rebuilds/updates possible.
 
-- [ ] Finalize app name, icon, application ID, `versionName`, and increasing
-  `versionCode`. Remove test fixtures, debug flags, live-reload URLs, and dev-only trust.
+- [x] Set app name/application ID and replace stock launcher/splash artwork
+  with the branded fork-and-knife design; emulator-verified.
+- [ ] Finalize release `versionName` and increasing `versionCode` (currently
+  `0.0.1` / `1`); verify production packaging excludes browser preview fixtures,
+  debug flags, and live-reload URLs. Keep the intentional domain-scoped LAN CA
+  trust in release; do not remove it as though it were a debug-only workaround.
+- [ ] Verify release logging does not expose the embedded mobile key; debug
+  Capacitor HTTP logging currently does.
 - [ ] Configure release signing with protected local secrets, not repository
   files or plaintext commands saved in shared documentation. Back up the keystore
   and credentials securely: updates require the same application ID and signing key.
@@ -621,10 +699,13 @@ need regression testing before being described as verified.
   build (which erases its data); use a separate debug application ID if appropriate.
 - [ ] Install the final APK, synchronize at home, then repeat offline/reboot
   checks with that exact file. Retain the tested artifact outside Git.
-- [ ] Document USB installation and direct sideloading ("Install unknown apps"
-  permission for the installer), updating without uninstalling, CA/LAN prerequisites,
-  sync failure recovery, and rebuild/signing steps.
-- [ ] Explain that clearing app storage/uninstalling removes local recipes;
+- [x] Document debug build/USB install and direct sideloading, installer
+  permission, same-signature update constraints, CA/LAN prerequisites, and sync
+  failure/re-key recovery in the mobile README.
+- [ ] Document the actual release rebuild/signing process and verify in-place
+  updates with the backed-up release key. Debug instructions alone are not a
+  release signing guide.
+- [x] Explain that clearing app storage/uninstalling removes local recipes;
   the family can read offline away from home but must return to the LAN to refresh.
 - [ ] Review release notes and tag only after approval. No store account, AAB,
   Firebase, or cloud service is required for this APK-only release.
@@ -675,11 +756,38 @@ latest release as a tested project pin:
 | Milestone | Status | Evidence / next step |
 | --- | --- | --- |
 | Planning | Revised | Text-only manifest scope retained; maintainer requested automatic synchronization on app open, replacing manual-only transfers |
-| Phase 0 | Ready for API-first work; integration gates open | Desktop inventory and compatible candidate pins recorded; S23+ Android 16 confirmed; app identity, orientation, primary tablet, photo scope, and API-first/live-integration sequence agreed. Device measurements, S22+ OS, approved server deployment, ingredient order, and final SQLite approval pending |
+| Phase 0 | Core decisions complete; device/compliance follow-up open | Toolchain, identity, portrait v1, text scope, live API, SDK settings, and revision/ingredient-order contract established. Device measurements, S22+ inventory, and SQLite/SQLCipher approval remain open |
 | Phase 1 | Complete 2026-10-23 | Contract v1 (D-017, D-018) with 14 passing tests; deployed by maintainer; live status/manifest/body checks passed (477 recipes, 22 categories, 46.9 KB manifest in 0.065 s). Instructions are rich-text HTML; reader must sanitize and normalize `&nbsp;` |
-| Phase 2 (current) | In progress | Starter debug APK builds and installs/launches in an API 37 emulator. Manual installation and acceptance on physical targets remain open; the S23+ is next |
-| Phases 3-5 | In progress; emulator milestone reached 2026-11-12 | Native HTTP, SQLite snapshot storage, validation, foreground sync coordinator, and reader integration implemented. Live authenticated first sync (478 recipes), no-change recheck, offline relaunch, and fail-closed TLS without the CA verified on the API 37 emulator (debug). Physical devices, signed release, reboot, and failure injection remain open |
-| Phases 6-7 | Not started | Device acceptance and signed release remain pending |
+| Phase 2 | Physical-phone installation reported; remaining coverage open | Debug APK builds and installs/launches in the API 37 emulator. Maintainer reports the debug app installed and working on a phone (2026-11-12); exact device/build evidence and other target installations remain open |
+| Phases 3-5 | Core implementation complete; validation and UX gaps open | Native HTTP/TLS configuration, SQLite transactional snapshot, validation, bounded foreground/manual sync, and reader implemented. First sync (478 recipes), no-change, offline relaunch, and missing-CA rejection emulator-verified. Last-success/attempt status display, startup loading flash, broader device/release trust, reboot, and native fault injection remain open |
+| Phase 6 | In progress | Maintainer began functional user acceptance testing on a phone with the debug app (2026-11-12), planned over the next few weeks; final acceptance and full device/matrix coverage remain pending |
+| Phase 7 | Not complete | Signed release build, signing backup, and release update/acceptance checks remain pending |
+
+### Remaining path to a release candidate
+
+The debug implementation is in functional UAT, not at the starter/scaffolding
+stage. A release candidate is the next delivery milestone if testing goes well;
+a working debug APK is not yet a signed-release acceptance result.
+
+1. Finish UAT and record the actual phone/build and individual outcomes. Include
+   offline reboot, navigation, live incremental/deletion sync, and failure
+   recovery; expand coverage to the primary tablet and remaining target devices.
+2. Resolve the startup empty-state flash and expose last-successful-sync versus
+   last-attempt information in the bell. These are existing first-release UX
+   requirements, not completed by the current message timestamp.
+3. Review the SQLite plugin's SQLCipher export/compliance notice and complete
+   native interruption/low-storage checks. Capture startup/search/sync/storage
+   measurements and agree acceptance thresholds.
+4. Configure and securely back up a stable release signing key, finalize version
+   numbers, build with production assets, and verify signature/checksum and that
+   release logging does not reveal the embedded sync key.
+5. Test the actual signed APK's TLS, first sync, offline/reboot behavior, and
+   same-key update preserving local data. Document the signing/rebuild process,
+   then obtain release approval before tagging/distributing.
+
+The original all-five-device acceptance target remains in place. Narrowing that
+target or deferring an existing gate needs an explicit maintainer decision; this
+checklist review does not silently waive it.
 
 For each completed milestone, add a concise result here: date, commands, exact
 versions, device/Android version, debug or release variant, outcome, and remaining
@@ -761,11 +869,12 @@ evidence. No code changed in this step. Unit tests were not rerun.
 - Key revocation currently strands installed apps on their last-good data until
   a rebuilt APK is installed. The in-app replacement-key prompt is deferred to a
   later phase (D-020) and is not part of v1 acceptance.
-- Still pending: physical devices (S23+ next, Tab S7 FE primary), signed
+- Still pending: full physical-device acceptance (phone debug UAT subsequently started; see below; Tab S7 FE remains primary), signed
   release trust, reboot persistence, invalid-hostname/disabled/rate-limited
   cases, interrupted-transfer/process-death preservation, deletion and
   changed-body incremental syncs against live edits, SQLCipher export notice,
-  and committing the mobile project and lockfile.
+  and committing the mobile project and lockfile. *The source/lockfile commit
+  item is now resolved by `8d2f605`; subsequent local edits remain uncommitted.*
 
 **Notification bell (2026-11-12):** At the maintainer's request, the Home-page
 status line was removed. All sync and status messages now appear in a bell
@@ -844,7 +953,28 @@ the app, with no stock artwork. The same recording showed a pre-existing
 "Your shelf is empty" flash for about 0.5 s while the SQLite snapshot loads;
 it is not addressed yet.
 
-**Next step:** Install the debug APK with the embedded key on the S23+ (CA
-preinstalled), repeat the first-sync/offline checks, then exercise an
-incremental sync by editing or favoriting one recipe on the server. The Tab S7 FE
-remains the primary tablet acceptance device. Photo work remains deferred.
+**Reader scroll position (2026-11-12):** Recipe detail now opens at the top;
+returning restores the list's prior scroll position and filters. On the API 37
+debug emulator, scrolled Home and filtered search lists both returned to the
+same visible cards after opening a recipe and using the in-app Back button.
+`npm test -- --watch=false` passed 45 tests and `npm run lint` passed.
+Physical-device and Android system Back acceptance remain pending.
+
+**Category ordering (2026-11-12):** Category browsing and the search category
+filter now sort by name instead of ID, for both saved recipes and browser
+preview data. IDs and stored snapshot order are unchanged. Tests: 46 passed;
+lint and the debug APK build passed. Device visual acceptance remains pending.
+
+**Phone debug deployment and UAT (2026-11-12):** The maintainer reports the app
+installed and working on a physical phone. Functional user acceptance testing
+will continue over the next few weeks. This establishes a reported phone
+installation and working debug app, not completion of the acceptance matrix.
+The phone model/OS, installed APK version/checksum, and individual test outcomes
+have not been recorded. Earlier notes describing physical installation as
+entirely pending predate this report.
+
+**Next step:** Collect UAT feedback and record reproducible defects and verified
+outcomes as testing proceeds. Cover offline/restart/reboot behavior, navigation,
+search/filtering, incremental/deletion sync, and failure recovery before final
+acceptance. The Tab S7 FE remains the primary tablet acceptance device; broader
+device coverage and signed-release validation remain open. Photo work remains deferred.

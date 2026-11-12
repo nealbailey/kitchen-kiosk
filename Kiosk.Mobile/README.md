@@ -2,8 +2,10 @@
 
 - Status: Android SQLite-backed reader and foreground sync are implemented. Live
   sync against the production LAN server was verified on the API 37 emulator
-  (debug build) on 2026-11-12; physical-device acceptance and release builds
-  remain unverified.
+  (debug build) on 2026-11-12. The maintainer reports the debug APK installed
+  and working on a physical phone as of 2026-11-12. Functional user acceptance
+  testing is in progress over the next few weeks; final acceptance, broader
+  device coverage, and signed release validation remain pending.
 - Product scope: [Mobile constitution](../.copilot/kiosk-mobile.constitution.md)
 - Development phases and evidence: [Mobile development plan](../.copilot/kiosk-mobile.plan.md)
 
@@ -155,10 +157,11 @@ same CA installed through their own Settings.
 - Portrait navigation uses Home, Search, Categories, and Authors in a fixed
   bottom bar; landscape tablet widths use a side rail.
 - Home is sorted newest first. Search supports title/ingredient, category, author,
-  date/title ordering, and the aggregate recommended flag.
+  date/title ordering, and the aggregate recommended flag. Categories and the
+  category search filter are sorted alphabetically by name, not ID.
 - Recipe cards open a detail view with author, category, date, recommendation,
-  ingredients, and sanitized formatted instructions. Back navigation retains
-  the list's filters.
+  ingredients, and sanitized formatted instructions. Details open at the top;
+  returning to the list restores its scroll position and filters.
 - The launcher icon is an adaptive vector icon: a white fork and knife (the
   Ionicons `restaurant` glyph, MIT, which also appears in the in-app brand mark)
   on brand orange `#B94A1D`. A monochrome layer is included for Android 13+

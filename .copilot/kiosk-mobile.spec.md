@@ -1,7 +1,9 @@
 # Kitchen-Kiosk Mobile Specification
 
-- **Status:** Approved v1 scope; implementation in progress (first live sync
-  verified on the API 37 emulator 2026-11-12; device acceptance pending).
+- **Status:** Debug app installed and working on a physical phone
+  (maintainer-reported 2026-11-12); functional user acceptance testing in
+  progress over the next few weeks. Final acceptance and signed release
+  validation remain pending.
 - **Last revised:** 2026-11-12.
 - **Product rules:** [Mobile constitution](kiosk-mobile.constitution.md), version 1.4.
 - **Execution guide:** [Phased development plan](kiosk-mobile.plan.md).
@@ -151,6 +153,10 @@ in a signed release ([plan](kiosk-mobile.plan.md#7-progress-and-evidence)).
   author and recommended indicators on list cards and details, and
   readable ordered ingredients and safely formatted instructions (stored
   rich-text HTML: allow-list sanitize; turn `&nbsp;` into normal spaces).
+  Category browsing and the search category filter sort by name, not ID.
+- [ ] Verify on target devices that recipe details open at the top and Back
+  returns to the previous list position without losing search filters. Both
+  Home and filtered search were verified on the API 37 emulator.
 - [ ] Support portrait (first release; both orientations and landscape-first tablets deferred), phone-sized viewports,
   text scaling, system bars, accessible touch targets, and Android Back.
 - [ ] Provide first-launch/empty/no-results/database-error/sync-status states.
@@ -183,6 +189,11 @@ in a signed release ([plan](kiosk-mobile.plan.md#7-progress-and-evidence)).
 transactional, and transfers only required recipe bodies without photo work.
 
 ## Phase 6 - Offline, Reliability, and Device Acceptance
+
+**Progress (2026-11-12):** The maintainer reports the debug APK installed and
+working on a phone. Functional user acceptance testing is underway over the
+next few weeks. The tested phone model, exact installed build, and individual
+matrix results have not been recorded; this is not final device acceptance.
 
 - [ ] Execute section 4's matrix on the five target devices and available
   Android 13, 14, and 16 hardware; record exact build/device versions.
